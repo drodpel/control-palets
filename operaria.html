@@ -161,6 +161,14 @@
       flex-wrap: wrap;
     }
     .pedido-item.en_camino { border-left-color: var(--primary); background: var(--card); }
+    .pedido-delante {
+      background: #0f172a;
+      padding: 12px 14px;
+      border-radius: 10px;
+      margin-bottom: 8px;
+      border-left: 4px solid var(--border);
+      font-size: 0.92rem;
+    }
     .badge {
       display: inline-block;
       padding: 4px 8px;
@@ -199,7 +207,6 @@
   <button id="btn-cambiar-op" class="btn-logout hidden" onclick="salirTurno()">Cambiar nombre / línea</button>
 </header>
 
-<!-- PASO 1: IDENTIFICACIÓN AL ROTAR DE TABLET -->
 <div id="vista-inicio" class="card">
   <h3 style="margin-top:0;">Inicio en este puesto</h3>
   <label for="input-nombre">Tu nombre</label>
@@ -223,7 +230,6 @@
   <button type="button" class="action-btn" onclick="iniciarTurno()">CONTINUAR</button>
 </div>
 
-<!-- PASO 2: FORMULARIO Y GESTIÓN DE PEDIDOS DE LA OPERARIA -->
 <div id="vista-trabajo" class="hidden">
   <div class="card">
     <h3 id="titulo-form" style="margin-top:0;">Nueva petición</h3>
@@ -270,6 +276,9 @@
 
   <h3>Pedidos activos de esta línea</h3>
   <div id="lista-operaria"></div>
+
+  <h3>Peticiones por delante en la cola</h3>
+  <div id="lista-por-delante"></div>
 </div>
 
 <script>
@@ -277,7 +286,6 @@
   const SUPABASE_KEY = 'sb_publishable_zPaFGK04be_flVvEGmaepw_YMZq9Wxn';
   const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-  // Al rotar tablets, guardamos solo en sessionStorage de la pestaña actual
   let sesionOp = JSON.parse(sessionStorage.getItem('sesionOperariaActual') || 'null');
   let tipoMaterialSeleccionado = '';
   let idEditando = null;
@@ -421,14 +429,12 @@
     err.innerText = '';
     const btn = document.getElementById('btn-guardar');
     btn.disabled = true;
-    const textoOriginal = btn.innerText;
     btn.innerText = 'Guardando...';
 
     const referenciaCompleta = tipoMaterialSeleccionado && numRef
       ? `${tipoMaterialSeleccionado}-${numRef}`
       : 'Según OPC';
 
-    // Al modificar o crear, queda en estado 'pendiente' y con hora actualizada para volver a la cola
     const payload = {
       linea,
       material: `${referenciaCompleta} (${loteInput ? 'Lote ' + loteInput : 'FIFO'})`,
@@ -444,8 +450,9 @@
     if (idEditando) {
       const { error } = await db.from('pedidos').update(payload).eq('id', idEditando);
       if (error) {
+        console.error('Error al actualizar pedido:', error);
         actualizarEstadoRed(false);
-        err.innerText = 'No se pudo actualizar ahora mismo. Revisa la conexión.';
+        err.innerText = `Error al guardar: ${error.message}`;
       } else {
         actualizarEstadoRed(true);
         limpiarFormulario();
@@ -454,9 +461,11 @@
     } else {
       const { error } = await db.from('pedidos').insert([payload]);
       if (error) {
+        console.error('Error al insertar pedido:', error);
         colaOffline.push(payload);
         localStorage.setItem('colaOfflineOperaria', JSON.stringify(colaOffline));
         actualizarEstadoRed(false);
+        err.innerText = `Sin conexión con base de datos (${error.message}). Guardado en cola local.`;
       } else {
         actualizarEstadoRed(true);
         limpiarFormulario();
@@ -476,6 +485,7 @@
       if (idEditando === id) limpiarFormulario();
       await cargarPedidos();
     } else {
+      console.error('Error al cancelar pedido:', error);
       actualizarEstadoRed(false);
     }
   }
@@ -502,7 +512,7 @@
     const { data, error } = await db
       .from('pedidos')
       .select('*')
-      .not('estado', 'in', '("completado","cancelado")')
+      .not('estado', 'in', '(completado,cancelado)')
       .order('creado_en', { ascending: true });
 
     if (!error && data) {
@@ -510,31 +520,38 @@
       renderizarOperaria();
       actualizarEstadoRed(true);
     } else if (error) {
+      console.error('Error al cargar pedidos:', error);
       actualizarEstadoRed(false);
     }
   }
 
+  function formatearRef(p) {
+    return p.tipo_material && p.num_referencia
+      ? `${p.tipo_material}-${p.num_referencia}`
+      : (p.material || 'Material');
+  }
+
   function renderizarOperaria() {
     const lista = document.getElementById('lista-operaria');
+    const listaDelante = document.getElementById('lista-por-delante');
     const lineaActual = document.getElementById('select-linea').value;
     const mios = [];
 
     pedidosActivos.forEach((p, idx) => {
       if (p.linea === lineaActual) {
-        mios.push({ p, turno: idx + 1 });
+        mios.push({ p, turno: idx + 1, indiceGlobal: idx });
       }
     });
 
     if (mios.length === 0) {
       lista.innerHTML = '<p style="color:var(--muted);">No hay pedidos activos en esta línea.</p>';
+      listaDelante.innerHTML = '<p style="color:var(--muted);">No tienes peticiones activas con turnos por delante.</p>';
       return;
     }
 
     lista.innerHTML = mios.map(({ p, turno }) => {
       const hora = new Date(p.creado_en).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-      const refFmt = p.tipo_material && p.num_referencia
-        ? `${p.tipo_material}-${p.num_referencia}`
-        : (p.material || 'Material');
+      const refFmt = formatearRef(p);
       const extra = [
         p.opc ? `OPC ${p.opc}` : null,
         `Lote ${p.lote || 'FIFO'}`
@@ -556,6 +573,28 @@
         </div>
       `;
     }).join('');
+
+    // Pedidos activos por delante del primer pedido de esta línea en la cola global
+    const primerIndiceMio = mios[0].indiceGlobal;
+    const porDelante = pedidosActivos.slice(0, primerIndiceMio);
+
+    if (porDelante.length === 0) {
+      listaDelante.innerHTML = '<p style="color:#4ade80; font-weight:700;">¡Tu línea va primera en la cola! No hay peticiones por delante.</p>';
+    } else {
+      listaDelante.innerHTML = `
+        <p style="color:var(--muted); margin-top:0;">Hay <strong>${porDelante.length}</strong> petición(es) por delante de tu primer pedido:</p>
+        ${porDelante.map((p, idx) => {
+          const hora = new Date(p.creado_en).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+          const estadoTxt = p.estado === 'en_camino' ? 'En camino' : 'Pendiente';
+          return `
+            <div class="pedido-delante">
+              <strong>#${idx + 1} · ${p.linea}</strong> — ${formatearRef(p)}
+              <span style="color:var(--muted);">(${hora} · ${estadoTxt})</span>
+            </div>
+          `;
+        }).join('')}
+      `;
+    }
   }
 
   db.channel('cambios-pedidos-op')
