@@ -339,7 +339,8 @@
   }
 
   async function desmarcarPedido(id) {
-    if (!confirm('¿Seguro que quieres desmarcar este pedido y devolverlo a pendientes?')) return;
+    const confirmar = confirm('AVISO: Vas a desmarcar este pedido marcado como LISTO y volverá a aparecer como PENDIENTE. ¿Quieres continuar?');
+    if (!confirmar) return;
     const { error } = await db.from('pedidos').update({ estado: 'pendiente' }).eq('id', id);
     if (!error) {
       await cargarPedidos();
