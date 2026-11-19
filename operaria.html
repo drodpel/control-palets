@@ -517,7 +517,15 @@
 
   localStorage.removeItem('colaOfflineOperaria');
 
-  let sesionOp = JSON.parse(localStorage.getItem('sesionOperariaNombre') || 'null');
+  let sesionOp = JSON.parse(
+    localStorage.getItem('sesionOperariaNombre') ||
+    sessionStorage.getItem('sesionOperariaNombre') ||
+    'null'
+  );
+  if (sesionOp) {
+    localStorage.setItem('sesionOperariaNombre', JSON.stringify(sesionOp));
+  }
+
   let prefijoSeleccionado = '';
   let idEditando = null;
   let pedidosHoyTodos = [];
@@ -541,10 +549,16 @@
     return inicio.toISOString();
   }
 
-  function alternarTodosListos() {
-    mostrarTodosCompletados = !mostrarTodosCompletados;
+  function setEstadoTodosListos(activo) {
+    mostrarTodosCompletados = Boolean(activo);
     const btn = document.getElementById('btn-todos-listos');
-    btn.classList.toggle('activo', mostrarTodosCompletados);
+    if (btn) {
+      btn.classList.toggle('activo', mostrarTodosCompletados);
+    }
+  }
+
+  function alternarTodosListos() {
+    setEstadoTodosListos(!mostrarTodosCompletados);
     renderizarTodo();
   }
 
@@ -586,50 +600,67 @@
     } catch (_) {}
   }
 
-  async function solicitarPermisoNotificacionSiProcede() {
-    if ('Notification' in window && Notification.permission === 'default') {
-      try {
-        await Notification.requestPermission();
-      } catch (_) {}
-    }
+  function solicitarPermisoNotificacionEnSegundoPlano() {
+    try {
+      if ('Notification' in window && Notification.permission === 'default') {
+        Notification.requestPermission().catch(() => {});
+      }
+    } catch (_) {}
   }
 
   function notificarPedidoListo(titulo, cuerpo) {
     sonarPitidoFuerteOp();
-    if ('Notification' in window && Notification.permission === 'granted') {
-      if (navigator.serviceWorker && navigator.serviceWorker.ready) {
-        navigator.serviceWorker.ready.then(reg => {
-          reg.showNotification(titulo, {
-            body: cuerpo,
-            tag: 'pedido-listo-op',
-            renotify: true
+    try {
+      if ('Notification' in window && Notification.permission === 'granted') {
+        if (navigator.serviceWorker && navigator.serviceWorker.ready) {
+          navigator.serviceWorker.ready.then(reg => {
+            reg.showNotification(titulo, {
+              body: cuerpo,
+              tag: 'pedido-listo-op',
+              renotify: true
+            });
+          }).catch(() => {
+            new Notification(titulo, { body: cuerpo });
           });
-        }).catch(() => {
+        } else {
           new Notification(titulo, { body: cuerpo });
-        });
-      } else {
-        new Notification(titulo, { body: cuerpo });
+        }
       }
-    }
+    } catch (_) {}
   }
 
-  async function iniciarTurno() {
-    const nombre = document.getElementById('input-nombre').value.trim();
+  function iniciarTurno() {
+    const inputEl = document.getElementById('input-nombre');
+    const nombre = (inputEl ? inputEl.value : '').trim();
     const err = document.getElementById('inicio-error');
     if (!nombre) {
-      err.innerText = 'Escribe tu nombre.';
+      if (err) err.innerText = 'Escribe tu nombre.';
       return;
     }
-    err.innerText = '';
+    if (err) err.innerText = '';
     sesionOp = { nombre };
-    localStorage.setItem('sesionOperariaNombre', JSON.stringify(sesionOp));
-    sonarPitidoFuerteOp();
-    await solicitarPermisoNotificacionSiProcede();
+    try {
+      localStorage.setItem('sesionOperariaNombre', JSON.stringify(sesionOp));
+      sessionStorage.setItem('sesionOperariaNombre', JSON.stringify(sesionOp));
+    } catch (_) {}
+
     mostrarTrabajo();
+    sonarPitidoFuerteOp();
+    solicitarPermisoNotificacionEnSegundoPlano();
   }
 
+  document.getElementById('input-nombre').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      iniciarTurno();
+    }
+  });
+
   function salirTurno() {
-    localStorage.removeItem('sesionOperariaNombre');
+    try {
+      localStorage.removeItem('sesionOperariaNombre');
+      sessionStorage.removeItem('sesionOperariaNombre');
+    } catch (_) {}
     sesionOp = null;
     primeraCargaOp = true;
     idsListosAvisados.clear();
@@ -901,8 +932,13 @@
       } else {
         actualizarEstadoRed(true);
         limpiarFormulario();
+        if (eraNuevo) {
+          setEstadoTodosListos(false);
+        }
         await cargarPedidos();
-        if (eraNuevo) hacerScrollAbajoPedidos();
+        if (eraNuevo) {
+          hacerScrollAbajoPedidos();
+        }
       }
     }
 
@@ -995,13 +1031,13 @@
       const esListo = p.estado === 'completado';
       const esPendiente = p.estado !== 'completado';
 
-      // Pedidos pendientes de otras operarias (para ver cuántos van por delante)
-      if (esPendiente && !esMio) return true;
+      // Pedidos pendientes (propios y de otras operarias) para ver la cola por delante y los propios activos
+      if (esPendiente) return true;
 
       // Pedidos propios ya completados
       if (esListo && esMio) return true;
 
-      // Si está activado "Todos listos", también se muestran los completados de otras operarias
+      // Pedidos completados de otras operarias solo si "Todos listos" está activado
       if (esListo && mostrarTodosCompletados) return true;
 
       return false;
