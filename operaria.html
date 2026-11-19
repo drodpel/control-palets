@@ -26,7 +26,8 @@
     html, body {
       margin: 0;
       padding: 0;
-      height: 100dvh;
+      height: 100vh;
+      min-height: 100vh;
       width: 100%;
       overflow: hidden;
       background: var(--bg);
@@ -34,7 +35,8 @@
       font-size: 16px;
     }
     .app-shell {
-      height: 100dvh;
+      height: 100vh;
+      min-height: 100vh;
       width: 100%;
       max-width: 1680px;
       margin: 0 auto;
@@ -48,12 +50,12 @@
     @media (orientation: landscape) and (max-height: 540px) {
       html, body {
         height: auto;
-        min-height: 100dvh;
+        min-height: 100vh;
         overflow-y: auto;
       }
       .app-shell {
         height: auto;
-        min-height: 100dvh;
+        min-height: 100vh;
         overflow: visible;
       }
       .main-grid {
@@ -168,6 +170,7 @@
       justify-content: space-evenly;
       gap: 8px;
       overflow-y: auto;
+      overflow-anchor: none;
     }
 
     .panel-title {
@@ -235,7 +238,7 @@
     input, select {
       width: 100%;
       min-width: 0;
-      height: clamp(38px, 5.6dvh, 58px);
+      height: clamp(38px, 5.6vh, 58px);
       padding: 6px 10px;
       font-size: clamp(1.05rem, 1.55vw, 1.38rem);
       font-weight: 800;
@@ -263,7 +266,7 @@
       width: 100%;
     }
     .mat-pill {
-      padding: clamp(4px, 0.75dvh, 9px) 4px;
+      padding: clamp(4px, 0.75vh, 9px) 4px;
       font-size: clamp(0.88rem, 1.2vw, 1.1rem);
       font-weight: 900;
       line-height: 1.1;
@@ -284,7 +287,7 @@
     .num-locked-box {
       width: 100%;
       min-width: 0;
-      height: clamp(38px, 5.6dvh, 58px);
+      height: clamp(38px, 5.6vh, 58px);
       display: flex;
       align-items: center;
       border-radius: 10px;
@@ -323,7 +326,7 @@
     }
     .btn-submit {
       width: 100%;
-      padding: clamp(10px, 1.8dvh, 18px);
+      padding: clamp(10px, 1.8vh, 18px);
       font-size: clamp(1.1rem, 1.7vw, 1.45rem);
       font-weight: 900;
       border-radius: 11px;
@@ -350,6 +353,7 @@
       flex: 1;
       min-height: 0;
       overflow-y: auto;
+      overflow-anchor: none;
       display: flex;
       flex-direction: column;
       gap: 6px;
@@ -385,6 +389,12 @@
       font-size: 0.86rem;
       font-weight: 700;
       color: var(--muted);
+      margin-top: 2px;
+    }
+    .pedido-progreso {
+      font-size: 0.86rem;
+      font-weight: 900;
+      color: #93c5fd;
       margin-top: 2px;
     }
     .tag {
@@ -569,6 +579,7 @@
   let cargando = false;
   let audioCtxOp = null;
   let estaOnlineOp = navigator.onLine;
+  let ultimoRenderOp = '';
 
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
@@ -595,13 +606,15 @@
     return Date.now() + mins * 60000;
   }
 
-  function codificarMetaEnMaterial(resumenBase, tiempoSel, cantidadNum) {
+  function codificarMetaEnMaterial(resumenBase, tiempoSel, cantidadNum, puestosNum = 0) {
     const venceMs = tiempoSel ? calcularVencimientoMs(tiempoSel) : null;
     const cant = Math.max(1, parseInt(cantidadNum, 10) || 1);
+    const puestos = Math.max(0, Math.min(cant, parseInt(puestosNum, 10) || 0));
     const meta = {
       t: tiempoSel || null,
       v: venceMs || null,
-      c: cant
+      c: cant,
+      u: puestos
     };
     return `${resumenBase} [[META:${btoa(unescape(encodeURIComponent(JSON.stringify(meta))))}]]`;
   }
@@ -609,26 +622,35 @@
   function decodificarPedidoConMeta(p) {
     const rawMat = String(p?.material || '');
     const match = rawMat.match(/\[\[META:([^\]]+)\]\]$/);
-    let meta = { t: null, v: null, c: 1 };
+    let meta = { t: null, v: null, c: 1, u: 0 };
     let materialLimpio = rawMat;
     if (match) {
       materialLimpio = rawMat.replace(/\[\[META:[^\]]+\]\]$/, '').trim();
       try {
         const parsed = JSON.parse(decodeURIComponent(escape(atob(match[1]))));
+        const cantParseada = Math.max(1, parseInt(parsed.c, 10) || 1);
+        const puestosParseados = p.estado === 'completado'
+          ? cantParseada
+          : Math.max(0, Math.min(cantParseada, parseInt(parsed.u, 10) || 0));
         meta = {
           t: parsed.t || null,
           v: parsed.v ? Number(parsed.v) : null,
-          c: Math.max(1, parseInt(parsed.c, 10) || 1)
+          c: cantParseada,
+          u: puestosParseados
         };
       } catch (_) {}
+    } else if (p?.estado === 'completado') {
+      meta.u = 1;
     }
+
     return {
       ...p,
       material_limpio: materialLimpio,
       tiempo_aviso: p.tiempo_aviso || meta.t,
       vence_en: p.vence_en || (meta.v ? new Date(meta.v).toISOString() : null),
       vence_ms: p.vence_en ? new Date(p.vence_en).getTime() : meta.v,
-      cantidad: Math.max(1, parseInt(p.cantidad || meta.c || 1, 10) || 1)
+      cantidad: Math.max(1, parseInt(p.cantidad || meta.c || 1, 10) || 1),
+      puestos: meta.u
     };
   }
 
@@ -665,12 +687,14 @@
   function alternarTodosListos() {
     mostrarTodosCompletados = !mostrarTodosCompletados;
     actualizarVisualBotonesFiltro();
+    ultimoRenderOp = '';
     renderizarTodo();
   }
 
   function alternarTodosMios() {
     mostrarSoloMios = !mostrarSoloMios;
     actualizarVisualBotonesFiltro();
+    ultimoRenderOp = '';
     renderizarTodo();
   }
 
@@ -771,6 +795,7 @@
     sesionOp = null;
     primeraCargaOp = true;
     idsListosAvisados.clear();
+    ultimoRenderOp = '';
     cancelarEdicion();
     document.getElementById('vista-trabajo').classList.add('hidden');
     document.getElementById('vista-inicio').classList.remove('hidden');
@@ -895,8 +920,10 @@
   function actualizarEstadoRed(online) {
     estaOnlineOp = Boolean(online);
     const badge = document.getElementById('network-status');
-    badge.innerText = estaOnlineOp ? '● Conectado' : '● Sin cobertura';
-    badge.className = estaOnlineOp ? 'pill-status' : 'pill-status offline';
+    const txt = estaOnlineOp ? '● Conectado' : '● Sin cobertura';
+    const cls = estaOnlineOp ? 'pill-status' : 'pill-status offline';
+    if (badge.innerText !== txt) badge.innerText = txt;
+    if (badge.className !== cls) badge.className = cls;
   }
 
   function limpiarFormulario() {
@@ -921,6 +948,11 @@
 
   function cancelarEdicion() {
     limpiarFormulario();
+  }
+
+  function editarPedidoPorId(id) {
+    const pedido = pedidosHoyTodos.find(item => String(item.id) === String(id));
+    if (pedido) empezarEdicion(pedido);
   }
 
   function empezarEdicion(pedido) {
@@ -1028,9 +1060,12 @@
       .filter(Boolean)
       .join(' · ') || 'Pedido';
 
+    const existenteEdit = idEditando ? pedidosHoyTodos.find(x => x.id === idEditando) : null;
+    const puestosPrevios = existenteEdit ? Math.min(cantidadNum, existenteEdit.puestos || 0) : 0;
+
     const payload = {
       linea: lineaTexto,
-      material: codificarMetaEnMaterial(resumenBase, tiempoSel, cantidadNum),
+      material: codificarMetaEnMaterial(resumenBase, tiempoSel, cantidadNum, puestosPrevios),
       solicitado_por: nombreOp,
       opc: opc || null,
       tipo_material: refCompleta ? prefijoSeleccionado : null,
@@ -1113,7 +1148,7 @@
       actualizarEstadoRed(true);
       await cargarPedidos();
     }
-  }, 4000);
+  }, 5000);
 
   async function cargarPedidos() {
     if (!sesionOp || cargando) return;
@@ -1167,7 +1202,8 @@
 
   function formatearDetallePedido(p) {
     const refFmt = p.num_referencia ? (p.tipo_material ? `${p.tipo_material}-${p.num_referencia}` : p.num_referencia) : '';
-    const cantTxt = (p.cantidad && Number(p.cantidad) > 1) ? `x${p.cantidad}` : '';
+    const cant = Math.max(1, Number(p.cantidad) || 1);
+    const cantTxt = cant > 1 ? `Cant: ${cant}` : '';
     const partes = [refFmt, p.opc ? `OPC ${p.opc}` : '', p.clase_material || '', cantTxt].filter(Boolean);
     return partes.length > 0 ? partes.join(' · ') : (p.material_limpio || p.material || 'Material');
   }
@@ -1202,10 +1238,25 @@
 
   function renderizarTodo() {
     const lista = document.getElementById('lista-general');
+    const contadorEl = document.getElementById('contador-mios-hoy');
     const nombreActual = (sesionOp?.nombre || '').toLowerCase();
     const visibles = obtenerPedidosFiltradosOperaria();
 
-    document.getElementById('contador-mios-hoy').innerText = `Hoy: ${peticionesHoyNombre.length}`;
+    const contadorTxt = `Hoy: ${peticionesHoyNombre.length}`;
+    if (contadorEl.innerText !== contadorTxt) {
+      contadorEl.innerText = contadorTxt;
+    }
+
+    const minutoClave = Math.floor(Date.now() / 60000);
+    const firma = JSON.stringify({
+      m: minutoClave,
+      c: peticionesHoyNombre.length,
+      f1: mostrarTodosCompletados,
+      f2: mostrarSoloMios,
+      items: visibles.map(p => [p.id, p.estado, p.material, p.lote, p.linea, p.solicitado_por, p.puestos, p.cantidad])
+    });
+    if (firma === ultimoRenderOp) return;
+    ultimoRenderOp = firma;
 
     if (visibles.length === 0) {
       lista.innerHTML = '<div style="color:var(--muted); font-weight:800;">Sin pedidos que mostrar.</div>';
@@ -1219,15 +1270,20 @@
       const detalle = formatearDetallePedido(p);
       const loteTxt = (p.lote && p.lote !== 'FIFO') ? `Lote ${p.lote}` : 'FIFO';
       const sub = [loteTxt, hora, p.solicitado_por || ''].filter(Boolean).join(' · ');
-      const itemJson = encodeURIComponent(JSON.stringify(p));
       const estadoTxt = esListo ? 'Listo' : 'Pendiente';
       const horaVence = formatearHoraVencimiento(p);
+      const cant = Math.max(1, Number(p.cantidad) || 1);
+      const puestos = esListo ? cant : Math.max(0, Math.min(cant, Number(p.puestos) || 0));
+      const progresoHtml = (cant > 1 || puestos > 0)
+        ? `<div class="pedido-progreso">Puestos ya: ${puestos} / ${cant} (Pedida: ${cant})</div>`
+        : '';
 
       return `
         <div class="pedido-card ${p.estado} ${esMio ? 'es-mio' : ''}">
           <div>
             <div class="pedido-main">#${idx + 1} · ${p.linea} — ${detalle}</div>
             <div class="pedido-sub">${sub}</div>
+            ${progresoHtml}
             <div>
               ${esMio ? '<span class="tag mio">Mío</span>' : ''}
               <span class="tag ${p.estado}">${estadoTxt}</span>
@@ -1236,7 +1292,7 @@
           </div>
           ${(esMio && !esListo) ? `
             <div class="acciones-card">
-              <button type="button" class="btn-mini btn-mod" onclick="empezarEdicion(JSON.parse(decodeURIComponent('${itemJson}')))">Modificar</button>
+              <button type="button" class="btn-mini btn-mod" onclick="editarPedidoPorId(${p.id})">Modificar</button>
               <button type="button" class="btn-mini btn-can" onclick="cancelarPedido(${p.id})">Cancelar</button>
             </div>
           ` : ''}
@@ -1261,16 +1317,17 @@
 
   document.addEventListener('visibilitychange', () => {
     if (!document.hidden && sesionOp) {
+      ultimoRenderOp = '';
       cargarPedidos();
     }
   });
 
   setInterval(() => {
-    if (sesionOp) {
+    if (sesionOp && document.visibilityState === 'visible') {
       renderizarTodo();
       cargarPedidos();
     }
-  }, 2500);
+  }, 6500);
 
   if (sesionOp) {
     mostrarTrabajo();
