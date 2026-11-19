@@ -92,6 +92,12 @@
       color: #4ade80;
     }
     #network-status.offline { background: #d9770633; color: #fbbf24; }
+    .seccion-titulo {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 14px 0 8px 0;
+    }
     .pedido-item {
       display: flex;
       justify-content: space-between;
@@ -104,6 +110,10 @@
       margin-bottom: 9px;
       border-left: 6px solid var(--warning);
       flex-wrap: wrap;
+    }
+    .pedido-item.completado {
+      border-left-color: var(--success);
+      opacity: 0.92;
     }
     .pedido-titulo {
       font-size: 1.2rem;
@@ -122,6 +132,10 @@
       background: #d9770644;
       color: #fbbf24;
     }
+    .badge.listo {
+      background: #16a34a44;
+      color: #4ade80;
+    }
     .btn-hecho {
       padding: 12px 18px;
       border: none;
@@ -131,6 +145,16 @@
       color: #ffffff;
       background: var(--success);
       font-size: 1rem;
+    }
+    .btn-desmarcar {
+      padding: 10px 14px;
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      font-weight: 900;
+      cursor: pointer;
+      color: #ffffff;
+      background: #334155;
+      font-size: 0.92rem;
     }
     .hidden { display: none !important; }
   </style>
@@ -144,7 +168,7 @@
       <div id="info-carr" class="user-pill hidden"></div>
     </div>
     <div style="display:flex; gap:8px; flex-wrap:wrap;">
-      <button id="btn-notif" class="btn-top hidden" onclick="activarNotificaciones()">🔔 Avisos</button>
+      <button id="btn-notif" class="btn-top hidden" onclick="activarAvisos()">🔔 Avisos activos</button>
       <button id="btn-salir" class="btn-top hidden" onclick="cerrarSesion()">Cambiar nombre</button>
     </div>
   </header>
@@ -157,11 +181,17 @@
   </div>
 
   <div id="vista-cola" class="hidden">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+    <div class="seccion-titulo">
       <h3 style="margin:0;">Pendientes</h3>
       <span id="contador-pendientes" style="font-weight:900; color:var(--muted);">0 pendientes</span>
     </div>
     <div id="lista-carretillero"></div>
+
+    <div class="seccion-titulo">
+      <h3 style="margin:0;">Completados hoy</h3>
+      <span id="contador-completados" style="font-weight:900; color:#4ade80;">0 listos</span>
+    </div>
+    <div id="lista-completados"></div>
   </div>
 </div>
 
@@ -171,14 +201,51 @@
   const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
   let sesionCarr = JSON.parse(localStorage.getItem('sesionCarretillero') || 'null');
-  let pedidosCache = [];
+  let pedidosPendientes = [];
+  let pedidosCompletados = [];
   let idsConocidos = new Set();
   let primeraCarga = true;
+  let audioCtx = null;
 
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
       navigator.serviceWorker.register('./sw.js').catch(() => {});
     });
+  }
+
+  function inicioHoyISO() {
+    const ahora = new Date();
+    const inicio = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate(), 0, 0, 0, 0);
+    return inicio.toISOString();
+  }
+
+  function sonarPitidoFuerte() {
+    try {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      const ahora = audioCtx.currentTime;
+
+      const reproducirTono = (frecuencia, inicio, duracion) => {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(frecuencia, inicio);
+        gain.gain.setValueAtTime(0.001, inicio);
+        gain.gain.exponentialRampToValueAtTime(0.45, inicio + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.001, inicio + duracion);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(inicio);
+        osc.stop(inicio + duracion + 0.02);
+      };
+
+      reproducirTono(880, ahora, 0.22);
+      reproducirTono(1174, ahora + 0.25, 0.26);
+    } catch (_) {}
   }
 
   function entrar() {
@@ -191,6 +258,7 @@
     err.innerText = '';
     sesionCarr = { nombre };
     localStorage.setItem('sesionCarretillero', JSON.stringify(sesionCarr));
+    sonarPitidoFuerte();
     mostrarCola();
   }
 
@@ -214,7 +282,6 @@
     document.getElementById('info-carr').innerText = sesionCarr.nombre;
     document.getElementById('btn-notif').classList.remove('hidden');
     document.getElementById('btn-salir').classList.remove('hidden');
-    actualizarBotonNotif();
     cargarPedidos();
   }
 
@@ -224,43 +291,18 @@
     badge.className = online ? '' : 'offline';
   }
 
-  function actualizarBotonNotif() {
-    const btn = document.getElementById('btn-notif');
-    if (!('Notification' in window)) {
-      btn.innerText = 'Avisos no soportados';
-      return;
+  async function activarAvisos() {
+    sonarPitidoFuerte();
+    if ('Notification' in window && Notification.permission === 'default') {
+      try {
+        await Notification.requestPermission();
+      } catch (_) {}
     }
-    if (Notification.permission === 'granted') {
-      btn.innerText = '🔔 Avisos activos';
-    } else if (Notification.permission === 'denied') {
-      btn.innerText = '🔕 Avisos bloqueados';
-    } else {
-      btn.innerText = '🔔 Activar avisos';
-    }
-  }
-
-  async function activarNotificaciones() {
-    if (!('Notification' in window)) return;
-    const perm = await Notification.requestPermission();
-    actualizarBotonNotif();
-    if (perm === 'granted') {
-      emitirNotificacion('Avisos activados', 'Avisos listos.');
-    }
+    emitirNotificacion('Avisos activos', 'Sonido de aviso activado.');
   }
 
   function emitirNotificacion(titulo, cuerpo) {
-    try {
-      const ctx = new (window.AudioContext || window.webkitAudioContext)();
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.type = 'sine';
-      osc.frequency.value = 740;
-      gain.gain.value = 0.08;
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.start();
-      osc.stop(ctx.currentTime + 0.18);
-    } catch (_) {}
+    sonarPitidoFuerte();
 
     if ('Notification' in window && Notification.permission === 'granted') {
       if (navigator.serviceWorker && navigator.serviceWorker.ready) {
@@ -302,17 +344,30 @@
     }
   }
 
+  async function desmarcarPedido(id) {
+    const { error } = await db.from('pedidos').update({ estado: 'pendiente' }).eq('id', id);
+    if (!error) {
+      await cargarPedidos();
+    } else {
+      actualizarEstadoRed(false);
+    }
+  }
+
   async function cargarPedidos() {
     if (!sesionCarr) return;
     const { data, error } = await db
       .from('pedidos')
       .select('*')
-      .not('estado', 'in', '(completado,cancelado)')
+      .neq('estado', 'cancelado')
+      .gte('creado_en', inicioHoyISO())
       .order('creado_en', { ascending: true });
 
     if (!error && data) {
+      const pendientes = data.filter(p => p.estado !== 'completado');
+      const completados = data.filter(p => p.estado === 'completado').reverse();
+
       if (!primeraCarga) {
-        data.forEach(p => {
+        pendientes.forEach(p => {
           if (!idsConocidos.has(p.id)) {
             emitirNotificacion(
               `${p.linea}`,
@@ -322,9 +377,10 @@
         });
       }
 
-      idsConocidos = new Set(data.map(p => p.id));
+      idsConocidos = new Set(pendientes.map(p => p.id));
       primeraCarga = false;
-      pedidosCache = data;
+      pedidosPendientes = pendientes;
+      pedidosCompletados = completados;
       renderizarCarretillero();
       actualizarEstadoRed(true);
     } else if (error) {
@@ -334,32 +390,58 @@
 
   function renderizarCarretillero() {
     const lista = document.getElementById('lista-carretillero');
-    document.getElementById('contador-pendientes').innerText = `${pedidosCache.length} pendientes`;
+    const listaComp = document.getElementById('lista-completados');
 
-    if (pedidosCache.length === 0) {
+    document.getElementById('contador-pendientes').innerText = `${pedidosPendientes.length} pendientes`;
+    document.getElementById('contador-completados').innerText = `${pedidosCompletados.length} listos`;
+
+    if (pedidosPendientes.length === 0) {
       lista.innerHTML = '<p style="color:var(--muted); font-weight:800;">Sin pedidos pendientes.</p>';
-      return;
+    } else {
+      lista.innerHTML = pedidosPendientes.map((p, index) => {
+        const hora = new Date(p.creado_en).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        const titulo = formatearTituloPedido(p);
+        const subPartes = [];
+        if (!tieneLoteConcreto(p)) subPartes.push('FIFO');
+        if (p.solicitado_por) subPartes.push(p.solicitado_por);
+
+        return `
+          <div class="pedido-item">
+            <div>
+              <div style="font-size:0.88rem; color:var(--muted); font-weight:800;">#${index + 1} · ${hora} · ${p.linea}</div>
+              <div class="pedido-titulo">${titulo}</div>
+              ${subPartes.length > 0 ? `<div style="font-size:0.92rem; color:#cbd5e1; font-weight:700;">${subPartes.join(' · ')}</div>` : ''}
+              <span class="badge">Pendiente</span>
+            </div>
+            <button class="btn-hecho" onclick="marcarListo(${p.id})">Listo ✓</button>
+          </div>
+        `;
+      }).join('');
     }
 
-    lista.innerHTML = pedidosCache.map((p, index) => {
-      const hora = new Date(p.creado_en).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-      const titulo = formatearTituloPedido(p);
-      const subPartes = [];
-      if (!tieneLoteConcreto(p)) subPartes.push('FIFO');
-      if (p.solicitado_por) subPartes.push(p.solicitado_por);
+    if (pedidosCompletados.length === 0) {
+      listaComp.innerHTML = '<p style="color:var(--muted); font-weight:800;">Sin pedidos completados hoy.</p>';
+    } else {
+      listaComp.innerHTML = pedidosCompletados.map((p) => {
+        const hora = new Date(p.creado_en).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        const titulo = formatearTituloPedido(p);
+        const subPartes = [];
+        if (!tieneLoteConcreto(p)) subPartes.push('FIFO');
+        if (p.solicitado_por) subPartes.push(p.solicitado_por);
 
-      return `
-        <div class="pedido-item">
-          <div>
-            <div style="font-size:0.88rem; color:var(--muted); font-weight:800;">#${index + 1} · ${hora} · ${p.linea}</div>
-            <div class="pedido-titulo">${titulo}</div>
-            ${subPartes.length > 0 ? `<div style="font-size:0.92rem; color:#cbd5e1; font-weight:700;">${subPartes.join(' · ')}</div>` : ''}
-            <span class="badge">Pendiente</span>
+        return `
+          <div class="pedido-item completado">
+            <div>
+              <div style="font-size:0.88rem; color:var(--muted); font-weight:800;">${hora} · ${p.linea}</div>
+              <div class="pedido-titulo">${titulo}</div>
+              ${subPartes.length > 0 ? `<div style="font-size:0.92rem; color:#cbd5e1; font-weight:700;">${subPartes.join(' · ')}</div>` : ''}
+              <span class="badge listo">Listo</span>
+            </div>
+            <button class="btn-desmarcar" onclick="desmarcarPedido(${p.id})">Desmarcar</button>
           </div>
-          <button class="btn-hecho" onclick="marcarListo(${p.id})">Listo ✓</button>
-        </div>
-      `;
-    }).join('');
+        `;
+      }).join('');
+    }
   }
 
   db.channel('cambios-pedidos-carr')
