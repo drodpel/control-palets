@@ -582,9 +582,7 @@
     return inicio.toISOString();
   }
 
-  function calcularFechaVencimientoISO(opcionTiempo) {
-    if (!opcionTiempo) return null;
-    const ahoraMs = Date.now();
+  function calcularVencimientoMs(opcionTiempo) {
     const minutosMap = {
       '15 min': 15,
       '30 min': 30,
@@ -594,26 +592,61 @@
     };
     const mins = minutosMap[opcionTiempo];
     if (!mins) return null;
-    return new Date(ahoraMs + mins * 60000).toISOString();
+    return Date.now() + mins * 60000;
+  }
+
+  function codificarMetaEnMaterial(resumenBase, tiempoSel, cantidadNum) {
+    const venceMs = tiempoSel ? calcularVencimientoMs(tiempoSel) : null;
+    const cant = Math.max(1, parseInt(cantidadNum, 10) || 1);
+    const meta = {
+      t: tiempoSel || null,
+      v: venceMs || null,
+      c: cant
+    };
+    return `${resumenBase} [[META:${btoa(unescape(encodeURIComponent(JSON.stringify(meta))))}]]`;
+  }
+
+  function decodificarPedidoConMeta(p) {
+    const rawMat = String(p?.material || '');
+    const match = rawMat.match(/\[\[META:([^\]]+)\]\]$/);
+    let meta = { t: null, v: null, c: 1 };
+    let materialLimpio = rawMat;
+    if (match) {
+      materialLimpio = rawMat.replace(/\[\[META:[^\]]+\]\]$/, '').trim();
+      try {
+        const parsed = JSON.parse(decodeURIComponent(escape(atob(match[1]))));
+        meta = {
+          t: parsed.t || null,
+          v: parsed.v ? Number(parsed.v) : null,
+          c: Math.max(1, parseInt(parsed.c, 10) || 1)
+        };
+      } catch (_) {}
+    }
+    return {
+      ...p,
+      material_limpio: materialLimpio,
+      tiempo_aviso: p.tiempo_aviso || meta.t,
+      vence_en: p.vence_en || (meta.v ? new Date(meta.v).toISOString() : null),
+      vence_ms: p.vence_en ? new Date(p.vence_en).getTime() : meta.v,
+      cantidad: Math.max(1, parseInt(p.cantidad || meta.c || 1, 10) || 1)
+    };
   }
 
   function esPedidoConTiempo(p) {
-    return Boolean(p && (p.tiempo_aviso || p.vence_en));
+    return Boolean(p && (p.tiempo_aviso || p.vence_ms));
   }
 
   function haVencidoTiempoPedido(p) {
     if (!esPedidoConTiempo(p)) return true;
-    if (!p.vence_en) return true;
-    const venceMs = new Date(p.vence_en).getTime();
-    if (Number.isNaN(venceMs)) return true;
-    return Date.now() >= venceMs;
+    const ms = p.vence_ms || (p.vence_en ? new Date(p.vence_en).getTime() : null);
+    if (!ms || Number.isNaN(ms)) return true;
+    return Date.now() >= ms;
   }
 
   function formatearHoraVencimiento(p) {
-    if (!p || !p.vence_en) return '';
-    const d = new Date(p.vence_en);
-    if (Number.isNaN(d.getTime())) return '';
-    return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const ms = p?.vence_ms || (p?.vence_en ? new Date(p.vence_en).getTime() : null);
+    if (!ms || Number.isNaN(ms)) return '';
+    return new Date(ms).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   }
 
   function actualizarVisualBotonesFiltro() {
@@ -846,402 +879,3 @@
 
   function alCambiarClaseMaterial() {
     const sel = document.getElementById('select-clase-mat').value;
-    const esOtro = sel === 'otro';
-    document.getElementById('campo-otro-mat').classList.toggle('hidden', !esOtro);
-    if (esOtro) {
-      inputOtroMat.focus();
-    }
-  }
-
-  function obtenerClaseMaterialFinal() {
-    const sel = document.getElementById('select-clase-mat').value;
-    if (sel === 'otro') return inputOtroMat.value.trim();
-    return sel.trim();
-  }
-
-  function actualizarEstadoRed(online) {
-    estaOnlineOp = Boolean(online);
-    const badge = document.getElementById('network-status');
-    badge.innerText = estaOnlineOp ? '● Conectado' : '● Sin cobertura';
-    badge.className = estaOnlineOp ? 'pill-status' : 'pill-status offline';
-  }
-
-  function limpiarFormulario() {
-    idEditando = null;
-    document.getElementById('btn-guardar').innerText = 'SOLICITAR';
-    document.getElementById('btn-cancelar-edicion').classList.add('hidden');
-    inputOpc.value = '';
-    inputNumRef.value = '';
-    inputLote.value = '';
-    inputOtroMat.value = '';
-    selectTiempo.value = '';
-    inputCantidad.value = '1';
-    document.getElementById('campo-cantidad').classList.add('hidden');
-    document.getElementById('select-clase-mat').value = '';
-    document.getElementById('campo-otro-mat').classList.add('hidden');
-    document.getElementById('bloque-tipo-material').classList.add('hidden');
-    prefijoSeleccionado = '';
-    actualizarPrefijoVisual();
-    document.querySelectorAll('.mat-pill').forEach(b => b.classList.remove('active'));
-    document.getElementById('form-error').innerText = '';
-  }
-
-  function cancelarEdicion() {
-    limpiarFormulario();
-  }
-
-  function empezarEdicion(pedido) {
-    idEditando = pedido.id;
-    document.getElementById('btn-guardar').innerText = 'GUARDAR CAMBIOS';
-    document.getElementById('btn-cancelar-edicion').classList.remove('hidden');
-
-    inputLinea.value = (pedido.linea || '').replace(/\D/g, '') || inputLinea.value;
-    inputOpc.value = pedido.opc || '';
-    inputNumRef.value = pedido.num_referencia || '';
-    inputLote.value = (pedido.lote && pedido.lote !== 'FIFO') ? pedido.lote : '';
-    selectTiempo.value = pedido.tiempo_aviso || '';
-    inputCantidad.value = pedido.cantidad || 1;
-    alCambiarTiempo();
-
-    prefijoSeleccionado = pedido.tipo_material || '';
-    actualizarPrefijoVisual();
-    document.querySelectorAll('.mat-pill').forEach(b => {
-      b.classList.toggle('active', b.dataset.mat === prefijoSeleccionado);
-    });
-
-    actualizarVisibilidadClaseMaterial();
-    const claseGuardada = pedido.clase_material || '';
-    const opcionesPredefinidas = ['lámina','interior','posicionador','sin estuchar','sin encelofanar','estuche','embalaje','embalaje inner'];
-    if (claseGuardada && !document.getElementById('bloque-tipo-material').classList.contains('hidden')) {
-      if (opcionesPredefinidas.includes(claseGuardada)) {
-        document.getElementById('select-clase-mat').value = claseGuardada;
-        document.getElementById('campo-otro-mat').classList.add('hidden');
-      } else {
-        document.getElementById('select-clase-mat').value = 'otro';
-        document.getElementById('campo-otro-mat').classList.remove('hidden');
-        inputOtroMat.value = claseGuardada;
-      }
-    }
-  }
-
-  function claveMaterial(item) {
-    const tipo = (item.tipo_material || '').toUpperCase();
-    const num = (item.num_referencia || '').trim();
-    const clase = (item.clase_material || '').trim().toLowerCase();
-    const opc = (item.opc || '').trim();
-    const lote = (item.lote || 'FIFO').trim().toUpperCase();
-    return `${tipo}|${num}|${clase}|${opc}|${lote}`;
-  }
-
-  function buscarMaterialRegistrado(nombreSolicitante, candidato, excluirId = null) {
-    const claveNueva = claveMaterial(candidato);
-    const activosMios = pedidosHoyTodos.filter(
-      p => p.estado !== 'completado' &&
-           (p.solicitado_por || '').toLowerCase() === nombreSolicitante.toLowerCase() &&
-           p.id !== excluirId
-    );
-    const enColaLocal = colaOffline.filter(
-      p => (p.solicitado_por || '').toLowerCase() === nombreSolicitante.toLowerCase()
-    );
-    return [...activosMios, ...enColaLocal].find(p => claveMaterial(p) === claveNueva) || null;
-  }
-
-  async function guardarPedido() {
-    const err = document.getElementById('form-error');
-    const numLinea = inputLinea.value.trim();
-    const opc = inputOpc.value.trim();
-    const numRef = inputNumRef.value.trim();
-    const loteInput = inputLote.value.trim();
-    const tiempoSel = selectTiempo.value.trim();
-    const cantidadNum = tiempoSel ? Math.max(1, parseInt(inputCantidad.value, 10) || 1) : 1;
-
-    if (!numLinea) {
-      err.innerText = 'Indica la línea.';
-      return;
-    }
-
-    const tieneOpc = Boolean(opc);
-    const refCompleta = tieneReferenciaCompleta();
-    const tieneRefParcial = Boolean(numRef || prefijoSeleccionado);
-
-    if (!tieneOpc && !tieneRefParcial) {
-      err.innerText = 'Indica OPC o Referencia.';
-      return;
-    }
-
-    if (tieneOpc && opc.length !== 4) {
-      err.innerText = 'La OPC debe tener 4 números.';
-      return;
-    }
-
-    if (tieneRefParcial && !refCompleta) {
-      err.innerText = 'Completa ST, MP o PT y el número.';
-      return;
-    }
-
-    let claseMaterial = '';
-    if (tieneOpc && !refCompleta) {
-      claseMaterial = obtenerClaseMaterialFinal();
-      if (!claseMaterial) {
-        err.innerText = 'Indica el material.';
-        return;
-      }
-    }
-
-    const nombreOp = sesionOp ? sesionOp.nombre : 'Operaria';
-    const lineaTexto = `Línea ${numLinea}`;
-    const refTexto = refCompleta ? `${prefijoSeleccionado}-${numRef}` : '';
-    const resumenMaterial = [refTexto, opc ? `OPC ${opc}` : '', claseMaterial]
-      .filter(Boolean)
-      .join(' · ') || 'Pedido';
-
-    const payload = {
-      linea: lineaTexto,
-      material: resumenMaterial,
-      solicitado_por: nombreOp,
-      opc: opc || null,
-      tipo_material: refCompleta ? prefijoSeleccionado : null,
-      num_referencia: refCompleta ? numRef : null,
-      clase_material: claseMaterial || null,
-      lote: loteInput || 'FIFO',
-      tiempo_aviso: tiempoSel || null,
-      vence_en: tiempoSel ? calcularFechaVencimientoISO(tiempoSel) : null,
-      cantidad: cantidadNum,
-      estado: 'pendiente',
-      creado_en: new Date().toISOString()
-    };
-
-    const duplicado = buscarMaterialRegistrado(nombreOp, payload, idEditando);
-    if (duplicado) {
-      if (!estaOnlineOp || colaOffline.length > 0) {
-        err.innerText = 'Ya tienes ese mismo material pedido.';
-        return;
-      }
-      if (!tiempoSel) {
-        err.innerText = 'Este material ya está registrado: debes asignar el tiempo en "Lo necesito en..." para volver a pedirlo.';
-        return;
-      }
-    }
-
-    err.innerText = '';
-    const btn = document.getElementById('btn-guardar');
-    btn.disabled = true;
-
-    const eraNuevo = !idEditando;
-
-    if (idEditando) {
-      const { error } = await db.from('pedidos').update(payload).eq('id', idEditando);
-      if (error) {
-        actualizarEstadoRed(false);
-        err.innerText = `Error: ${error.message}`;
-      } else {
-        actualizarEstadoRed(true);
-        limpiarFormulario();
-        await cargarPedidos();
-      }
-    } else {
-      const { error } = await db.from('pedidos').insert([payload]);
-      if (error) {
-        colaOffline.push(payload);
-        actualizarEstadoRed(false);
-        err.innerText = `Sin conexión (${error.message}).`;
-      } else {
-        actualizarEstadoRed(true);
-        limpiarFormulario();
-        if (eraNuevo) {
-          limpiarFiltrosPedidos();
-        }
-        await cargarPedidos();
-        if (eraNuevo) {
-          hacerScrollArribaPedidosSiProcede();
-        }
-      }
-    }
-
-    setTimeout(() => {
-      btn.disabled = false;
-    }, 350);
-  }
-
-  async function cancelarPedido(id) {
-    if (!confirm('¿Seguro que quieres cancelar este pedido?')) return;
-    const { error } = await db.from('pedidos').update({ estado: 'cancelado' }).eq('id', id);
-    if (!error) {
-      if (idEditando === id) limpiarFormulario();
-      await cargarPedidos();
-    } else {
-      actualizarEstadoRed(false);
-    }
-  }
-
-  setInterval(async () => {
-    if (colaOffline.length === 0) return;
-    const pendiente = colaOffline[0];
-    const { error } = await db.from('pedidos').insert([pendiente]);
-    if (!error) {
-      colaOffline.shift();
-      actualizarEstadoRed(true);
-      await cargarPedidos();
-    }
-  }, 4000);
-
-  async function cargarPedidos() {
-    if (!sesionOp || cargando) return;
-    cargando = true;
-    try {
-      const { data: hoyPedidos, error } = await db
-        .from('pedidos')
-        .select('*')
-        .neq('estado', 'cancelado')
-        .gte('creado_en', inicioHoyISO())
-        .order('creado_en', { ascending: false });
-
-      if (!error && hoyPedidos) {
-        const nombreActual = sesionOp.nombre.toLowerCase();
-        const miosListos = hoyPedidos.filter(
-          p => p.estado === 'completado' &&
-               (p.solicitado_por || '').toLowerCase() === nombreActual &&
-               haVencidoTiempoPedido(p)
-        );
-
-        if (!primeraCargaOp) {
-          miosListos.forEach(p => {
-            if (!idsListosAvisados.has(p.id)) {
-              notificarPedidoListo(
-                `Pedido listo · ${p.linea}`,
-                formatearDetallePedido(p)
-              );
-            }
-          });
-        }
-
-        const idsListosActuales = new Set(miosListos.map(p => p.id));
-        idsListosAvisados = new Set([...idsListosAvisados].filter(id => idsListosActuales.has(id)));
-        miosListos.forEach(p => idsListosAvisados.add(p.id));
-        primeraCargaOp = false;
-
-        pedidosHoyTodos = hoyPedidos;
-        peticionesHoyNombre = hoyPedidos.filter(
-          p => (p.solicitado_por || '').toLowerCase() === nombreActual
-        );
-        renderizarTodo();
-        actualizarEstadoRed(true);
-      } else if (error) {
-        actualizarEstadoRed(false);
-      }
-    } finally {
-      cargando = false;
-    }
-  }
-
-  function formatearDetallePedido(p) {
-    const refFmt = p.num_referencia ? (p.tipo_material ? `${p.tipo_material}-${p.num_referencia}` : p.num_referencia) : '';
-    const cantTxt = (p.cantidad && Number(p.cantidad) > 1) ? `x${p.cantidad}` : '';
-    const partes = [refFmt, p.opc ? `OPC ${p.opc}` : '', p.clase_material || '', cantTxt].filter(Boolean);
-    return partes.length > 0 ? partes.join(' · ') : (p.material || 'Material');
-  }
-
-  function obtenerPedidosFiltradosOperaria() {
-    const nombreActual = (sesionOp?.nombre || '').toLowerCase();
-
-    return pedidosHoyTodos.filter(p => {
-      if (!haVencidoTiempoPedido(p)) return false;
-
-      const esMio = nombreActual && (p.solicitado_por || '').toLowerCase() === nombreActual;
-      const esListo = p.estado === 'completado';
-      const esPendiente = p.estado !== 'completado';
-
-      if (mostrarSoloMios && mostrarTodosCompletados) {
-        return esMio && esListo;
-      }
-      if (mostrarSoloMios) {
-        return esMio && esPendiente;
-      }
-      if (esPendiente) {
-        return true;
-      }
-      if (esListo && mostrarTodosCompletados) {
-        return true;
-      }
-      return false;
-    });
-  }
-
-  function renderizarTodo() {
-    const lista = document.getElementById('lista-general');
-    const nombreActual = (sesionOp?.nombre || '').toLowerCase();
-    const visibles = obtenerPedidosFiltradosOperaria();
-
-    document.getElementById('contador-mios-hoy').innerText = `Hoy: ${peticionesHoyNombre.length}`;
-
-    if (visibles.length === 0) {
-      lista.innerHTML = '<div style="color:var(--muted); font-weight:800;">Sin pedidos que mostrar.</div>';
-      return;
-    }
-
-    lista.innerHTML = visibles.map((p, idx) => {
-      const esMio = nombreActual && (p.solicitado_por || '').toLowerCase() === nombreActual;
-      const esListo = p.estado === 'completado';
-      const hora = new Date(p.creado_en).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-      const detalle = formatearDetallePedido(p);
-      const loteTxt = (p.lote && p.lote !== 'FIFO') ? `Lote ${p.lote}` : 'FIFO';
-      const sub = [loteTxt, hora, p.solicitado_por || ''].filter(Boolean).join(' · ');
-      const itemJson = encodeURIComponent(JSON.stringify(p));
-      const estadoTxt = esListo ? 'Listo' : 'Pendiente';
-      const horaVence = formatearHoraVencimiento(p);
-
-      return `
-        <div class="pedido-card ${p.estado} ${esMio ? 'es-mio' : ''}">
-          <div>
-            <div class="pedido-main">#${idx + 1} · ${p.linea} — ${detalle}</div>
-            <div class="pedido-sub">${sub}</div>
-            <div>
-              ${esMio ? '<span class="tag mio">Mío</span>' : ''}
-              <span class="tag ${p.estado}">${estadoTxt}</span>
-              ${p.tiempo_aviso ? `<span class="tag tiempo">${p.tiempo_aviso}${horaVence ? ` (${horaVence})` : ''}</span>` : ''}
-            </div>
-          </div>
-          ${(esMio && !esListo) ? `
-            <div class="acciones-card">
-              <button type="button" class="btn-mini btn-mod" onclick="empezarEdicion(JSON.parse(decodeURIComponent('${itemJson}')))">Modificar</button>
-              <button type="button" class="btn-mini btn-can" onclick="cancelarPedido(${p.id})">Cancelar</button>
-            </div>
-          ` : ''}
-        </div>
-      `;
-    }).join('');
-  }
-
-  window.addEventListener('online', () => {
-    actualizarEstadoRed(true);
-    cargarPedidos();
-  });
-  window.addEventListener('offline', () => {
-    actualizarEstadoRed(false);
-  });
-
-  db.channel('cambios-pedidos-op-global')
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'pedidos' }, () => {
-      cargarPedidos();
-    })
-    .subscribe();
-
-  document.addEventListener('visibilitychange', () => {
-    if (!document.hidden && sesionOp) {
-      cargarPedidos();
-    }
-  });
-
-  setInterval(() => {
-    if (sesionOp) {
-      renderizarTodo();
-      cargarPedidos();
-    }
-  }, 2500);
-
-  if (sesionOp) {
-    mostrarTrabajo();
-  }
-</script>
-</body>
-</html>
