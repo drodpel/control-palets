@@ -493,7 +493,7 @@
 
   localStorage.removeItem('colaOfflineOperaria');
 
-  let sesionOp = JSON.parse(sessionStorage.getItem('sesionOperariaNombre') || 'null');
+  let sesionOp = JSON.parse(localStorage.getItem('sesionOperariaNombre') || 'null');
   let prefijoSeleccionado = '';
   let idEditando = null;
   let pedidosVisibles = [];
@@ -581,14 +581,14 @@
     }
     err.innerText = '';
     sesionOp = { nombre };
-    sessionStorage.setItem('sesionOperariaNombre', JSON.stringify(sesionOp));
+localStorage.setItem('sesionOperariaNombre', JSON.stringify(sesionOp));
     sonarPitidoFuerteOp();
     await solicitarPermisoNotificacionSiProcede();
     mostrarTrabajo();
   }
 
   function salirTurno() {
-    sessionStorage.removeItem('sesionOperariaNombre');
+    localStorage.removeItem('sesionOperariaNombre');
     sesionOp = null;
     primeraCargaOp = true;
     idsListosAvisados.clear();
