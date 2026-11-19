@@ -105,6 +105,12 @@
       border-left: 6px solid var(--warning);
       flex-wrap: wrap;
     }
+    .pedido-titulo {
+      font-size: 1.2rem;
+      font-weight: 900;
+      margin: 3px 0;
+      color: #ffffff;
+    }
     .badge {
       display: inline-block;
       padding: 3px 8px;
@@ -273,10 +279,18 @@
     }
   }
 
-  function formatearDetalle(p) {
+  function tieneLoteConcreto(p) {
+    return Boolean(p.lote && p.lote.trim() && p.lote.trim().toUpperCase() !== 'FIFO');
+  }
+
+  function formatearTituloPedido(p) {
     const refFmt = p.num_referencia ? (p.tipo_material ? `${p.tipo_material}-${p.num_referencia}` : p.num_referencia) : '';
     const partes = [refFmt, p.opc ? `OPC ${p.opc}` : '', p.clase_material || ''].filter(Boolean);
-    return partes.length > 0 ? partes.join(' · ') : (p.material || 'Material');
+    const base = partes.length > 0 ? partes.join(' · ') : (p.material || 'Material');
+    if (tieneLoteConcreto(p)) {
+      return `${base} · Lote ${p.lote.trim()}`;
+    }
+    return base;
   }
 
   async function marcarListo(id) {
@@ -302,7 +316,7 @@
           if (!idsConocidos.has(p.id)) {
             emitirNotificacion(
               `${p.linea}`,
-              `${formatearDetalle(p)} (${p.solicitado_por || ''})`
+              `${formatearTituloPedido(p)} (${p.solicitado_por || ''})`
             );
           }
         });
@@ -329,16 +343,17 @@
 
     lista.innerHTML = pedidosCache.map((p, index) => {
       const hora = new Date(p.creado_en).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-      const detalle = formatearDetalle(p);
-      const loteTxt = (p.lote && p.lote !== 'FIFO') ? `Lote ${p.lote}` : 'FIFO';
-      const sub = [loteTxt, p.solicitado_por || ''].filter(Boolean).join(' · ');
+      const titulo = formatearTituloPedido(p);
+      const subPartes = [];
+      if (!tieneLoteConcreto(p)) subPartes.push('FIFO');
+      if (p.solicitado_por) subPartes.push(p.solicitado_por);
 
       return `
         <div class="pedido-item">
           <div>
             <div style="font-size:0.88rem; color:var(--muted); font-weight:800;">#${index + 1} · ${hora} · ${p.linea}</div>
-            <div style="font-size:1.2rem; font-weight:900; margin:3px 0;">${detalle}</div>
-            <div style="font-size:0.92rem; color:#cbd5e1; font-weight:700;">${sub}</div>
+            <div class="pedido-titulo">${titulo}</div>
+            ${subPartes.length > 0 ? `<div style="font-size:0.92rem; color:#cbd5e1; font-weight:700;">${subPartes.join(' · ')}</div>` : ''}
             <span class="badge">Pendiente</span>
           </div>
           <button class="btn-hecho" onclick="marcarListo(${p.id})">Listo ✓</button>
