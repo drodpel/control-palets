@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0f172a">
+  <title>Control de Palets - Operaria</title>
+  <link rel="manifest" href="manifest.json">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --warning: #d97706;
+      --success: #16a34a;
+      --danger: #dc2626;
+      --bg: #0f172a;
+      --card: #1e293b;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --border: #334155;
+    }
+    * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
+    body { margin: 0; background: var(--bg); color: var(--text); padding: 16px; }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 12px;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+    }
+    .user-pill { font-size: 0.9rem; color: var(--muted); margin-top: 4px; }
+    .btn-logout {
+      background: var(--border);
+      color: var(--text);
+      border: none;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-weight: 700;
+      cursor: pointer;
+      font-size: 0.85rem;
+    }
+
+    .card {
+      background: var(--card);
+      padding: 18px;
+      border-radius: 12px;
+      margin-bottom: 16px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.35);
+    }
+    label { display: block; margin-bottom: 6px; font-weight: 700; color: var(--muted); font-size: 0.95rem; }
+    .hint { font-size: 0.82rem; color: var(--muted); margin-top: -8px; margin-bottom: 14px; }
+
+    input, select {
+      width: 100%;
+      padding: 14px;
+      font-size: 1.05rem;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: #0f172a;
+      color: var(--text);
+      margin-bottom: 14px;
+    }
+    input:focus, select:focus { outline: 2px solid var(--primary); border-color: var(--primary); }
+
+    .mat-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .mat-btn {
+      padding: 16px 8px;
+      border-radius: 10px;
+      border: 2px solid var(--border);
+      background: #0f172a;
+      color: var(--text);
+      font-weight: 800;
+      font-size: 1.15rem;
+      cursor: pointer;
+    }
+    .mat-btn.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #fff;
+    }
+
+    .ref-combo {
+      display: grid;
+      grid-template-columns: 84px 1fr;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+    .prefijo-box {
+      padding: 14px;
+      text-align: center;
+      font-weight: 800;
+      font-size: 1.1rem;
+      border-radius: 10px;
+      background: var(--border);
+      color: #fff;
+    }
+    .ref-combo input { margin-bottom: 0; }
+
+    button.action-btn {
+      width: 100%;
+      padding: 16px;
+      font-size: 1.08rem;
+      border-radius: 10px;
+      border: none;
+      background: var(--primary);
+      color: #fff;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .btn-secondary {
+      width: 100%;
+      padding: 12px;
+      font-size: 0.95rem;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--muted);
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 8px;
+    }
+
+    .error-msg {
+      color: #f87171;
+      font-weight: 700;
+      margin-bottom: 12px;
+      min-height: 20px;
+    }
+
+    #network-status {
+      display: inline-block;
+      margin-top: 6px;
+      font-size: 0.82rem;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: #16a34a33;
+      color: #4ade80;
+    }
+    #network-status.offline { background: #d9770633; color: #fbbf24; }
+
+    .pedido-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      background: #0f172a;
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 12px;
+      border-left: 6px solid var(--warning);
+      flex-wrap: wrap;
+    }
+    .pedido-item.en_camino { border-left-color: var(--primary); background: var(--card); }
+    .badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 0.76rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      margin-top: 4px;
+    }
+    .badge.pendiente { background: #d9770644; color: #fbbf24; }
+    .badge.en_camino { background: #2563eb44; color: #60a5fa; }
+
+    .acciones-op { display: flex; gap: 8px; flex-wrap: wrap; }
+    .btn-small {
+      padding: 10px 12px;
+      border: none;
+      border-radius: 8px;
+      font-weight: 700;
+      cursor: pointer;
+      color: #fff;
+      font-size: 0.88rem;
+    }
+    .btn-edit { background: var(--border); }
+    .btn-cancel { background: var(--danger); }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h2 style="margin:0; font-size: 1.15rem;">Petición de Material</h2>
+    <span id="network-status">● Conectado</span>
+    <div id="info-operaria" class="user-pill hidden"></div>
+  </div>
+  <button id="btn-cambiar-op" class="btn-logout hidden" onclick="salirTurno()">Cambiar nombre / línea</button>
+</header>
+
+<!-- PASO 1: IDENTIFICACIÓN AL ROTAR DE TABLET -->
+<div id="vista-inicio" class="card">
+  <h3 style="margin-top:0;">Inicio en este puesto</h3>
+  <label for="input-nombre">Tu nombre</label>
+  <input type="text" id="input-nombre" placeholder="Ej. Laura" autocomplete="off">
+
+  <label for="select-linea-inicio">Línea / Puesto en el que estás hoy</label>
+  <select id="select-linea-inicio">
+    <option value="Línea 1">Línea 1</option>
+    <option value="Línea 2">Línea 2</option>
+    <option value="Línea 3">Línea 3</option>
+    <option value="Línea 4">Línea 4</option>
+    <option value="Línea 5">Línea 5</option>
+    <option value="Línea 6">Línea 6</option>
+    <option value="Línea 7">Línea 7</option>
+    <option value="Línea 8">Línea 8</option>
+    <option value="Línea 9">Línea 9</option>
+    <option value="Línea 10">Línea 10</option>
+  </select>
+
+  <div id="inicio-error" class="error-msg"></div>
+  <button type="button" class="action-btn" onclick="iniciarTurno()">CONTINUAR</button>
+</div>
+
+<!-- PASO 2: FORMULARIO Y GESTIÓN DE PEDIDOS DE LA OPERARIA -->
+<div id="vista-trabajo" class="hidden">
+  <div class="card">
+    <h3 id="titulo-form" style="margin-top:0;">Nueva petición</h3>
+
+    <label for="select-linea">Línea / Puesto</label>
+    <select id="select-linea">
+      <option value="Línea 1">Línea 1</option>
+      <option value="Línea 2">Línea 2</option>
+      <option value="Línea 3">Línea 3</option>
+      <option value="Línea 4">Línea 4</option>
+      <option value="Línea 5">Línea 5</option>
+      <option value="Línea 6">Línea 6</option>
+      <option value="Línea 7">Línea 7</option>
+      <option value="Línea 8">Línea 8</option>
+      <option value="Línea 9">Línea 9</option>
+      <option value="Línea 10">Línea 10</option>
+    </select>
+
+    <label for="input-opc">4 últimos dígitos de OPC (opcional)</label>
+    <input type="text" id="input-opc" inputmode="numeric" pattern="\d{4}" maxlength="4" placeholder="Ej. 4821">
+    <div class="hint">Si no lleva OPC, es obligatorio marcar ST, MP o PT y escribir su numeración.</div>
+
+    <label>Tipo de material</label>
+    <div class="mat-grid">
+      <button type="button" class="mat-btn" data-mat="ST" onclick="seleccionarMaterial('ST')">ST</button>
+      <button type="button" class="mat-btn" data-mat="MP" onclick="seleccionarMaterial('MP')">MP</button>
+      <button type="button" class="mat-btn" data-mat="PT" onclick="seleccionarMaterial('PT')">PT</button>
+    </div>
+
+    <label for="input-num-ref">Numeración de la referencia</label>
+    <div class="ref-combo">
+      <div id="prefijo-visible" class="prefijo-box">--</div>
+      <input type="text" id="input-num-ref" inputmode="numeric" pattern="[0-9]*" placeholder="Ej. 10245">
+    </div>
+
+    <label for="input-lote">Lote (opcional — vacío = FIFO)</label>
+    <input type="text" id="input-lote" placeholder="Dejar vacío para seguir FIFO">
+
+    <div id="form-error" class="error-msg"></div>
+    <button type="button" class="action-btn" id="btn-guardar" onclick="guardarPedido()">SOLICITAR MATERIAL</button>
+    <button type="button" id="btn-cancelar-edicion" class="btn-secondary hidden" onclick="cancelarEdicion()">Cancelar edición</button>
+    <div id="cola-offline-msg" style="color: #fbbf24; font-weight: 700; text-align: center; margin-top: 10px;"></div>
+  </div>
+
+  <h3>Pedidos activos de esta línea</h3>
+  <div id="lista-operaria"></div>
+</div>
+
+<script>
+  const SUPABASE_URL = 'https://zblcwahdurlmnlkjocfr.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_zPaFGK04be_flVvEGmaepw_YMZq9Wxn';
+  const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  // Al rotar tablets, guardamos solo en sessionStorage de la pestaña actual
+  let sesionOp = JSON.parse(sessionStorage.getItem('sesionOperariaActual') || 'null');
+  let tipoMaterialSeleccionado = '';
+  let idEditando = null;
+  let pedidosActivos = [];
+  let colaOffline = JSON.parse(localStorage.getItem('colaOfflineOperaria') || '[]');
+
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js').catch(() => {});
+    });
+  }
+
+  function iniciarTurno() {
+    const nombre = document.getElementById('input-nombre').value.trim();
+    const linea = document.getElementById('select-linea-inicio').value;
+    const err = document.getElementById('inicio-error');
+
+    if (!nombre) {
+      err.innerText = 'Escribe tu nombre antes de continuar.';
+      return;
+    }
+    err.innerText = '';
+    sesionOp = { nombre, linea };
+    sessionStorage.setItem('sesionOperariaActual', JSON.stringify(sesionOp));
+    document.getElementById('select-linea').value = linea;
+    mostrarTrabajo();
+  }
+
+  function salirTurno() {
+    sessionStorage.removeItem('sesionOperariaActual');
+    sesionOp = null;
+    cancelarEdicion();
+    document.getElementById('vista-trabajo').classList.add('hidden');
+    document.getElementById('vista-inicio').classList.remove('hidden');
+    document.getElementById('info-operaria').classList.add('hidden');
+    document.getElementById('btn-cambiar-op').classList.add('hidden');
+  }
+
+  function mostrarTrabajo() {
+    if (!sesionOp) return;
+    document.getElementById('vista-inicio').classList.add('hidden');
+    document.getElementById('vista-trabajo').classList.remove('hidden');
+    document.getElementById('info-operaria').classList.remove('hidden');
+    document.getElementById('info-operaria').innerText = `${sesionOp.nombre} · ${sesionOp.linea}`;
+    document.getElementById('btn-cambiar-op').classList.remove('hidden');
+    cargarPedidos();
+  }
+
+  document.getElementById('select-linea').addEventListener('change', (e) => {
+    if (sesionOp) {
+      sesionOp.linea = e.target.value;
+      sessionStorage.setItem('sesionOperariaActual', JSON.stringify(sesionOp));
+      document.getElementById('info-operaria').innerText = `${sesionOp.nombre} · ${sesionOp.linea}`;
+      renderizarOperaria();
+    }
+  });
+
+  function seleccionarMaterial(tipo) {
+    tipoMaterialSeleccionado = tipo;
+    document.querySelectorAll('.mat-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.mat === tipo);
+    });
+    document.getElementById('prefijo-visible').innerText = tipo;
+    const numInput = document.getElementById('input-num-ref');
+    numInput.focus();
+    numInput.click();
+  }
+
+  document.getElementById('input-opc').addEventListener('input', (e) => {
+    e.target.value = e.target.value.replace(/\D/g, '').slice(0, 4);
+  });
+  document.getElementById('input-num-ref').addEventListener('input', (e) => {
+    e.target.value = e.target.value.replace(/\D/g, '');
+  });
+
+  function actualizarEstadoRed(online) {
+    const badge = document.getElementById('network-status');
+    badge.innerText = online ? '● Conectado' : '● Sin cobertura (Reintentando)';
+    badge.className = online ? '' : 'offline';
+  }
+
+  function limpiarFormulario() {
+    idEditando = null;
+    document.getElementById('titulo-form').innerText = 'Nueva petición';
+    document.getElementById('btn-guardar').innerText = 'SOLICITAR MATERIAL';
+    document.getElementById('btn-cancelar-edicion').classList.add('hidden');
+    document.getElementById('input-opc').value = '';
+    document.getElementById('input-num-ref').value = '';
+    document.getElementById('input-lote').value = '';
+    tipoMaterialSeleccionado = '';
+    document.getElementById('prefijo-visible').innerText = '--';
+    document.querySelectorAll('.mat-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('form-error').innerText = '';
+  }
+
+  function cancelarEdicion() {
+    limpiarFormulario();
+  }
+
+  function empezarEdicion(pedido) {
+    idEditando = pedido.id;
+    document.getElementById('titulo-form').innerText = `Modificando pedido #${pedido.id} (volverá a la cola)`;
+    document.getElementById('btn-guardar').innerText = 'GUARDAR CAMBIOS Y VOLVER A COLA';
+    document.getElementById('btn-cancelar-edicion').classList.remove('hidden');
+
+    document.getElementById('select-linea').value = pedido.linea || sesionOp.linea;
+    document.getElementById('input-opc').value = pedido.opc || '';
+    document.getElementById('input-num-ref').value = pedido.num_referencia || '';
+    document.getElementById('input-lote').value = (pedido.lote && pedido.lote !== 'FIFO') ? pedido.lote : '';
+
+    tipoMaterialSeleccionado = pedido.tipo_material || '';
+    document.getElementById('prefijo-visible').innerText = tipoMaterialSeleccionado || '--';
+    document.querySelectorAll('.mat-btn').forEach(b => {
+      b.classList.toggle('active', b.dataset.mat === tipoMaterialSeleccionado);
+    });
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  async function guardarPedido() {
+    const err = document.getElementById('form-error');
+    const linea = document.getElementById('select-linea').value;
+    const opc = document.getElementById('input-opc').value.trim();
+    const numRef = document.getElementById('input-num-ref').value.trim();
+    const loteInput = document.getElementById('input-lote').value.trim();
+
+    if (opc && opc.length !== 4) {
+      err.innerText = 'La OPC debe tener exactamente 4 dígitos o dejarse vacía.';
+      return;
+    }
+    if (!opc && (!tipoMaterialSeleccionado || !numRef)) {
+      err.innerText = 'Sin OPC debes marcar ST, MP o PT y escribir su numeración.';
+      return;
+    }
+    if (tipoMaterialSeleccionado && !numRef) {
+      err.innerText = `Escribe la numeración para ${tipoMaterialSeleccionado}.`;
+      document.getElementById('input-num-ref').focus();
+      return;
+    }
+
+    err.innerText = '';
+    const btn = document.getElementById('btn-guardar');
+    btn.disabled = true;
+    const textoOriginal = btn.innerText;
+    btn.innerText = 'Guardando...';
+
+    const referenciaCompleta = tipoMaterialSeleccionado && numRef
+      ? `${tipoMaterialSeleccionado}-${numRef}`
+      : 'Según OPC';
+
+    // Al modificar o crear, queda en estado 'pendiente' y con hora actualizada para volver a la cola
+    const payload = {
+      linea,
+      material: `${referenciaCompleta} (${loteInput ? 'Lote ' + loteInput : 'FIFO'})`,
+      solicitado_por: sesionOp ? sesionOp.nombre : 'Operaria',
+      opc: opc || null,
+      tipo_material: tipoMaterialSeleccionado || null,
+      num_referencia: numRef || null,
+      lote: loteInput || 'FIFO',
+      estado: 'pendiente',
+      creado_en: new Date().toISOString()
+    };
+
+    if (idEditando) {
+      const { error } = await db.from('pedidos').update(payload).eq('id', idEditando);
+      if (error) {
+        actualizarEstadoRed(false);
+        err.innerText = 'No se pudo actualizar ahora mismo. Revisa la conexión.';
+      } else {
+        actualizarEstadoRed(true);
+        limpiarFormulario();
+        await cargarPedidos();
+      }
+    } else {
+      const { error } = await db.from('pedidos').insert([payload]);
+      if (error) {
+        colaOffline.push(payload);
+        localStorage.setItem('colaOfflineOperaria', JSON.stringify(colaOffline));
+        actualizarEstadoRed(false);
+      } else {
+        actualizarEstadoRed(true);
+        limpiarFormulario();
+        await cargarPedidos();
+      }
+    }
+
+    setTimeout(() => {
+      btn.disabled = false;
+      btn.innerText = idEditando ? 'GUARDAR CAMBIOS Y VOLVER A COLA' : 'SOLICITAR MATERIAL';
+    }, 400);
+  }
+
+  async function cancelarPedido(id) {
+    const { error } = await db.from('pedidos').update({ estado: 'cancelado' }).eq('id', id);
+    if (!error) {
+      if (idEditando === id) limpiarFormulario();
+      await cargarPedidos();
+    } else {
+      actualizarEstadoRed(false);
+    }
+  }
+
+  setInterval(async () => {
+    const msg = document.getElementById('cola-offline-msg');
+    if (colaOffline.length === 0) {
+      msg.innerText = '';
+      return;
+    }
+    msg.innerText = `Sin cobertura: ${colaOffline.length} pedido(s) esperando señal...`;
+    const pendiente = colaOffline[0];
+    const { error } = await db.from('pedidos').insert([pendiente]);
+    if (!error) {
+      colaOffline.shift();
+      localStorage.setItem('colaOfflineOperaria', JSON.stringify(colaOffline));
+      actualizarEstadoRed(true);
+      await cargarPedidos();
+    }
+  }, 4000);
+
+  async function cargarPedidos() {
+    if (!sesionOp) return;
+    const { data, error } = await db
+      .from('pedidos')
+      .select('*')
+      .not('estado', 'in', '("completado","cancelado")')
+      .order('creado_en', { ascending: true });
+
+    if (!error && data) {
+      pedidosActivos = data;
+      renderizarOperaria();
+      actualizarEstadoRed(true);
+    } else if (error) {
+      actualizarEstadoRed(false);
+    }
+  }
+
+  function renderizarOperaria() {
+    const lista = document.getElementById('lista-operaria');
+    const lineaActual = document.getElementById('select-linea').value;
+    const mios = [];
+
+    pedidosActivos.forEach((p, idx) => {
+      if (p.linea === lineaActual) {
+        mios.push({ p, turno: idx + 1 });
+      }
+    });
+
+    if (mios.length === 0) {
+      lista.innerHTML = '<p style="color:var(--muted);">No hay pedidos activos en esta línea.</p>';
+      return;
+    }
+
+    lista.innerHTML = mios.map(({ p, turno }) => {
+      const hora = new Date(p.creado_en).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      const refFmt = p.tipo_material && p.num_referencia
+        ? `${p.tipo_material}-${p.num_referencia}`
+        : (p.material || 'Material');
+      const extra = [
+        p.opc ? `OPC ${p.opc}` : null,
+        `Lote ${p.lote || 'FIFO'}`
+      ].filter(Boolean).join(' · ');
+
+      const itemJson = encodeURIComponent(JSON.stringify(p));
+
+      return `
+        <div class="pedido-item ${p.estado}">
+          <div>
+            <strong>${refFmt}</strong> (${extra})<br>
+            <span style="color:var(--muted); font-size:0.88rem;">${hora} · Turno: <strong>#${turno}</strong> · Por ${p.solicitado_por || '-'}</span><br>
+            <span class="badge ${p.estado}">${p.estado === 'en_camino' ? '¡En camino!' : 'En espera'}</span>
+          </div>
+          <div class="acciones-op">
+            <button type="button" class="btn-small btn-edit" onclick="empezarEdicion(JSON.parse(decodeURIComponent('${itemJson}')))">Modificar</button>
+            <button type="button" class="btn-small btn-cancel" onclick="cancelarPedido(${p.id})">Cancelar</button>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  db.channel('cambios-pedidos-op')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'pedidos' }, () => {
+      cargarPedidos();
+    })
+    .subscribe();
+
+  setInterval(cargarPedidos, 10000);
+  if (sesionOp) {
+    document.getElementById('select-linea').value = sesionOp.linea;
+    mostrarTrabajo();
+  }
+</script>
+</body>
+</html>

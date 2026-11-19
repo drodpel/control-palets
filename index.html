@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Control de Palets - Nave</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --warning: #d97706;
+      --success: #16a34a;
+      --bg: #0f172a;
+      --card: #1e293b;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --border: #334155;
+    }
+    * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
+    body { margin: 0; background: var(--bg); color: var(--text); padding: 16px; }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 12px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    .tabs button {
+      background: var(--border);
+      color: var(--text);
+      border: none;
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-left: 6px;
+    }
+    .tabs button.active { background: var(--primary); }
+    .card {
+      background: var(--card);
+      padding: 20px;
+      border-radius: 12px;
+      margin-bottom: 16px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.35);
+    }
+    label { display: block; margin-bottom: 8px; font-weight: 700; color: var(--muted); }
+    select, button.action-btn {
+      width: 100%;
+      padding: 16px;
+      font-size: 1.05rem;
+      border-radius: 10px;
+      border: none;
+      margin-bottom: 16px;
+    }
+    select { background: var(--border); color: var(--text); font-weight: 700; }
+    button.action-btn {
+      background: var(--primary);
+      color: #fff;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.15s ease;
+    }
+    button.action-btn:active { transform: scale(0.98); }
+
+    #network-status {
+      display: inline-block;
+      margin-top: 6px;
+      font-size: 0.85rem;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: #16a34a33;
+      color: #4ade80;
+    }
+    #network-status.offline { background: #d9770633; color: #fbbf24; }
+
+    .pedido-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      background: var(--bg);
+      padding: 16px;
+      border-radius: 10px;
+      margin-bottom: 12px;
+      border-left: 6px solid var(--warning);
+    }
+    .pedido-item.en_camino { border-left-color: var(--primary); background: var(--card); }
+    .badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+    .badge.pendiente { background: #d9770644; color: #fbbf24; }
+    .badge.en_camino { background: #2563eb44; color: #60a5fa; }
+    .btn-small {
+      padding: 12px 16px;
+      border: none;
+      border-radius: 8px;
+      font-weight: 700;
+      cursor: pointer;
+      color: #fff;
+      margin-left: 6px;
+      font-size: 0.95rem;
+    }
+    .btn-camino { background: var(--primary); }
+    .btn-hecho { background: var(--success); }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h2 style="margin:0; font-size: 1.2rem;">Control de Palets</h2>
+    <span id="network-status">● Conectado</span>
+  </div>
+  <div class="tabs" id="barra-pestanas">
+    <button id="tab-operaria" class="active" onclick="cambiarVista('operaria')">Operaria</button>
+    <button id="tab-carretillero" onclick="cambiarVista('carretillero')">Carretillero</button>
+  </div>
+</header>
+
+<!-- VISTA OPERARIA -->
+<div id="vista-operaria">
+  <div class="card">
+    <label for="select-linea">1. Tu Puesto / Línea:</label>
+    <select id="select-linea">
+      <option value="Línea 1">Línea 1</option>
+      <option value="Línea 2">Línea 2</option>
+      <option value="Línea 3">Línea 3</option>
+      <option value="Línea 4">Línea 4</option>
+      <option value="Línea 5">Línea 5</option>
+      <option value="Línea 6">Línea 6</option>
+      <option value="Línea 7">Línea 7</option>
+      <option value="Línea 8">Línea 8</option>
+      <option value="Línea 9">Línea 9</option>
+      <option value="Línea 10">Línea 10</option>
+    </select>
+
+    <label for="select-material">2. ¿Qué necesitas?</label>
+    <select id="select-material">
+      <option value="Palet Europeo Vacío">Palet Europeo Vacío</option>
+      <option value="Palet Americano Vacío">Palet Americano Vacío</option>
+      <option value="Retirar Palet Lleno">Retirar Palet Lleno</option>
+      <option value="Material / Reposición">Material / Reposición</option>
+    </select>
+
+    <button class="action-btn" id="btn-pedir" onclick="solicitarPalet()">SOLICITAR AHORA</button>
+    <div id="cola-offline-msg" style="color: #fbbf24; font-weight: 700; text-align: center;"></div>
+  </div>
+
+  <h3>Tus pedidos activos en cola:</h3>
+  <div id="lista-operaria"></div>
+</div>
+
+<!-- VISTA CARRETILLERO -->
+<div id="vista-carretillero" class="hidden">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+    <h3 style="margin:0;">Cola de Trabajo (Orden de llegada)</h3>
+    <span id="contador-pendientes" style="font-weight:700; color:var(--muted);">0 pendientes</span>
+  </div>
+  <div id="lista-carretillero"></div>
+</div>
+
+<script>
+  const SUPABASE_URL = 'https://zblcwahdurlmnlkjocfr.supabase.co'; //[cite: 3, 4]
+  const SUPABASE_KEY = 'sb_publishable_zPaFGK04be_flVvEGmaepw_YMZq9Wxn'; //[cite: 4]
+
+  const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  let pedidosCache = [];
+  let colaOffline = JSON.parse(localStorage.getItem('colaOfflinePalets') || '[]');
+
+  const selectLinea = document.getElementById('select-linea');
+  if (localStorage.getItem('miLineaPalets')) {
+    selectLinea.value = localStorage.getItem('miLineaPalets');
+  }
+  selectLinea.addEventListener('change', () => {
+    localStorage.setItem('miLineaPalets', selectLinea.value);
+    renderizar();
+  });
+
+  function cambiarVista(vista) {
+    document.getElementById('vista-operaria').classList.toggle('hidden', vista !== 'operaria');
+    document.getElementById('vista-carretillero').classList.toggle('hidden', vista !== 'carretillero');
+    document.getElementById('tab-operaria').classList.toggle('active', vista === 'operaria');
+    document.getElementById('tab-carretillero').classList.toggle('active', vista === 'carretillero');
+  }
+
+  const modoUrl = new URLSearchParams(window.location.search).get('modo');
+  if (modoUrl === 'carretillero' || modoUrl === 'operaria') {
+    cambiarVista(modoUrl);
+    document.getElementById('barra-pestanas').classList.add('hidden');
+  }
+
+  function actualizarEstadoRed(online) {
+    const badge = document.getElementById('network-status');
+    badge.innerText = online ? '● Conectado' : '● Sin cobertura (Reintentando)';
+    badge.className = online ? '' : 'offline';
+  }
+
+  async function solicitarPalet() {
+    const linea = selectLinea.value;
+    const material = document.getElementById('select-material').value;
+    const btn = document.getElementById('btn-pedir');
+
+    btn.disabled = true;
+    btn.innerText = 'Enviando...';
+
+    const nuevoPedido = {
+      linea,
+      material,
+      estado: 'pendiente',
+      creado_en: new Date().toISOString()
+    };
+
+    const { error } = await db.from('pedidos').insert([nuevoPedido]);
+
+    if (error) {
+      colaOffline.push(nuevoPedido);
+      localStorage.setItem('colaOfflinePalets', JSON.stringify(colaOffline));
+      actualizarEstadoRed(false);
+    } else {
+      actualizarEstadoRed(true);
+      await cargarPedidos();
+    }
+
+    setTimeout(() => {
+      btn.disabled = false;
+      btn.innerText = 'SOLICITAR AHORA';
+    }, 600);
+  }
+
+  setInterval(async () => {
+    const msg = document.getElementById('cola-offline-msg');
+    if (colaOffline.length === 0) {
+      msg.innerText = '';
+      return;
+    }
+    msg.innerText = `Sin cobertura: ${colaOffline.length} pedido(s) esperando señal...`;
+
+    const pendiente = colaOffline[0];
+    const { error } = await db.from('pedidos').insert([pendiente]);
+    if (!error) {
+      colaOffline.shift();
+      localStorage.setItem('colaOfflinePalets', JSON.stringify(colaOffline));
+      actualizarEstadoRed(true);
+      await cargarPedidos();
+    }
+  }, 4000);
+
+  async function cambiarEstado(id, nuevoEstado) {
+    const { error } = await db.from('pedidos').update({ estado: nuevoEstado }).eq('id', id);
+    if (!error) {
+      await cargarPedidos();
+    } else {
+      actualizarEstadoRed(false);
+    }
+  }
+
+  async function cargarPedidos() {
+    const { data, error } = await db
+      .from('pedidos')
+      .select('*')
+      .neq('estado', 'completado')
+      .order('creado_en', { ascending: true });
+
+    if (!error && data) {
+      pedidosCache = data;
+      renderizar();
+      actualizarEstadoRed(true);
+    } else if (error) {
+      actualizarEstadoRed(false);
+    }
+  }
+
+  function renderizar() {
+    const listaCarr = document.getElementById('lista-carretillero');
+    const listaOp = document.getElementById('lista-operaria');
+    const miLinea = selectLinea.value;
+
+    document.getElementById('contador-pendientes').innerText = `${pedidosCache.length} pendientes`;
+
+    listaCarr.innerHTML = pedidosCache.length === 0
+      ? '<p style="color:var(--muted);">Sin pedidos pendientes ahora mismo.</p>'
+      : '';
+
+    pedidosCache.forEach((p, index) => {
+      const hora = new Date(p.creado_en).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      listaCarr.innerHTML += `
+        <div class="pedido-item ${p.estado}">
+          <div>
+            <div style="font-size:0.85rem; color:var(--muted);">#${index + 1} • Pedido a las <strong>${hora}</strong></div>
+            <div style="font-size:1.2rem; font-weight:700; margin:4px 0;">${p.linea} — ${p.material}</div>
+            <span class="badge ${p.estado}">${p.estado === 'en_camino' ? 'En camino' : 'Pendiente'}</span>
+          </div>
+          <div>
+            ${p.estado === 'pendiente'
+              ? `<button class="btn-small btn-camino" onclick="cambiarEstado(${p.id}, 'en_camino')">Voy</button>`
+              : ''}
+            <button class="btn-small btn-hecho" onclick="cambiarEstado(${p.id}, 'completado')">Listo ✓</button>
+          </div>
+        </div>
+      `;
+    });
+
+    listaOp.innerHTML = '';
+    const mios = [];
+    pedidosCache.forEach((p, index) => {
+      if (p.linea === miLinea) {
+        mios.push({ pedido: p, turno: index + 1 });
+      }
+    });
+
+    if (mios.length === 0) {
+      listaOp.innerHTML = '<p style="color:var(--muted);">No tienes pedidos activos en este momento.</p>';
+    } else {
+      mios.forEach(({ pedido: p, turno }) => {
+        const hora = new Date(p.creado_en).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        listaOp.innerHTML += `
+          <div class="pedido-item ${p.estado}">
+            <div>
+              <strong>${p.material}</strong> (Pedido a las ${hora})<br>
+              <span style="color:var(--muted); font-size:0.9rem;">Turno en cola: <strong>#${turno}</strong></span>
+            </div>
+            <span class="badge ${p.estado}">${p.estado === 'en_camino' ? '¡En camino!' : 'En espera'}</span>
+          </div>
+        `;
+      });
+    }
+  }
+
+  db.channel('cambios-pedidos')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'pedidos' }, () => {
+      cargarPedidos();
+    })
+    .subscribe();
+
+  setInterval(cargarPedidos, 10000);
+  cargarPedidos();
+</script>
+</body>
+</html>

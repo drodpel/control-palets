@@ -1,0 +1,10 @@
+{
+  "name": "Palets Operaria - Fábrica",
+  "short_name": "Palets Op.",
+  "start_url": "./operaria.html",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
+  "orientation": "portrait-primary",
+  "icons": []
+}

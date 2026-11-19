@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0f172a">
+  <title>Control de Palets - Carretillero</title>
+  <link rel="manifest" href="manifest-carretillero.json">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --warning: #d97706;
+      --success: #16a34a;
+      --bg: #0f172a;
+      --card: #1e293b;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --border: #334155;
+    }
+    * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
+    body { margin: 0; background: var(--bg); color: var(--text); padding: 16px; }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 12px;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+    }
+    .user-pill { font-size: 0.9rem; color: var(--muted); margin-top: 4px; }
+    .btn-top {
+      background: var(--border);
+      color: var(--text);
+      border: none;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-weight: 700;
+      cursor: pointer;
+      font-size: 0.85rem;
+    }
+
+    .card {
+      background: var(--card);
+      padding: 18px;
+      border-radius: 12px;
+      margin-bottom: 16px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.35);
+    }
+    label { display: block; margin-bottom: 6px; font-weight: 700; color: var(--muted); font-size: 0.95rem; }
+    input {
+      width: 100%;
+      padding: 14px;
+      font-size: 1.05rem;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: #0f172a;
+      color: var(--text);
+      margin-bottom: 14px;
+    }
+    button.action-btn {
+      width: 100%;
+      padding: 16px;
+      font-size: 1.08rem;
+      border-radius: 10px;
+      border: none;
+      background: var(--primary);
+      color: #fff;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .error-msg { color: #f87171; font-weight: 700; margin-bottom: 12px; min-height: 20px; }
+
+    #network-status {
+      display: inline-block;
+      margin-top: 6px;
+      font-size: 0.82rem;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: #16a34a33;
+      color: #4ade80;
+    }
+    #network-status.offline { background: #d9770633; color: #fbbf24; }
+
+    .pedido-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      background: #0f172a;
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 12px;
+      border-left: 6px solid var(--warning);
+    }
+    .pedido-item.en_camino { border-left-color: var(--primary); background: var(--card); }
+    .badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 0.76rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      margin-top: 4px;
+    }
+    .badge.pendiente { background: #d9770644; color: #fbbf24; }
+    .badge.en_camino { background: #2563eb44; color: #60a5fa; }
+    .btn-small {
+      padding: 11px 14px;
+      border: none;
+      border-radius: 8px;
+      font-weight: 700;
+      cursor: pointer;
+      color: #fff;
+      margin-left: 6px;
+    }
+    .btn-camino { background: var(--primary); }
+    .btn-hecho { background: var(--success); }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h2 style="margin:0; font-size: 1.15rem;">Cola de Carretillero</h2>
+    <span id="network-status">● Conectado</span>
+    <div id="info-carr" class="user-pill hidden"></div>
+  </div>
+  <div style="display:flex; gap:8px; flex-wrap:wrap;">
+    <button id="btn-notif" class="btn-top hidden" onclick="activarNotificaciones()">🔔 Avisos</button>
+    <button id="btn-salir" class="btn-top hidden" onclick="cerrarSesion()">Cambiar nombre</button>
+  </div>
+</header>
+
+<div id="vista-login" class="card">
+  <h3 style="margin-top:0;">Acceso Carretillero</h3>
+  <label for="input-nombre">Tu nombre</label>
+  <input type="text" id="input-nombre" placeholder="Ej. Dani" autocomplete="name">
+  <div id="login-error" class="error-msg"></div>
+  <button type="button" class="action-btn" onclick="entrar()">ENTRAR A LA COLA</button>
+</div>
+
+<div id="vista-cola" class="hidden">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+    <h3 style="margin:0;">Peticiones pendientes (Orden FIFO)</h3>
+    <span id="contador-pendientes" style="font-weight:700; color:var(--muted);">0 pendientes</span>
+  </div>
+  <div id="lista-carretillero"></div>
+</div>
+
+<script>
+  const SUPABASE_URL = 'https://zblcwahdurlmnlkjocfr.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_zPaFGK04be_flVvEGmaepw_YMZq9Wxn';
+  const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  let sesionCarr = JSON.parse(localStorage.getItem('sesionCarretillero') || 'null');
+  let pedidosCache = [];
+  let idsConocidos = new Set();
+  let primeraCarga = true;
+
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js').catch(() => {});
+    });
+  }
+
+  function entrar() {
+    const nombre = document.getElementById('input-nombre').value.trim();
+    const err = document.getElementById('login-error');
+    if (!nombre) {
+      err.innerText = 'Escribe tu nombre para entrar.';
+      return;
+    }
+    err.innerText = '';
+    sesionCarr = { nombre };
+    localStorage.setItem('sesionCarretillero', JSON.stringify(sesionCarr));
+    mostrarCola();
+  }
+
+  function cerrarSesion() {
+    localStorage.removeItem('sesionCarretillero');
+    sesionCarr = null;
+    primeraCarga = true;
+    idsConocidos.clear();
+    document.getElementById('vista-cola').classList.add('hidden');
+    document.getElementById('vista-login').classList.remove('hidden');
+    document.getElementById('info-carr').classList.add('hidden');
+    document.getElementById('btn-notif').classList.add('hidden');
+    document.getElementById('btn-salir').classList.add('hidden');
+  }
+
+  function mostrarCola() {
+    if (!sesionCarr) return;
+    document.getElementById('vista-login').classList.add('hidden');
+    document.getElementById('vista-cola').classList.remove('hidden');
+    document.getElementById('info-carr').classList.remove('hidden');
+    document.getElementById('info-carr').innerText = `Carretillero: ${sesionCarr.nombre}`;
+    document.getElementById('btn-notif').classList.remove('hidden');
+    document.getElementById('btn-salir').classList.remove('hidden');
+    actualizarBotonNotif();
+    cargarPedidos();
+  }
+
+  function actualizarEstadoRed(online) {
+    const badge = document.getElementById('network-status');
+    badge.innerText = online ? '● Conectado' : '● Sin cobertura (Reintentando)';
+    badge.className = online ? '' : 'offline';
+  }
+
+  function actualizarBotonNotif() {
+    const btn = document.getElementById('btn-notif');
+    if (!('Notification' in window)) {
+      btn.innerText = 'Avisos no soportados';
+      return;
+    }
+    if (Notification.permission === 'granted') {
+      btn.innerText = '🔔 Avisos activos';
+    } else if (Notification.permission === 'denied') {
+      btn.innerText = '🔕 Avisos bloqueados';
+    } else {
+      btn.innerText = '🔔 Activar avisos';
+    }
+  }
+
+  async function activarNotificaciones() {
+    if (!('Notification' in window)) return;
+    const perm = await Notification.requestPermission();
+    actualizarBotonNotif();
+    if (perm === 'granted') {
+      emitirNotificacion('Avisos activados', 'Te avisaré cuando llegue una nueva petición.');
+    }
+  }
+
+  function emitirNotificacion(titulo, cuerpo) {
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = 740;
+      gain.gain.value = 0.08;
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.18);
+    } catch (_) {}
+
+    if ('Notification' in window && Notification.permission === 'granted') {
+      if (navigator.serviceWorker && navigator.serviceWorker.ready) {
+        navigator.serviceWorker.ready.then(reg => {
+          reg.showNotification(titulo, {
+            body: cuerpo,
+            tag: 'nuevo-pedido-palets',
+            renotify: true
+          });
+        }).catch(() => {
+          new Notification(titulo, { body: cuerpo });
+        });
+      } else {
+        new Notification(titulo, { body: cuerpo });
+      }
+    }
+  }
+
+  async function cambiarEstado(id, nuevoEstado) {
+    const { error } = await db.from('pedidos').update({ estado: nuevoEstado }).eq('id', id);
+    if (!error) {
+      await cargarPedidos();
+    } else {
+      actualizarEstadoRed(false);
+    }
+  }
+
+  async function cargarPedidos() {
+    if (!sesionCarr) return;
+    const { data, error } = await db
+      .from('pedidos')
+      .select('*')
+      .not('estado', 'in', '("completado","cancelado")')
+      .order('creado_en', { ascending: true });
+
+    if (!error && data) {
+      if (!primeraCarga) {
+        data.forEach(p => {
+          if (!idsConocidos.has(p.id)) {
+            const refTexto = p.tipo_material && p.num_referencia
+              ? `${p.tipo_material}-${p.num_referencia}`
+              : (p.material || 'Material');
+            const opcTexto = p.opc ? ` · OPC ${p.opc}` : '';
+            const loteTexto = p.lote && p.lote !== 'FIFO' ? ` · Lote ${p.lote}` : ' · FIFO';
+            emitirNotificacion(
+              `Nueva petición: ${p.linea}`,
+              `${refTexto}${opcTexto}${loteTexto} (${p.solicitado_por || 'Operaria'})`
+            );
+          }
+        });
+      }
+
+      idsConocidos = new Set(data.map(p => p.id));
+      primeraCarga = false;
+      pedidosCache = data;
+      renderizarCarretillero();
+      actualizarEstadoRed(true);
+    } else if (error) {
+      actualizarEstadoRed(false);
+    }
+  }
+
+  function renderizarCarretillero() {
+    const lista = document.getElementById('lista-carretillero');
+    document.getElementById('contador-pendientes').innerText = `${pedidosCache.length} pendientes`;
+
+    if (pedidosCache.length === 0) {
+      lista.innerHTML = '<p style="color:var(--muted);">Sin pedidos pendientes ahora mismo.</p>';
+      return;
+    }
+
+    lista.innerHTML = pedidosCache.map((p, index) => {
+      const hora = new Date(p.creado_en).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      const refFmt = p.tipo_material && p.num_referencia
+        ? `${p.tipo_material}-${p.num_referencia}`
+        : (p.material || 'Material');
+      const detalles = [
+        p.opc ? `OPC: <strong>${p.opc}</strong>` : 'Sin OPC',
+        `Lote: <strong>${p.lote || 'FIFO'}</strong>`,
+        `Op: ${p.solicitado_por || '-'}`
+      ].join(' · ');
+
+      return `
+        <div class="pedido-item ${p.estado}">
+          <div>
+            <div style="font-size:0.84rem; color:var(--muted);">#${index + 1} · ${hora} · ${p.linea}</div>
+            <div style="font-size:1.2rem; font-weight:800; margin:4px 0;">${refFmt}</div>
+            <div style="font-size:0.88rem; color:#cbd5e1;">${detalles}</div>
+            <span class="badge ${p.estado}">${p.estado === 'en_camino' ? 'En camino' : 'Pendiente'}</span>
+          </div>
+          <div>
+            ${p.estado === 'pendiente'
+              ? `<button class="btn-small btn-camino" onclick="cambiarEstado(${p.id}, 'en_camino')">Voy</button>`
+              : ''}
+            <button class="btn-small btn-hecho" onclick="cambiarEstado(${p.id}, 'completado')">Listo ✓</button>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  db.channel('cambios-pedidos-carr')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'pedidos' }, () => {
+      cargarPedidos();
+    })
+    .subscribe();
+
+  setInterval(cargarPedidos, 10000);
+  if (sesionCarr) {
+    mostrarCola();
+  }
+</script>
+</body>
+</html>
