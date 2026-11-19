@@ -204,6 +204,16 @@
       border-left-color: var(--success);
       opacity: 0.78;
     }
+    .opc-mat-list {
+      margin: 6px 0 4px 0;
+      padding-left: 18px;
+      color: #ffffff;
+      font-weight: 800;
+      font-size: 0.96rem;
+    }
+    .opc-mat-list li {
+      margin-bottom: 3px;
+    }
     .hidden { display: none !important; }
   </style>
 </head>
@@ -268,7 +278,7 @@
   let primeraCarga = true;
   let audioCtx = null;
   let pestanaActual = 'cola';
-  let apuntesOpcCompletados = new Set(JSON.parse(localStorage.getItem('apuntesOpcCompletadosCarr') || '[]'));
+  let opcsCompletadas = new Set(JSON.parse(localStorage.getItem('opcsCompletadasCarr') || '[]'));
 
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
@@ -319,20 +329,21 @@
     }
   }
 
-  function guardarApuntesOpcLocal() {
+  function guardarOpcsCompletadasLocal() {
     try {
-      localStorage.setItem('apuntesOpcCompletadosCarr', JSON.stringify([...apuntesOpcCompletados]));
+      localStorage.setItem('opcsCompletadasCarr', JSON.stringify([...opcsCompletadas]));
     } catch (_) {}
   }
 
-  function alternarApunteOpcCompletado(id) {
-    const clave = String(id);
-    if (apuntesOpcCompletados.has(clave)) {
-      apuntesOpcCompletados.delete(clave);
+  function alternarOpcCompletada(opcCodigo) {
+    const clave = String(opcCodigo || '').trim();
+    if (!clave) return;
+    if (opcsCompletadas.has(clave)) {
+      opcsCompletadas.delete(clave);
     } else {
-      apuntesOpcCompletados.add(clave);
+      opcsCompletadas.add(clave);
     }
-    guardarApuntesOpcLocal();
+    guardarOpcsCompletadasLocal();
     renderizarApuntesOpc();
   }
 
@@ -567,21 +578,66 @@
     }
   }
 
-  function obtenerApuntesOpcRelevantes() {
+  function obtenerGruposOpcRelevantes() {
     const entradaMs = sesionCarr && sesionCarr.entradaHoyISO
       ? new Date(sesionCarr.entradaHoyISO).getTime()
       : new Date(inicioHoyISO()).getTime();
     const haceDosHorasMs = Date.now() - (2 * 60 * 60 * 1000);
 
-    return pedidosHoyTodos
-      .filter(p => {
-        if (!p.opc || !String(p.opc).trim()) return false;
-        const creadoMs = new Date(p.creado_en).getTime();
-        const desdeEntradaHoy = creadoMs >= entradaMs;
-        const ultimasDosHoras = creadoMs >= haceDosHorasMs;
-        return desdeEntradaHoy || ultimasDosHoras;
-      })
-      .sort((a, b) => new Date(b.creado_en).getTime() - new Date(a.creado_en).getTime());
+    const filtrados = pedidosHoyTodos.filter(p => {
+      if (!p.opc || !String(p.opc).trim()) return false;
+      const creadoMs = new Date(p.creado_en).getTime();
+      const desdeEntradaHoy = creadoMs >= entradaMs;
+      const ultimasDosHoras = creadoMs >= haceDosHorasMs;
+      return desdeEntradaHoy || ultimasDosHoras;
+    });
+
+    const mapaOpc = new Map();
+
+    filtrados.forEach(p => {
+      const codigoOpc = String(p.opc).trim();
+      const cant = obtenerCantidadPedido(p);
+      const refFmt = p.num_referencia ? (p.tipo_material ? `${p.tipo_material}-${p.num_referencia}` : p.num_referencia) : '';
+      const nombreMat = [refFmt, p.clase_material || ''].filter(Boolean).join(' · ') || (p.material_limpio || 'Material');
+      const loteTxt = (p.lote && p.lote !== 'FIFO') ? `Lote ${p.lote}` : 'FIFO';
+
+      if (!mapaOpc.has(codigoOpc)) {
+        mapaOpc.set(codigoOpc, {
+          opc: codigoOpc,
+          ultimaFechaMs: new Date(p.creado_en).getTime(),
+          lineas: new Set(),
+          solicitantes: new Set(),
+          materialesMap: new Map()
+        });
+      }
+
+      const grupo = mapaOpc.get(codigoOpc);
+      const fechaMs = new Date(p.creado_en).getTime();
+      if (fechaMs > grupo.ultimaFechaMs) grupo.ultimaFechaMs = fechaMs;
+      if (p.linea) grupo.lineas.add(p.linea);
+      if (p.solicitado_por) grupo.solicitantes.add(p.solicitado_por);
+
+      const claveMat = `${nombreMat.toLowerCase()}|${loteTxt.toLowerCase()}`;
+      if (!grupo.materialesMap.has(claveMat)) {
+        grupo.materialesMap.set(claveMat, {
+          nombre: nombreMat,
+          lote: loteTxt,
+          cantidadTotal: cant
+        });
+      } else {
+        grupo.materialesMap.get(claveMat).cantidadTotal += cant;
+      }
+    });
+
+    return [...mapaOpc.values()]
+      .map(g => ({
+        opc: g.opc,
+        ultimaFechaMs: g.ultimaFechaMs,
+        lineas: [...g.lineas],
+        solicitantes: [...g.solicitantes],
+        materiales: [...g.materialesMap.values()]
+      }))
+      .sort((a, b) => b.ultimaFechaMs - a.ultimaFechaMs);
   }
 
   function renderizarApuntesOpc() {
@@ -589,34 +645,32 @@
     const badge = document.getElementById('contador-apuntes-opc');
     if (!cont || !badge) return;
 
-    const listaOpc = obtenerApuntesOpcRelevantes();
-    badge.innerText = `${listaOpc.length} OPC`;
+    const grupos = obtenerGruposOpcRelevantes();
+    badge.innerText = `${grupos.length} OPC`;
 
-    if (listaOpc.length === 0) {
+    if (grupos.length === 0) {
       cont.innerHTML = '<p style="color:var(--muted); font-weight:800;">Sin OPC registradas en este rango.</p>';
       return;
     }
 
-    cont.innerHTML = listaOpc.map(p => {
-      const clave = String(p.id);
-      const hecho = apuntesOpcCompletados.has(clave);
-      const hora = new Date(p.creado_en).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-      const cant = obtenerCantidadPedido(p);
-      const refFmt = p.num_referencia ? (p.tipo_material ? `${p.tipo_material}-${p.num_referencia}` : p.num_referencia) : '';
-      const matBase = [refFmt, p.clase_material || ''].filter(Boolean).join(' · ') || (p.material_limpio || 'Material');
-      const matConCant = `${matBase} (Cantidad: ${cant})`;
-      const loteTxt = (p.lote && p.lote !== 'FIFO') ? `Lote ${p.lote}` : 'FIFO';
+    cont.innerHTML = grupos.map(g => {
+      const hecha = opcsCompletadas.has(g.opc);
+      const hora = new Date(g.ultimaFechaMs).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      const metaSup = [hora, g.lineas.join(', '), g.solicitantes.join(', ')].filter(Boolean).join(' · ');
+      const itemsHtml = g.materiales.map(m =>
+        `<li>${m.nombre} — <strong>Cantidad: ${m.cantidadTotal}</strong> (${m.lote})</li>`
+      ).join('');
 
       return `
-        <div class="opc-apunte-item ${hecho ? 'hecho-apunte' : ''}">
+        <div class="opc-apunte-item ${hecha ? 'hecho-apunte' : ''}">
           <div>
-            <div style="font-size:0.88rem; color:var(--muted); font-weight:800;">${hora} · ${p.linea} · ${p.solicitado_por || ''}</div>
-            <div class="pedido-titulo">OPC ${p.opc}</div>
-            <div style="font-size:0.96rem; color:#ffffff; font-weight:800;">Material: ${matConCant} · ${loteTxt}</div>
-            <span class="badge ${hecho ? 'listo' : ''}">${hecho ? 'Completada (apunte)' : 'Pendiente apunte'}</span>
+            <div style="font-size:0.88rem; color:var(--muted); font-weight:800;">${metaSup}</div>
+            <div class="pedido-titulo">OPC ${g.opc}</div>
+            <ul class="opc-mat-list">${itemsHtml}</ul>
+            <span class="badge ${hecha ? 'listo' : ''}">${hecha ? 'OPC completada' : 'OPC pendiente'}</span>
           </div>
-          <button type="button" class="${hecho ? 'btn-desmarcar' : 'btn-hecho'}" onclick="alternarApunteOpcCompletado('${p.id}')">
-            ${hecho ? 'Desmarcar apunte' : 'Marcar completada ✓'}
+          <button type="button" class="${hecha ? 'btn-desmarcar' : 'btn-hecho'}" onclick="alternarOpcCompletada('${g.opc}')">
+            ${hecha ? 'Desmarcar OPC' : 'Marcar OPC completada ✓'}
           </button>
         </div>
       `;
@@ -695,12 +749,12 @@
     .subscribe();
 
   setInterval(() => {
-    if (sesionCarr) {
+    if (sesionCarr && document.visibilityState === 'visible') {
       pedidosPendientes = ordenarPendientesCarretillero(pedidosPendientes);
       renderizarCarretillero();
       cargarPedidos();
     }
-  }, 2500);
+  }, 5000);
 
   if (sesionCarr) {
     mostrarCola();
