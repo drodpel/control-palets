@@ -282,6 +282,32 @@
     return inicio.toISOString();
   }
 
+  function decodificarPedidoConMeta(p) {
+    const rawMat = String(p?.material || '');
+    const match = rawMat.match(/\[\[META:([^\]]+)\]\]$/);
+    let meta = { t: null, v: null, c: 1 };
+    let materialLimpio = rawMat;
+    if (match) {
+      materialLimpio = rawMat.replace(/\[\[META:[^\]]+\]\]$/, '').trim();
+      try {
+        const parsed = JSON.parse(decodeURIComponent(escape(atob(match[1]))));
+        meta = {
+          t: parsed.t || null,
+          v: parsed.v ? Number(parsed.v) : null,
+          c: Math.max(1, parseInt(parsed.c, 10) || 1)
+        };
+      } catch (_) {}
+    }
+    return {
+      ...p,
+      material_limpio: materialLimpio,
+      tiempo_aviso: p.tiempo_aviso || meta.t,
+      vence_en: p.vence_en || (meta.v ? new Date(meta.v).toISOString() : null),
+      vence_ms: p.vence_en ? new Date(p.vence_en).getTime() : meta.v,
+      cantidad: Math.max(1, parseInt(p.cantidad || meta.c || 1, 10) || 1)
+    };
+  }
+
   function cambiarPestana(nuevaPestana) {
     pestanaActual = nuevaPestana;
     document.getElementById('tab-btn-cola').classList.toggle('activa', nuevaPestana === 'cola');
@@ -311,22 +337,20 @@
   }
 
   function esPedidoConTiempo(p) {
-    return Boolean(p && (p.tiempo_aviso || p.vence_en));
+    return Boolean(p && (p.tiempo_aviso || p.vence_ms));
   }
 
   function estaVencidoTiempo(p) {
     if (!esPedidoConTiempo(p)) return true;
-    if (!p.vence_en) return true;
-    const ms = new Date(p.vence_en).getTime();
-    if (Number.isNaN(ms)) return true;
+    const ms = p.vence_ms || (p.vence_en ? new Date(p.vence_en).getTime() : null);
+    if (!ms || Number.isNaN(ms)) return true;
     return Date.now() >= ms;
   }
 
   function formatearHoraVencimiento(p) {
-    if (!p || !p.vence_en) return '';
-    const d = new Date(p.vence_en);
-    if (Number.isNaN(d.getTime())) return '';
-    return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const ms = p?.vence_ms || (p?.vence_en ? new Date(p.vence_en).getTime() : null);
+    if (!ms || Number.isNaN(ms)) return '';
+    return new Date(ms).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   }
 
   function ordenarPendientesCarretillero(lista) {
@@ -339,8 +363,8 @@
     );
 
     conTiempoFuturo.sort((a, b) => {
-      const va = a.vence_en ? new Date(a.vence_en).getTime() : Number.MAX_SAFE_INTEGER;
-      const vb = b.vence_en ? new Date(b.vence_en).getTime() : Number.MAX_SAFE_INTEGER;
+      const va = a.vence_ms || (a.vence_en ? new Date(a.vence_en).getTime() : Number.MAX_SAFE_INTEGER);
+      const vb = b.vence_ms || (b.vence_en ? new Date(b.vence_en).getTime() : Number.MAX_SAFE_INTEGER);
       if (va !== vb) return va - vb;
       return new Date(a.creado_en).getTime() - new Date(b.creado_en).getTime();
     });
@@ -477,7 +501,7 @@
     const cant = obtenerCantidadPedido(p);
     const cantTxt = cant > 1 ? `x${cant}` : '';
     const partes = [refFmt, p.opc ? `OPC ${p.opc}` : '', p.clase_material || '', cantTxt].filter(Boolean);
-    const base = partes.length > 0 ? partes.join(' · ') : (p.material || 'Material');
+    const base = partes.length > 0 ? partes.join(' · ') : (p.material_limpio || p.material || 'Material');
     if (tieneLoteConcreto(p)) {
       return `${base} · Lote ${p.lote.trim()}`;
     }
@@ -514,8 +538,9 @@
       .order('creado_en', { ascending: true });
 
     if (!error && data) {
-      const pendientes = ordenarPendientesCarretillero(data.filter(p => p.estado !== 'completado'));
-      const completados = data.filter(p => p.estado === 'completado').reverse();
+      const normalizados = data.map(decodificarPedidoConMeta);
+      const pendientes = ordenarPendientesCarretillero(normalizados.filter(p => p.estado !== 'completado'));
+      const completados = normalizados.filter(p => p.estado === 'completado').reverse();
 
       if (!primeraCarga) {
         pendientes.forEach(p => {
@@ -531,7 +556,7 @@
 
       idsConocidos = new Set(pendientes.map(p => p.id));
       primeraCarga = false;
-      pedidosHoyTodos = data;
+      pedidosHoyTodos = normalizados;
       pedidosPendientes = pendientes;
       pedidosCompletados = completados;
       renderizarCarretillero();
@@ -576,17 +601,19 @@
       const clave = String(p.id);
       const hecho = apuntesOpcCompletados.has(clave);
       const hora = new Date(p.creado_en).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-      const refFmt = p.num_referencia ? (p.tipo_material ? `${p.tipo_material}-${p.num_referencia}` : p.num_referencia) : '';
-      const matTxt = [refFmt, p.clase_material || '', (p.lote && p.lote !== 'FIFO') ? `Lote ${p.lote}` : 'FIFO'].filter(Boolean).join(' · ');
       const cant = obtenerCantidadPedido(p);
+      const refFmt = p.num_referencia ? (p.tipo_material ? `${p.tipo_material}-${p.num_referencia}` : p.num_referencia) : '';
+      const matBase = [refFmt, p.clase_material || ''].filter(Boolean).join(' · ') || (p.material_limpio || 'Material');
+      const matConCant = `${matBase} (Cantidad: ${cant})`;
+      const loteTxt = (p.lote && p.lote !== 'FIFO') ? `Lote ${p.lote}` : 'FIFO';
 
       return `
         <div class="opc-apunte-item ${hecho ? 'hecho-apunte' : ''}">
           <div>
             <div style="font-size:0.88rem; color:var(--muted); font-weight:800;">${hora} · ${p.linea} · ${p.solicitado_por || ''}</div>
-            <div class="pedido-titulo">OPC ${p.opc} — Cantidad: ${cant}</div>
-            <div style="font-size:0.94rem; color:#cbd5e1; font-weight:700;">Materiales: ${matTxt || (p.material || '—')}</div>
-            <span class="badge ${hecho ? 'listo' : ''}">${hecho ? 'Completado (apunte)' : 'Pendiente apunte'}</span>
+            <div class="pedido-titulo">OPC ${p.opc}</div>
+            <div style="font-size:0.96rem; color:#ffffff; font-weight:800;">Material: ${matConCant} · ${loteTxt}</div>
+            <span class="badge ${hecho ? 'listo' : ''}">${hecho ? 'Completada (apunte)' : 'Pendiente apunte'}</span>
           </div>
           <button type="button" class="${hecho ? 'btn-desmarcar' : 'btn-hecho'}" onclick="alternarApunteOpcCompletado('${p.id}')">
             ${hecho ? 'Desmarcar apunte' : 'Marcar completada ✓'}
