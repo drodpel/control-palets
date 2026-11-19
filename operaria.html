@@ -634,4 +634,439 @@
     primeraCargaOp = true;
     idsListosAvisados.clear();
     cancelarEdicion();
-    document.getElementById('vista-trabajo').classList.add('
+    document.getElementById('vista-trabajo').classList.add('hidden');
+    document.getElementById('vista-inicio').classList.remove('hidden');
+    document.getElementById('user-badge').classList.add('hidden');
+    document.getElementById('btn-cambiar').classList.add('hidden');
+  }
+
+  function mostrarTrabajo() {
+    if (!sesionOp) return;
+    document.getElementById('vista-inicio').classList.add('hidden');
+    document.getElementById('vista-trabajo').classList.remove('hidden');
+    const badge = document.getElementById('user-badge');
+    badge.classList.remove('hidden');
+    badge.innerText = sesionOp.nombre;
+    document.getElementById('btn-cambiar').classList.remove('hidden');
+    cargarPedidos();
+  }
+
+  function cerrarTecladoAlAceptar(inputEl) {
+    inputEl.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        inputEl.blur();
+      }
+    });
+  }
+
+  const inputOpc = document.getElementById('input-opc');
+  const inputLinea = document.getElementById('input-linea');
+  const inputNumRef = document.getElementById('input-num-ref');
+  const inputOtroMat = document.getElementById('input-otro-mat');
+  const inputLote = document.getElementById('input-lote');
+  const prefijoSpan = document.getElementById('prefijo-fijo-span');
+
+  [inputOpc, inputLinea, inputNumRef, inputOtroMat, inputLote].forEach(cerrarTecladoAlAceptar);
+
+  inputLinea.addEventListener('input', (e) => {
+    e.target.value = e.target.value.replace(/\D/g, '');
+  });
+  inputOpc.addEventListener('input', (e) => {
+    e.target.value = e.target.value.replace(/\D/g, '').slice(0, 4);
+    actualizarVisibilidadClaseMaterial();
+  });
+  inputNumRef.addEventListener('input', (e) => {
+    e.target.value = e.target.value.replace(/\D/g, '');
+    actualizarVisibilidadClaseMaterial();
+  });
+
+  function tieneReferenciaCompleta() {
+    return Boolean(prefijoSeleccionado && inputNumRef.value.trim());
+  }
+
+  function actualizarPrefijoVisual() {
+    if (prefijoSeleccionado) {
+      prefijoSpan.textContent = `${prefijoSeleccionado}-`;
+      prefijoSpan.classList.remove('hidden');
+    } else {
+      prefijoSpan.textContent = '';
+      prefijoSpan.classList.add('hidden');
+    }
+  }
+
+  function seleccionarPrefijo(pref) {
+    prefijoSeleccionado = (prefijoSeleccionado === pref) ? '' : pref;
+    document.querySelectorAll('.mat-pill').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.mat === prefijoSeleccionado);
+    });
+    actualizarPrefijoVisual();
+    actualizarVisibilidadClaseMaterial();
+    inputNumRef.focus();
+  }
+
+  function actualizarVisibilidadClaseMaterial() {
+    const tieneOpc = Boolean(inputOpc.value.trim());
+    const pedirMaterial = tieneOpc && !tieneReferenciaCompleta();
+    document.getElementById('bloque-tipo-material').classList.toggle('hidden', !pedirMaterial);
+    if (!pedirMaterial) {
+      document.getElementById('select-clase-mat').value = '';
+      inputOtroMat.value = '';
+      document.getElementById('campo-otro-mat').classList.add('hidden');
+    }
+  }
+
+  function alCambiarClaseMaterial() {
+    const sel = document.getElementById('select-clase-mat').value;
+    const esOtro = sel === 'otro';
+    document.getElementById('campo-otro-mat').classList.toggle('hidden', !esOtro);
+    if (esOtro) {
+      inputOtroMat.focus();
+    }
+  }
+
+  function obtenerClaseMaterialFinal() {
+    const sel = document.getElementById('select-clase-mat').value;
+    if (sel === 'otro') return inputOtroMat.value.trim();
+    return sel.trim();
+  }
+
+  function actualizarEstadoRed(online) {
+    const badge = document.getElementById('network-status');
+    badge.innerText = online ? '● Conectado' : '● Sin cobertura';
+    badge.className = online ? 'pill-status' : 'pill-status offline';
+  }
+
+  function limpiarFormulario() {
+    idEditando = null;
+    document.getElementById('btn-guardar').innerText = 'SOLICITAR';
+    document.getElementById('btn-cancelar-edicion').classList.add('hidden');
+    inputOpc.value = '';
+    inputNumRef.value = '';
+    inputLote.value = '';
+    inputOtroMat.value = '';
+    document.getElementById('select-clase-mat').value = '';
+    document.getElementById('campo-otro-mat').classList.add('hidden');
+    document.getElementById('bloque-tipo-material').classList.add('hidden');
+    prefijoSeleccionado = '';
+    actualizarPrefijoVisual();
+    document.querySelectorAll('.mat-pill').forEach(b => b.classList.remove('active'));
+    document.getElementById('form-error').innerText = '';
+  }
+
+  function cancelarEdicion() {
+    limpiarFormulario();
+  }
+
+  function empezarEdicion(pedido) {
+    idEditando = pedido.id;
+    document.getElementById('btn-guardar').innerText = 'GUARDAR CAMBIOS';
+    document.getElementById('btn-cancelar-edicion').classList.remove('hidden');
+
+    inputLinea.value = (pedido.linea || '').replace(/\D/g, '') || inputLinea.value;
+    inputOpc.value = pedido.opc || '';
+    inputNumRef.value = pedido.num_referencia || '';
+    inputLote.value = (pedido.lote && pedido.lote !== 'FIFO') ? pedido.lote : '';
+
+    prefijoSeleccionado = pedido.tipo_material || '';
+    actualizarPrefijoVisual();
+    document.querySelectorAll('.mat-pill').forEach(b => {
+      b.classList.toggle('active', b.dataset.mat === prefijoSeleccionado);
+    });
+
+    actualizarVisibilidadClaseMaterial();
+    const claseGuardada = pedido.clase_material || '';
+    const opcionesPredefinidas = ['lámina','interior','posicionador','sin estuchar','sin encelofanar','estuche','embalaje','embalaje inner'];
+    if (claseGuardada && !document.getElementById('bloque-tipo-material').classList.contains('hidden')) {
+      if (opcionesPredefinidas.includes(claseGuardada)) {
+        document.getElementById('select-clase-mat').value = claseGuardada;
+        document.getElementById('campo-otro-mat').classList.add('hidden');
+      } else {
+        document.getElementById('select-clase-mat').value = 'otro';
+        document.getElementById('campo-otro-mat').classList.remove('hidden');
+        inputOtroMat.value = claseGuardada;
+      }
+    }
+  }
+
+  function claveMaterial(item) {
+    const tipo = (item.tipo_material || '').toUpperCase();
+    const num = (item.num_referencia || '').trim();
+    const clase = (item.clase_material || '').trim().toLowerCase();
+    const opc = (item.opc || '').trim();
+    const lote = (item.lote || 'FIFO').trim().toUpperCase();
+    return `${tipo}|${num}|${clase}|${opc}|${lote}`;
+  }
+
+  function existeMaterialDuplicado(nombreSolicitante, candidato, excluirId = null) {
+    const claveNueva = claveMaterial(candidato);
+    const activosMios = pedidosHoyTodos.filter(
+      p => p.estado !== 'completado' &&
+           (p.solicitado_por || '').toLowerCase() === nombreSolicitante.toLowerCase() &&
+           p.id !== excluirId
+    );
+    const enColaLocal = colaOffline.filter(
+      p => (p.solicitado_por || '').toLowerCase() === nombreSolicitante.toLowerCase()
+    );
+    return [...activosMios, ...enColaLocal].some(p => claveMaterial(p) === claveNueva);
+  }
+
+  async function guardarPedido() {
+    const err = document.getElementById('form-error');
+    const numLinea = inputLinea.value.trim();
+    const opc = inputOpc.value.trim();
+    const numRef = inputNumRef.value.trim();
+    const loteInput = inputLote.value.trim();
+
+    if (!numLinea) {
+      err.innerText = 'Indica la línea.';
+      return;
+    }
+
+    const tieneOpc = Boolean(opc);
+    const refCompleta = tieneReferenciaCompleta();
+    const tieneRefParcial = Boolean(numRef || prefijoSeleccionado);
+
+    if (!tieneOpc && !tieneRefParcial) {
+      err.innerText = 'Indica OPC o Referencia.';
+      return;
+    }
+
+    if (tieneOpc && opc.length !== 4) {
+      err.innerText = 'La OPC debe tener 4 números.';
+      return;
+    }
+
+    if (tieneRefParcial && !refCompleta) {
+      err.innerText = 'Completa ST, MP o PT y el número.';
+      return;
+    }
+
+    let claseMaterial = '';
+    if (tieneOpc && !refCompleta) {
+      claseMaterial = obtenerClaseMaterialFinal();
+      if (!claseMaterial) {
+        err.innerText = 'Indica el material.';
+        return;
+      }
+    }
+
+    const nombreOp = sesionOp ? sesionOp.nombre : 'Operaria';
+    const lineaTexto = `Línea ${numLinea}`;
+    const refTexto = refCompleta ? `${prefijoSeleccionado}-${numRef}` : '';
+    const resumenMaterial = [refTexto, opc ? `OPC ${opc}` : '', claseMaterial]
+      .filter(Boolean)
+      .join(' · ') || 'Pedido';
+
+    const payload = {
+      linea: lineaTexto,
+      material: resumenMaterial,
+      solicitado_por: nombreOp,
+      opc: opc || null,
+      tipo_material: refCompleta ? prefijoSeleccionado : null,
+      num_referencia: refCompleta ? numRef : null,
+      clase_material: claseMaterial || null,
+      lote: loteInput || 'FIFO',
+      estado: 'pendiente',
+      creado_en: new Date().toISOString()
+    };
+
+    if (existeMaterialDuplicado(nombreOp, payload, idEditando)) {
+      err.innerText = 'Ya tienes ese mismo material pedido.';
+      return;
+    }
+
+    err.innerText = '';
+    const btn = document.getElementById('btn-guardar');
+    btn.disabled = true;
+
+    const eraNuevo = !idEditando;
+
+    if (idEditando) {
+      const { error } = await db.from('pedidos').update(payload).eq('id', idEditando);
+      if (error) {
+        actualizarEstadoRed(false);
+        err.innerText = `Error: ${error.message}`;
+      } else {
+        actualizarEstadoRed(true);
+        limpiarFormulario();
+        await cargarPedidos();
+      }
+    } else {
+      const { error } = await db.from('pedidos').insert([payload]);
+      if (error) {
+        colaOffline.push(payload);
+        actualizarEstadoRed(false);
+        err.innerText = `Sin conexión (${error.message}).`;
+      } else {
+        actualizarEstadoRed(true);
+        limpiarFormulario();
+        await cargarPedidos();
+        if (eraNuevo) hacerScrollAbajoPedidos();
+      }
+    }
+
+    setTimeout(() => {
+      btn.disabled = false;
+    }, 350);
+  }
+
+  async function cancelarPedido(id) {
+    if (!confirm('¿Seguro que quieres cancelar este pedido?')) return;
+    const { error } = await db.from('pedidos').update({ estado: 'cancelado' }).eq('id', id);
+    if (!error) {
+      if (idEditando === id) limpiarFormulario();
+      await cargarPedidos();
+    } else {
+      actualizarEstadoRed(false);
+    }
+  }
+
+  setInterval(async () => {
+    if (colaOffline.length === 0) return;
+    const pendiente = colaOffline[0];
+    const { error } = await db.from('pedidos').insert([pendiente]);
+    if (!error) {
+      colaOffline.shift();
+      actualizarEstadoRed(true);
+      await cargarPedidos();
+    }
+  }, 4000);
+
+  async function cargarPedidos() {
+    if (!sesionOp || cargando) return;
+    cargando = true;
+    try {
+      const { data: hoyPedidos, error } = await db
+        .from('pedidos')
+        .select('*')
+        .neq('estado', 'cancelado')
+        .gte('creado_en', inicioHoyISO())
+        .order('creado_en', { ascending: true });
+
+      if (!error && hoyPedidos) {
+        const nombreActual = sesionOp.nombre.toLowerCase();
+        const miosListos = hoyPedidos.filter(
+          p => p.estado === 'completado' &&
+               (p.solicitado_por || '').toLowerCase() === nombreActual
+        );
+
+        if (!primeraCargaOp) {
+          miosListos.forEach(p => {
+            if (!idsListosAvisados.has(p.id)) {
+              notificarPedidoListo(
+                `Pedido listo · ${p.linea}`,
+                formatearDetallePedido(p)
+              );
+            }
+          });
+        }
+
+        const idsListosActuales = new Set(miosListos.map(p => p.id));
+        idsListosAvisados = new Set([...idsListosAvisados].filter(id => idsListosActuales.has(id)));
+        miosListos.forEach(p => idsListosAvisados.add(p.id));
+        primeraCargaOp = false;
+
+        pedidosHoyTodos = hoyPedidos;
+        peticionesHoyNombre = hoyPedidos.filter(
+          p => (p.solicitado_por || '').toLowerCase() === nombreActual
+        );
+        renderizarTodo();
+        actualizarEstadoRed(true);
+      } else if (error) {
+        actualizarEstadoRed(false);
+      }
+    } finally {
+      cargando = false;
+    }
+  }
+
+  function formatearDetallePedido(p) {
+    const refFmt = p.num_referencia ? (p.tipo_material ? `${p.tipo_material}-${p.num_referencia}` : p.num_referencia) : '';
+    const partes = [refFmt, p.opc ? `OPC ${p.opc}` : '', p.clase_material || ''].filter(Boolean);
+    return partes.length > 0 ? partes.join(' · ') : (p.material || 'Material');
+  }
+
+  function obtenerPedidosFiltradosOperaria() {
+    const nombreActual = (sesionOp?.nombre || '').toLowerCase();
+
+    return pedidosHoyTodos.filter(p => {
+      const esMio = nombreActual && (p.solicitado_por || '').toLowerCase() === nombreActual;
+      const esListo = p.estado === 'completado';
+      const esPendiente = p.estado !== 'completado';
+
+      // Pedidos pendientes de otras operarias (para ver cuántos van por delante)
+      if (esPendiente && !esMio) return true;
+
+      // Pedidos propios ya completados
+      if (esListo && esMio) return true;
+
+      // Si está activado "Todos listos", también se muestran los completados de otras operarias
+      if (esListo && mostrarTodosCompletados) return true;
+
+      return false;
+    });
+  }
+
+  function renderizarTodo() {
+    const lista = document.getElementById('lista-general');
+    const nombreActual = (sesionOp?.nombre || '').toLowerCase();
+    const visibles = obtenerPedidosFiltradosOperaria();
+
+    document.getElementById('contador-mios-hoy').innerText = `Hoy: ${peticionesHoyNombre.length}`;
+
+    if (visibles.length === 0) {
+      lista.innerHTML = '<div style="color:var(--muted); font-weight:800;">Sin pedidos que mostrar.</div>';
+      return;
+    }
+
+    lista.innerHTML = visibles.map((p, idx) => {
+      const esMio = nombreActual && (p.solicitado_por || '').toLowerCase() === nombreActual;
+      const esListo = p.estado === 'completado';
+      const hora = new Date(p.creado_en).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      const detalle = formatearDetallePedido(p);
+      const loteTxt = (p.lote && p.lote !== 'FIFO') ? `Lote ${p.lote}` : 'FIFO';
+      const sub = [loteTxt, hora, p.solicitado_por || ''].filter(Boolean).join(' · ');
+      const itemJson = encodeURIComponent(JSON.stringify(p));
+      const estadoTxt = esListo ? 'Listo' : 'Pendiente';
+
+      return `
+        <div class="pedido-card ${p.estado} ${esMio ? 'es-mio' : ''}">
+          <div>
+            <div class="pedido-main">#${idx + 1} · ${p.linea} — ${detalle}</div>
+            <div class="pedido-sub">${sub}</div>
+            <div>
+              ${esMio ? '<span class="tag mio">Mío</span>' : ''}
+              <span class="tag ${p.estado}">${estadoTxt}</span>
+            </div>
+          </div>
+          ${(esMio && !esListo) ? `
+            <div class="acciones-card">
+              <button type="button" class="btn-mini btn-mod" onclick="empezarEdicion(JSON.parse(decodeURIComponent('${itemJson}')))">Modificar</button>
+              <button type="button" class="btn-mini btn-can" onclick="cancelarPedido(${p.id})">Cancelar</button>
+            </div>
+          ` : ''}
+        </div>
+      `;
+    }).join('');
+  }
+
+  db.channel('cambios-pedidos-op-global')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'pedidos' }, () => {
+      cargarPedidos();
+    })
+    .subscribe();
+
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden && sesionOp) {
+      cargarPedidos();
+    }
+  });
+
+  setInterval(cargarPedidos, 2500);
+  if (sesionOp) {
+    mostrarTrabajo();
+  }
+</script>
+</body>
+</html>
