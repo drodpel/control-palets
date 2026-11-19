@@ -151,10 +151,10 @@
       background: var(--card);
       border: 1px solid var(--border);
       border-radius: 12px;
-      padding: 12px 14px;
+      padding: 10px 14px;
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 8px;
       min-width: 0;
       min-height: 0;
       overflow: hidden;
@@ -166,12 +166,13 @@
       display: flex;
       flex-direction: column;
       justify-content: space-evenly;
-      gap: 12px;
+      gap: 8px;
+      overflow-y: auto;
     }
 
     .panel-title {
       margin: 0;
-      font-size: 1.12rem;
+      font-size: 1.1rem;
       font-weight: 900;
       color: #ffffff;
       display: flex;
@@ -213,17 +214,17 @@
     .row-2 {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 12px;
+      gap: 10px;
       align-items: end;
     }
     .field {
       display: flex;
       flex-direction: column;
-      gap: 5px;
+      gap: 4px;
       min-width: 0;
     }
     label {
-      font-size: clamp(1.08rem, 1.65vw, 1.45rem);
+      font-size: clamp(1rem, 1.45vw, 1.32rem);
       font-weight: 900;
       color: var(--label);
       line-height: 1.15;
@@ -234,16 +235,16 @@
     input, select {
       width: 100%;
       min-width: 0;
-      height: clamp(40px, 6.2dvh, 64px);
-      padding: 8px 12px;
-      font-size: clamp(1.1rem, 1.7vw, 1.5rem);
+      height: clamp(38px, 5.6dvh, 58px);
+      padding: 6px 10px;
+      font-size: clamp(1.05rem, 1.55vw, 1.38rem);
       font-weight: 800;
       border-radius: 10px;
       border: 1.5px solid var(--border);
       background: var(--card-2);
       color: #ffffff;
     }
-    input::placeholder { color: #94a3b8; font-weight: 700; font-size: 0.9em; }
+    input::placeholder { color: #94a3b8; font-weight: 700; font-size: 0.88em; }
     input:focus, select:focus {
       outline: 2px solid #60a5fa;
       border-color: #60a5fa;
@@ -252,7 +253,7 @@
     .ref-col {
       display: flex;
       flex-direction: column;
-      gap: 5px;
+      gap: 4px;
       min-width: 0;
     }
     .st-mp-pt-row {
@@ -262,8 +263,8 @@
       width: 100%;
     }
     .mat-pill {
-      padding: clamp(5px, 0.9dvh, 11px) 4px;
-      font-size: clamp(0.9rem, 1.3vw, 1.2rem);
+      padding: clamp(4px, 0.75dvh, 9px) 4px;
+      font-size: clamp(0.88rem, 1.2vw, 1.1rem);
       font-weight: 900;
       line-height: 1.1;
       border-radius: 8px;
@@ -283,7 +284,7 @@
     .num-locked-box {
       width: 100%;
       min-width: 0;
-      height: clamp(40px, 6.2dvh, 64px);
+      height: clamp(38px, 5.6dvh, 58px);
       display: flex;
       align-items: center;
       border-radius: 10px;
@@ -296,8 +297,8 @@
       border-color: #60a5fa;
     }
     .prefijo-fijo {
-      padding: 0 0 0 12px;
-      font-size: clamp(1.1rem, 1.7vw, 1.5rem);
+      padding: 0 0 0 10px;
+      font-size: clamp(1.05rem, 1.55vw, 1.38rem);
       font-weight: 900;
       color: #93c5fd;
       user-select: none;
@@ -307,7 +308,7 @@
       border: none;
       background: transparent;
       height: 100%;
-      padding: 8px 10px 8px 4px;
+      padding: 6px 10px 6px 4px;
       outline: none !important;
       flex: 1;
       min-width: 0;
@@ -315,15 +316,15 @@
 
     .error-msg {
       color: #fca5a5;
-      font-size: 1rem;
+      font-size: 0.96rem;
       font-weight: 900;
-      min-height: 20px;
+      min-height: 18px;
       flex-shrink: 0;
     }
     .btn-submit {
       width: 100%;
-      padding: clamp(12px, 2.1dvh, 22px);
-      font-size: clamp(1.15rem, 1.8vw, 1.55rem);
+      padding: clamp(10px, 1.8dvh, 18px);
+      font-size: clamp(1.1rem, 1.7vw, 1.45rem);
       font-weight: 900;
       border-radius: 11px;
       border: none;
@@ -334,8 +335,8 @@
     }
     .btn-cancel-edit {
       width: 100%;
-      padding: 8px;
-      font-size: 0.95rem;
+      padding: 7px;
+      font-size: 0.92rem;
       font-weight: 900;
       border-radius: 8px;
       border: 1px solid var(--border);
@@ -375,20 +376,20 @@
       border-left-color: var(--success);
     }
     .pedido-main {
-      font-size: 1.04rem;
+      font-size: 1.02rem;
       font-weight: 900;
       color: #ffffff;
       line-height: 1.2;
     }
     .pedido-sub {
-      font-size: 0.88rem;
+      font-size: 0.86rem;
       font-weight: 700;
       color: var(--muted);
       margin-top: 2px;
     }
     .tag {
       display: inline-block;
-      font-size: 0.76rem;
+      font-size: 0.74rem;
       font-weight: 900;
       text-transform: uppercase;
       padding: 2px 7px;
@@ -399,6 +400,7 @@
     .tag.pendiente { background: #d9770644; color: #fbbf24; }
     .tag.completado { background: #16a34a55; color: #4ade80; }
     .tag.mio { background: #2563eb88; color: #ffffff; }
+    .tag.tiempo { background: #7c3aed66; color: #ddd6fe; }
 
     .acciones-card {
       display: flex;
@@ -496,6 +498,25 @@
             <input type="text" id="input-lote" enterkeyhint="done">
           </div>
         </div>
+
+        <div class="row-2">
+          <div class="field">
+            <label for="select-tiempo">Lo necesito en...</label>
+            <select id="select-tiempo" onchange="alCambiarTiempo()">
+              <option value=""></option>
+              <option value="15 min">15 min</option>
+              <option value="30 min">30 min</option>
+              <option value="1 hora">1 hora</option>
+              <option value="2 horas">2 horas</option>
+              <option value="+ de 2 horas">+ de 2 horas</option>
+            </select>
+          </div>
+
+          <div id="campo-cantidad" class="field hidden">
+            <label for="input-cantidad">Cantidad</label>
+            <input type="number" id="input-cantidad" min="1" step="1" value="1" inputmode="numeric" enterkeyhint="done">
+          </div>
+        </div>
       </div>
 
       <div id="form-error" class="error-msg"></div>
@@ -530,8 +551,10 @@
     sessionStorage.getItem('sesionOperariaNombre') ||
     'null'
   );
-  if (sesionOp) {
+  if (sesionOp && sesionOp.nombre) {
     localStorage.setItem('sesionOperariaNombre', JSON.stringify(sesionOp));
+  } else {
+    sesionOp = null;
   }
 
   let prefijoSeleccionado = '';
@@ -545,6 +568,7 @@
   let colaOffline = [];
   let cargando = false;
   let audioCtxOp = null;
+  let estaOnlineOp = navigator.onLine;
 
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
@@ -556,6 +580,40 @@
     const ahora = new Date();
     const inicio = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate(), 0, 0, 0, 0);
     return inicio.toISOString();
+  }
+
+  function calcularFechaVencimientoISO(opcionTiempo) {
+    if (!opcionTiempo) return null;
+    const ahoraMs = Date.now();
+    const minutosMap = {
+      '15 min': 15,
+      '30 min': 30,
+      '1 hora': 60,
+      '2 horas': 120,
+      '+ de 2 horas': 121
+    };
+    const mins = minutosMap[opcionTiempo];
+    if (!mins) return null;
+    return new Date(ahoraMs + mins * 60000).toISOString();
+  }
+
+  function esPedidoConTiempo(p) {
+    return Boolean(p && (p.tiempo_aviso || p.vence_en));
+  }
+
+  function haVencidoTiempoPedido(p) {
+    if (!esPedidoConTiempo(p)) return true;
+    if (!p.vence_en) return true;
+    const venceMs = new Date(p.vence_en).getTime();
+    if (Number.isNaN(venceMs)) return true;
+    return Date.now() >= venceMs;
+  }
+
+  function formatearHoraVencimiento(p) {
+    if (!p || !p.vence_en) return '';
+    const d = new Date(p.vence_en);
+    if (Number.isNaN(d.getTime())) return '';
+    return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   }
 
   function actualizarVisualBotonesFiltro() {
@@ -594,30 +652,32 @@
 
   function sonarPitidoFuerteOp() {
     try {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) return;
       if (!audioCtxOp) {
-        audioCtxOp = new (window.AudioContext || window.webkitAudioContext)();
+        audioCtxOp = new AudioCtx();
       }
       if (audioCtxOp.state === 'suspended') {
-        audioCtxOp.resume();
+        audioCtxOp.resume().catch(() => {});
       }
       const ahora = audioCtxOp.currentTime;
-
-      const reproducirTono = (frecuencia, inicio, duracion) => {
+      const tonos = [
+        [987, ahora, 0.2],
+        [1318, ahora + 0.22, 0.25]
+      ];
+      tonos.forEach(([freq, start, dur]) => {
         const osc = audioCtxOp.createOscillator();
         const gain = audioCtxOp.createGain();
         osc.type = 'sawtooth';
-        osc.frequency.setValueAtTime(frecuencia, inicio);
-        gain.gain.setValueAtTime(0.001, inicio);
-        gain.gain.exponentialRampToValueAtTime(0.45, inicio + 0.02);
-        gain.gain.exponentialRampToValueAtTime(0.001, inicio + duracion);
+        osc.frequency.setValueAtTime(freq, start);
+        gain.gain.setValueAtTime(0.001, start);
+        gain.gain.exponentialRampToValueAtTime(0.45, start + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.001, start + dur);
         osc.connect(gain);
         gain.connect(audioCtxOp.destination);
-        osc.start(inicio);
-        osc.stop(inicio + duracion + 0.02);
-      };
-
-      reproducirTono(987, ahora, 0.2);
-      reproducirTono(1318, ahora + 0.22, 0.25);
+        osc.start(start);
+        osc.stop(start + dur + 0.02);
+      });
     } catch (_) {}
   }
 
@@ -659,7 +719,7 @@
       return;
     }
     if (err) err.innerText = '';
-    sesionOp = { nombre };
+    sesionOp = { nombre: nombre };
     try {
       localStorage.setItem('sesionOperariaNombre', JSON.stringify(sesionOp));
       sessionStorage.setItem('sesionOperariaNombre', JSON.stringify(sesionOp));
@@ -669,13 +729,6 @@
     sonarPitidoFuerteOp();
     solicitarPermisoNotificacionEnSegundoPlano();
   }
-
-  document.getElementById('input-nombre').addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      iniciarTurno();
-    }
-  });
 
   function salirTurno() {
     try {
@@ -704,10 +757,21 @@
   }
 
   function cerrarTecladoAlAceptar(inputEl) {
+    if (!inputEl) return;
     inputEl.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') {
         e.preventDefault();
         inputEl.blur();
+      }
+    });
+  }
+
+  const inputNombreInicio = document.getElementById('input-nombre');
+  if (inputNombreInicio) {
+    inputNombreInicio.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        iniciarTurno();
       }
     });
   }
@@ -717,9 +781,11 @@
   const inputNumRef = document.getElementById('input-num-ref');
   const inputOtroMat = document.getElementById('input-otro-mat');
   const inputLote = document.getElementById('input-lote');
+  const selectTiempo = document.getElementById('select-tiempo');
+  const inputCantidad = document.getElementById('input-cantidad');
   const prefijoSpan = document.getElementById('prefijo-fijo-span');
 
-  [inputOpc, inputLinea, inputNumRef, inputOtroMat, inputLote].forEach(cerrarTecladoAlAceptar);
+  [inputOpc, inputLinea, inputNumRef, inputOtroMat, inputLote, inputCantidad].forEach(cerrarTecladoAlAceptar);
 
   inputLinea.addEventListener('input', (e) => {
     e.target.value = e.target.value.replace(/\D/g, '');
@@ -732,6 +798,16 @@
     e.target.value = e.target.value.replace(/\D/g, '');
     actualizarVisibilidadClaseMaterial();
   });
+
+  function alCambiarTiempo() {
+    const valTiempo = selectTiempo.value;
+    const campoCant = document.getElementById('campo-cantidad');
+    const tieneTiempo = Boolean(valTiempo);
+    campoCant.classList.toggle('hidden', !tieneTiempo);
+    if (tieneTiempo && (!inputCantidad.value || Number(inputCantidad.value) < 1)) {
+      inputCantidad.value = '1';
+    }
+  }
 
   function tieneReferenciaCompleta() {
     return Boolean(prefijoSeleccionado && inputNumRef.value.trim());
@@ -784,9 +860,10 @@
   }
 
   function actualizarEstadoRed(online) {
+    estaOnlineOp = Boolean(online);
     const badge = document.getElementById('network-status');
-    badge.innerText = online ? '● Conectado' : '● Sin cobertura';
-    badge.className = online ? 'pill-status' : 'pill-status offline';
+    badge.innerText = estaOnlineOp ? '● Conectado' : '● Sin cobertura';
+    badge.className = estaOnlineOp ? 'pill-status' : 'pill-status offline';
   }
 
   function limpiarFormulario() {
@@ -797,6 +874,9 @@
     inputNumRef.value = '';
     inputLote.value = '';
     inputOtroMat.value = '';
+    selectTiempo.value = '';
+    inputCantidad.value = '1';
+    document.getElementById('campo-cantidad').classList.add('hidden');
     document.getElementById('select-clase-mat').value = '';
     document.getElementById('campo-otro-mat').classList.add('hidden');
     document.getElementById('bloque-tipo-material').classList.add('hidden');
@@ -819,6 +899,9 @@
     inputOpc.value = pedido.opc || '';
     inputNumRef.value = pedido.num_referencia || '';
     inputLote.value = (pedido.lote && pedido.lote !== 'FIFO') ? pedido.lote : '';
+    selectTiempo.value = pedido.tiempo_aviso || '';
+    inputCantidad.value = pedido.cantidad || 1;
+    alCambiarTiempo();
 
     prefijoSeleccionado = pedido.tipo_material || '';
     actualizarPrefijoVisual();
@@ -850,7 +933,7 @@
     return `${tipo}|${num}|${clase}|${opc}|${lote}`;
   }
 
-  function existeMaterialDuplicado(nombreSolicitante, candidato, excluirId = null) {
+  function buscarMaterialRegistrado(nombreSolicitante, candidato, excluirId = null) {
     const claveNueva = claveMaterial(candidato);
     const activosMios = pedidosHoyTodos.filter(
       p => p.estado !== 'completado' &&
@@ -860,7 +943,7 @@
     const enColaLocal = colaOffline.filter(
       p => (p.solicitado_por || '').toLowerCase() === nombreSolicitante.toLowerCase()
     );
-    return [...activosMios, ...enColaLocal].some(p => claveMaterial(p) === claveNueva);
+    return [...activosMios, ...enColaLocal].find(p => claveMaterial(p) === claveNueva) || null;
   }
 
   async function guardarPedido() {
@@ -869,6 +952,8 @@
     const opc = inputOpc.value.trim();
     const numRef = inputNumRef.value.trim();
     const loteInput = inputLote.value.trim();
+    const tiempoSel = selectTiempo.value.trim();
+    const cantidadNum = tiempoSel ? Math.max(1, parseInt(inputCantidad.value, 10) || 1) : 1;
 
     if (!numLinea) {
       err.innerText = 'Indica la línea.';
@@ -919,13 +1004,23 @@
       num_referencia: refCompleta ? numRef : null,
       clase_material: claseMaterial || null,
       lote: loteInput || 'FIFO',
+      tiempo_aviso: tiempoSel || null,
+      vence_en: tiempoSel ? calcularFechaVencimientoISO(tiempoSel) : null,
+      cantidad: cantidadNum,
       estado: 'pendiente',
       creado_en: new Date().toISOString()
     };
 
-    if (existeMaterialDuplicado(nombreOp, payload, idEditando)) {
-      err.innerText = 'Ya tienes ese mismo material pedido.';
-      return;
+    const duplicado = buscarMaterialRegistrado(nombreOp, payload, idEditando);
+    if (duplicado) {
+      if (!estaOnlineOp || colaOffline.length > 0) {
+        err.innerText = 'Ya tienes ese mismo material pedido.';
+        return;
+      }
+      if (!tiempoSel) {
+        err.innerText = 'Este material ya está registrado: debes asignar el tiempo en "Lo necesito en..." para volver a pedirlo.';
+        return;
+      }
     }
 
     err.innerText = '';
@@ -1005,7 +1100,8 @@
         const nombreActual = sesionOp.nombre.toLowerCase();
         const miosListos = hoyPedidos.filter(
           p => p.estado === 'completado' &&
-               (p.solicitado_por || '').toLowerCase() === nombreActual
+               (p.solicitado_por || '').toLowerCase() === nombreActual &&
+               haVencidoTiempoPedido(p)
         );
 
         if (!primeraCargaOp) {
@@ -1040,7 +1136,8 @@
 
   function formatearDetallePedido(p) {
     const refFmt = p.num_referencia ? (p.tipo_material ? `${p.tipo_material}-${p.num_referencia}` : p.num_referencia) : '';
-    const partes = [refFmt, p.opc ? `OPC ${p.opc}` : '', p.clase_material || ''].filter(Boolean);
+    const cantTxt = (p.cantidad && Number(p.cantidad) > 1) ? `x${p.cantidad}` : '';
+    const partes = [refFmt, p.opc ? `OPC ${p.opc}` : '', p.clase_material || '', cantTxt].filter(Boolean);
     return partes.length > 0 ? partes.join(' · ') : (p.material || 'Material');
   }
 
@@ -1048,14 +1145,24 @@
     const nombreActual = (sesionOp?.nombre || '').toLowerCase();
 
     return pedidosHoyTodos.filter(p => {
+      if (!haVencidoTiempoPedido(p)) return false;
+
       const esMio = nombreActual && (p.solicitado_por || '').toLowerCase() === nombreActual;
       const esListo = p.estado === 'completado';
       const esPendiente = p.estado !== 'completado';
 
-      if (mostrarSoloMios && !esMio) return false;
-      if (esPendiente) return true;
-      if (esListo && mostrarTodosCompletados) return true;
-
+      if (mostrarSoloMios && mostrarTodosCompletados) {
+        return esMio && esListo;
+      }
+      if (mostrarSoloMios) {
+        return esMio && esPendiente;
+      }
+      if (esPendiente) {
+        return true;
+      }
+      if (esListo && mostrarTodosCompletados) {
+        return true;
+      }
       return false;
     });
   }
@@ -1081,6 +1188,7 @@
       const sub = [loteTxt, hora, p.solicitado_por || ''].filter(Boolean).join(' · ');
       const itemJson = encodeURIComponent(JSON.stringify(p));
       const estadoTxt = esListo ? 'Listo' : 'Pendiente';
+      const horaVence = formatearHoraVencimiento(p);
 
       return `
         <div class="pedido-card ${p.estado} ${esMio ? 'es-mio' : ''}">
@@ -1090,6 +1198,7 @@
             <div>
               ${esMio ? '<span class="tag mio">Mío</span>' : ''}
               <span class="tag ${p.estado}">${estadoTxt}</span>
+              ${p.tiempo_aviso ? `<span class="tag tiempo">${p.tiempo_aviso}${horaVence ? ` (${horaVence})` : ''}</span>` : ''}
             </div>
           </div>
           ${(esMio && !esListo) ? `
@@ -1103,6 +1212,14 @@
     }).join('');
   }
 
+  window.addEventListener('online', () => {
+    actualizarEstadoRed(true);
+    cargarPedidos();
+  });
+  window.addEventListener('offline', () => {
+    actualizarEstadoRed(false);
+  });
+
   db.channel('cambios-pedidos-op-global')
     .on('postgres_changes', { event: '*', schema: 'public', table: 'pedidos' }, () => {
       cargarPedidos();
@@ -1115,7 +1232,13 @@
     }
   });
 
-  setInterval(cargarPedidos, 2500);
+  setInterval(() => {
+    if (sesionOp) {
+      renderizarTodo();
+      cargarPedidos();
+    }
+  }, 2500);
+
   if (sesionOp) {
     mostrarTrabajo();
   }
