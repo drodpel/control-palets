@@ -13,6 +13,7 @@
       --primary: #2563eb;
       --warning: #d97706;
       --success: #16a34a;
+      --purple: #7c3aed;
       --bg: #0f172a;
       --card: #1e293b;
       --card-2: #0b1220;
@@ -49,6 +50,27 @@
       font-weight: 900;
       cursor: pointer;
       font-size: 0.9rem;
+    }
+    .tabs-bar {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+    .tab-btn {
+      background: var(--card);
+      color: var(--muted);
+      border: 1px solid var(--border);
+      padding: 9px 16px;
+      border-radius: 9px;
+      font-weight: 900;
+      font-size: 0.96rem;
+      cursor: pointer;
+    }
+    .tab-btn.activa {
+      background: var(--primary);
+      border-color: #93c5fd;
+      color: #ffffff;
     }
     .card {
       background: var(--card);
@@ -111,6 +133,10 @@
       border-left: 6px solid var(--warning);
       flex-wrap: wrap;
     }
+    .pedido-item.con-tiempo-futuro {
+      border-left-color: var(--purple);
+      background: #18132c;
+    }
     .pedido-item.completado {
       border-left-color: var(--success);
       opacity: 0.92;
@@ -129,12 +155,17 @@
       font-weight: 900;
       text-transform: uppercase;
       margin-top: 5px;
+      margin-right: 5px;
       background: #d9770644;
       color: #fbbf24;
     }
     .badge.listo {
       background: #16a34a44;
       color: #4ade80;
+    }
+    .badge.tiempo {
+      background: #7c3aed55;
+      color: #ddd6fe;
     }
     .btn-hecho {
       padding: 12px 18px;
@@ -155,6 +186,23 @@
       color: #ffffff;
       background: #334155;
       font-size: 0.92rem;
+    }
+    .opc-apunte-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      background: var(--card-2);
+      border: 1px solid var(--border);
+      border-left: 6px solid var(--primary);
+      padding: 12px 14px;
+      border-radius: 10px;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+    }
+    .opc-apunte-item.hecho-apunte {
+      border-left-color: var(--success);
+      opacity: 0.78;
     }
     .hidden { display: none !important; }
   </style>
@@ -178,17 +226,32 @@
   </div>
 
   <div id="vista-cola" class="hidden">
-    <div class="seccion-titulo">
-      <h3 style="margin:0;">Pendientes</h3>
-      <span id="contador-pendientes" style="font-weight:900; color:var(--muted);">0 pendientes</span>
+    <div class="tabs-bar">
+      <button type="button" id="tab-btn-cola" class="tab-btn activa" onclick="cambiarPestana('cola')">Cola de pedidos</button>
+      <button type="button" id="tab-btn-opc" class="tab-btn" onclick="cambiarPestana('opc')">Apuntes OPC</button>
     </div>
-    <div id="lista-carretillero"></div>
 
-    <div class="seccion-titulo">
-      <h3 style="margin:0;">Completados hoy</h3>
-      <span id="contador-completados" style="font-weight:900; color:#4ade80;">0 listos</span>
+    <div id="pestana-cola">
+      <div class="seccion-titulo">
+        <h3 style="margin:0;">Pendientes</h3>
+        <span id="contador-pendientes" style="font-weight:900; color:var(--muted);">0 pendientes</span>
+      </div>
+      <div id="lista-carretillero"></div>
+
+      <div class="seccion-titulo">
+        <h3 style="margin:0;">Completados hoy</h3>
+        <span id="contador-completados" style="font-weight:900; color:#4ade80;">0 listos</span>
+      </div>
+      <div id="lista-completados"></div>
     </div>
-    <div id="lista-completados"></div>
+
+    <div id="pestana-opc" class="hidden">
+      <div class="seccion-titulo">
+        <h3 style="margin:0;">OPC recopiladas (desde tu entrada hoy + últimas 2h)</h3>
+        <span id="contador-apuntes-opc" style="font-weight:900; color:#93c5fd;">0 OPC</span>
+      </div>
+      <div id="lista-apuntes-opc"></div>
+    </div>
   </div>
 </div>
 
@@ -198,11 +261,14 @@
   const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
   let sesionCarr = JSON.parse(localStorage.getItem('sesionCarretillero') || 'null');
+  let pedidosHoyTodos = [];
   let pedidosPendientes = [];
   let pedidosCompletados = [];
   let idsConocidos = new Set();
   let primeraCarga = true;
   let audioCtx = null;
+  let pestanaActual = 'cola';
+  let apuntesOpcCompletados = new Set(JSON.parse(localStorage.getItem('apuntesOpcCompletadosCarr') || '[]'));
 
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
@@ -216,44 +282,112 @@
     return inicio.toISOString();
   }
 
-  function sonarPitidoFuerte() {
-    try {
-      if (!audioCtx) {
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      }
-      if (audioCtx.state === 'suspended') {
-        audioCtx.resume();
-      }
-      const ahora = audioCtx.currentTime;
-
-      const reproducirTono = (frecuencia, inicio, duracion) => {
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.type = 'sawtooth';
-        osc.frequency.setValueAtTime(frecuencia, inicio);
-        gain.gain.setValueAtTime(0.001, inicio);
-        gain.gain.exponentialRampToValueAtTime(0.45, inicio + 0.02);
-        gain.gain.exponentialRampToValueAtTime(0.001, inicio + duracion);
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start(inicio);
-        osc.stop(inicio + duracion + 0.02);
-      };
-
-      reproducirTono(880, ahora, 0.22);
-      reproducirTono(1174, ahora + 0.25, 0.26);
-    } catch (_) {}
-  }
-
-  async function solicitarPermisoNotificacionSiProcede() {
-    if ('Notification' in window && Notification.permission === 'default') {
-      try {
-        await Notification.requestPermission();
-      } catch (_) {}
+  function cambiarPestana(nuevaPestana) {
+    pestanaActual = nuevaPestana;
+    document.getElementById('tab-btn-cola').classList.toggle('activa', nuevaPestana === 'cola');
+    document.getElementById('tab-btn-opc').classList.toggle('activa', nuevaPestana === 'opc');
+    document.getElementById('pestana-cola').classList.toggle('hidden', nuevaPestana !== 'cola');
+    document.getElementById('pestana-opc').classList.toggle('hidden', nuevaPestana !== 'opc');
+    if (nuevaPestana === 'opc') {
+      renderizarApuntesOpc();
     }
   }
 
-  async function entrar() {
+  function guardarApuntesOpcLocal() {
+    try {
+      localStorage.setItem('apuntesOpcCompletadosCarr', JSON.stringify([...apuntesOpcCompletados]));
+    } catch (_) {}
+  }
+
+  function alternarApunteOpcCompletado(id) {
+    const clave = String(id);
+    if (apuntesOpcCompletados.has(clave)) {
+      apuntesOpcCompletados.delete(clave);
+    } else {
+      apuntesOpcCompletados.add(clave);
+    }
+    guardarApuntesOpcLocal();
+    renderizarApuntesOpc();
+  }
+
+  function esPedidoConTiempo(p) {
+    return Boolean(p && (p.tiempo_aviso || p.vence_en));
+  }
+
+  function estaVencidoTiempo(p) {
+    if (!esPedidoConTiempo(p)) return true;
+    if (!p.vence_en) return true;
+    const ms = new Date(p.vence_en).getTime();
+    if (Number.isNaN(ms)) return true;
+    return Date.now() >= ms;
+  }
+
+  function formatearHoraVencimiento(p) {
+    if (!p || !p.vence_en) return '';
+    const d = new Date(p.vence_en);
+    if (Number.isNaN(d.getTime())) return '';
+    return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  }
+
+  function ordenarPendientesCarretillero(lista) {
+    const sinTiempo = lista.filter(p => !esPedidoConTiempo(p));
+    const conTiempoVencido = lista.filter(p => esPedidoConTiempo(p) && estaVencidoTiempo(p));
+    const conTiempoFuturo = lista.filter(p => esPedidoConTiempo(p) && !estaVencidoTiempo(p));
+
+    const normales = [...sinTiempo, ...conTiempoVencido].sort(
+      (a, b) => new Date(a.creado_en).getTime() - new Date(b.creado_en).getTime()
+    );
+
+    conTiempoFuturo.sort((a, b) => {
+      const va = a.vence_en ? new Date(a.vence_en).getTime() : Number.MAX_SAFE_INTEGER;
+      const vb = b.vence_en ? new Date(b.vence_en).getTime() : Number.MAX_SAFE_INTEGER;
+      if (va !== vb) return va - vb;
+      return new Date(a.creado_en).getTime() - new Date(b.creado_en).getTime();
+    });
+
+    return [...normales, ...conTiempoFuturo];
+  }
+
+  function sonarPitidoFuerte() {
+    try {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) return;
+      if (!audioCtx) {
+        audioCtx = new AudioCtx();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume().catch(() => {});
+      }
+      const ahora = audioCtx.currentTime;
+      const tonos = [
+        [880, ahora, 0.22],
+        [1174, ahora + 0.25, 0.26]
+      ];
+      tonos.forEach(([freq, start, dur]) => {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(freq, start);
+        gain.gain.setValueAtTime(0.001, start);
+        gain.gain.exponentialRampToValueAtTime(0.45, start + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.001, start + dur);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(start);
+        osc.stop(start + dur + 0.02);
+      });
+    } catch (_) {}
+  }
+
+  function solicitarPermisoNotificacionEnSegundoPlano() {
+    try {
+      if ('Notification' in window && Notification.permission === 'default') {
+        Notification.requestPermission().catch(() => {});
+      }
+    } catch (_) {}
+  }
+
+  function entrar() {
     const nombre = document.getElementById('input-nombre').value.trim();
     const err = document.getElementById('login-error');
     if (!nombre) {
@@ -261,12 +395,22 @@
       return;
     }
     err.innerText = '';
-    sesionCarr = { nombre };
+    sesionCarr = {
+      nombre,
+      entradaHoyISO: new Date().toISOString()
+    };
     localStorage.setItem('sesionCarretillero', JSON.stringify(sesionCarr));
-    sonarPitidoFuerte();
-    await solicitarPermisoNotificacionSiProcede();
     mostrarCola();
+    sonarPitidoFuerte();
+    solicitarPermisoNotificacionEnSegundoPlano();
   }
+
+  document.getElementById('input-nombre').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      entrar();
+    }
+  });
 
   function cerrarSesion() {
     localStorage.removeItem('sesionCarretillero');
@@ -281,6 +425,10 @@
 
   function mostrarCola() {
     if (!sesionCarr) return;
+    if (!sesionCarr.entradaHoyISO) {
+      sesionCarr.entradaHoyISO = inicioHoyISO();
+      localStorage.setItem('sesionCarretillero', JSON.stringify(sesionCarr));
+    }
     document.getElementById('vista-login').classList.add('hidden');
     document.getElementById('vista-cola').classList.remove('hidden');
     document.getElementById('info-carr').classList.remove('hidden');
@@ -297,31 +445,38 @@
 
   function emitirNotificacion(titulo, cuerpo) {
     sonarPitidoFuerte();
-
-    if ('Notification' in window && Notification.permission === 'granted') {
-      if (navigator.serviceWorker && navigator.serviceWorker.ready) {
-        navigator.serviceWorker.ready.then(reg => {
-          reg.showNotification(titulo, {
-            body: cuerpo,
-            tag: 'nuevo-pedido-palets',
-            renotify: true
+    try {
+      if ('Notification' in window && Notification.permission === 'granted') {
+        if (navigator.serviceWorker && navigator.serviceWorker.ready) {
+          navigator.serviceWorker.ready.then(reg => {
+            reg.showNotification(titulo, {
+              body: cuerpo,
+              tag: 'nuevo-pedido-palets',
+              renotify: true
+            });
+          }).catch(() => {
+            new Notification(titulo, { body: cuerpo });
           });
-        }).catch(() => {
+        } else {
           new Notification(titulo, { body: cuerpo });
-        });
-      } else {
-        new Notification(titulo, { body: cuerpo });
+        }
       }
-    }
+    } catch (_) {}
   }
 
   function tieneLoteConcreto(p) {
     return Boolean(p.lote && p.lote.trim() && p.lote.trim().toUpperCase() !== 'FIFO');
   }
 
+  function obtenerCantidadPedido(p) {
+    return (p && Number(p.cantidad) > 1) ? Number(p.cantidad) : 1;
+  }
+
   function formatearTituloPedido(p) {
     const refFmt = p.num_referencia ? (p.tipo_material ? `${p.tipo_material}-${p.num_referencia}` : p.num_referencia) : '';
-    const partes = [refFmt, p.opc ? `OPC ${p.opc}` : '', p.clase_material || ''].filter(Boolean);
+    const cant = obtenerCantidadPedido(p);
+    const cantTxt = cant > 1 ? `x${cant}` : '';
+    const partes = [refFmt, p.opc ? `OPC ${p.opc}` : '', p.clase_material || '', cantTxt].filter(Boolean);
     const base = partes.length > 0 ? partes.join(' · ') : (p.material || 'Material');
     if (tieneLoteConcreto(p)) {
       return `${base} · Lote ${p.lote.trim()}`;
@@ -359,14 +514,15 @@
       .order('creado_en', { ascending: true });
 
     if (!error && data) {
-      const pendientes = data.filter(p => p.estado !== 'completado');
+      const pendientes = ordenarPendientesCarretillero(data.filter(p => p.estado !== 'completado'));
       const completados = data.filter(p => p.estado === 'completado').reverse();
 
       if (!primeraCarga) {
         pendientes.forEach(p => {
           if (!idsConocidos.has(p.id)) {
+            const extraHora = esPedidoConTiempo(p) ? ` · Necesario ${formatearHoraVencimiento(p)}` : '';
             emitirNotificacion(
-              `${p.linea}`,
+              `${p.linea}${extraHora}`,
               `${formatearTituloPedido(p)} (${p.solicitado_por || ''})`
             );
           }
@@ -375,13 +531,69 @@
 
       idsConocidos = new Set(pendientes.map(p => p.id));
       primeraCarga = false;
+      pedidosHoyTodos = data;
       pedidosPendientes = pendientes;
       pedidosCompletados = completados;
       renderizarCarretillero();
+      renderizarApuntesOpc();
       actualizarEstadoRed(true);
     } else if (error) {
       actualizarEstadoRed(false);
     }
+  }
+
+  function obtenerApuntesOpcRelevantes() {
+    const entradaMs = sesionCarr && sesionCarr.entradaHoyISO
+      ? new Date(sesionCarr.entradaHoyISO).getTime()
+      : new Date(inicioHoyISO()).getTime();
+    const haceDosHorasMs = Date.now() - (2 * 60 * 60 * 1000);
+
+    return pedidosHoyTodos
+      .filter(p => {
+        if (!p.opc || !String(p.opc).trim()) return false;
+        const creadoMs = new Date(p.creado_en).getTime();
+        const desdeEntradaHoy = creadoMs >= entradaMs;
+        const ultimasDosHoras = creadoMs >= haceDosHorasMs;
+        return desdeEntradaHoy || ultimasDosHoras;
+      })
+      .sort((a, b) => new Date(b.creado_en).getTime() - new Date(a.creado_en).getTime());
+  }
+
+  function renderizarApuntesOpc() {
+    const cont = document.getElementById('lista-apuntes-opc');
+    const badge = document.getElementById('contador-apuntes-opc');
+    if (!cont || !badge) return;
+
+    const listaOpc = obtenerApuntesOpcRelevantes();
+    badge.innerText = `${listaOpc.length} OPC`;
+
+    if (listaOpc.length === 0) {
+      cont.innerHTML = '<p style="color:var(--muted); font-weight:800;">Sin OPC registradas en este rango.</p>';
+      return;
+    }
+
+    cont.innerHTML = listaOpc.map(p => {
+      const clave = String(p.id);
+      const hecho = apuntesOpcCompletados.has(clave);
+      const hora = new Date(p.creado_en).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      const refFmt = p.num_referencia ? (p.tipo_material ? `${p.tipo_material}-${p.num_referencia}` : p.num_referencia) : '';
+      const matTxt = [refFmt, p.clase_material || '', (p.lote && p.lote !== 'FIFO') ? `Lote ${p.lote}` : 'FIFO'].filter(Boolean).join(' · ');
+      const cant = obtenerCantidadPedido(p);
+
+      return `
+        <div class="opc-apunte-item ${hecho ? 'hecho-apunte' : ''}">
+          <div>
+            <div style="font-size:0.88rem; color:var(--muted); font-weight:800;">${hora} · ${p.linea} · ${p.solicitado_por || ''}</div>
+            <div class="pedido-titulo">OPC ${p.opc} — Cantidad: ${cant}</div>
+            <div style="font-size:0.94rem; color:#cbd5e1; font-weight:700;">Materiales: ${matTxt || (p.material || '—')}</div>
+            <span class="badge ${hecho ? 'listo' : ''}">${hecho ? 'Completado (apunte)' : 'Pendiente apunte'}</span>
+          </div>
+          <button type="button" class="${hecho ? 'btn-desmarcar' : 'btn-hecho'}" onclick="alternarApunteOpcCompletado('${p.id}')">
+            ${hecho ? 'Desmarcar apunte' : 'Marcar completada ✓'}
+          </button>
+        </div>
+      `;
+    }).join('');
   }
 
   function renderizarCarretillero() {
@@ -397,17 +609,24 @@
       lista.innerHTML = pedidosPendientes.map((p, index) => {
         const hora = new Date(p.creado_en).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         const titulo = formatearTituloPedido(p);
+        const cant = obtenerCantidadPedido(p);
         const subPartes = [];
+        if (cant > 1) subPartes.push(`Cantidad: ${cant}`);
         if (!tieneLoteConcreto(p)) subPartes.push('FIFO');
         if (p.solicitado_por) subPartes.push(p.solicitado_por);
 
+        const conTiempo = esPedidoConTiempo(p);
+        const vencido = estaVencidoTiempo(p);
+        const horaVence = formatearHoraVencimiento(p);
+
         return `
-          <div class="pedido-item">
+          <div class="pedido-item ${(conTiempo && !vencido) ? 'con-tiempo-futuro' : ''}">
             <div>
               <div style="font-size:0.88rem; color:var(--muted); font-weight:800;">#${index + 1} · ${hora} · ${p.linea}</div>
               <div class="pedido-titulo">${titulo}</div>
               ${subPartes.length > 0 ? `<div style="font-size:0.92rem; color:#cbd5e1; font-weight:700;">${subPartes.join(' · ')}</div>` : ''}
               <span class="badge">Pendiente</span>
+              ${conTiempo ? `<span class="badge tiempo">${p.tiempo_aviso} · Hora exacta: ${horaVence}${vencido ? ' (En hora)' : ' (Programado)'}</span>` : ''}
             </div>
             <button class="btn-hecho" onclick="marcarListo(${p.id})">Listo ✓</button>
           </div>
@@ -421,7 +640,9 @@
       listaComp.innerHTML = pedidosCompletados.map((p) => {
         const hora = new Date(p.creado_en).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         const titulo = formatearTituloPedido(p);
+        const cant = obtenerCantidadPedido(p);
         const subPartes = [];
+        if (cant > 1) subPartes.push(`Cantidad: ${cant}`);
         if (!tieneLoteConcreto(p)) subPartes.push('FIFO');
         if (p.solicitado_por) subPartes.push(p.solicitado_por);
 
@@ -446,7 +667,14 @@
     })
     .subscribe();
 
-  setInterval(cargarPedidos, 2500);
+  setInterval(() => {
+    if (sesionCarr) {
+      pedidosPendientes = ordenarPendientesCarretillero(pedidosPendientes);
+      renderizarCarretillero();
+      cargarPedidos();
+    }
+  }, 2500);
+
   if (sesionCarr) {
     mostrarCola();
   }
