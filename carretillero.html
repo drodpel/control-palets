@@ -16,16 +16,16 @@
       --bg: #0f172a;
       --card: #1e293b;
       --card-2: #0b1220;
-      --text: #f8fafc;
-      --muted: #cbd5e1;
-      --border: #334155;
+      --text: #ffffff;
+      --muted: #e2e8f0;
+      --border: #475569;
     }
     * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
     body {
       margin: 0;
       background: var(--bg);
       color: var(--text);
-      padding: 14px;
+      padding: 12px;
       min-height: 100dvh;
     }
     .wrap { max-width: 1100px; margin: 0 auto; }
@@ -36,17 +36,17 @@
       gap: 10px;
       border-bottom: 1px solid var(--border);
       padding-bottom: 10px;
-      margin-bottom: 14px;
+      margin-bottom: 12px;
       flex-wrap: wrap;
     }
-    .user-pill { font-size: 0.92rem; color: var(--muted); margin-top: 4px; font-weight: 700; }
+    .user-pill { font-size: 0.95rem; color: var(--muted); margin-top: 4px; font-weight: 800; }
     .btn-top {
-      background: var(--border);
-      color: var(--text);
-      border: none;
-      padding: 9px 13px;
+      background: #334155;
+      color: #ffffff;
+      border: 1px solid var(--border);
+      padding: 8px 12px;
       border-radius: 8px;
-      font-weight: 800;
+      font-weight: 900;
       cursor: pointer;
       font-size: 0.9rem;
     }
@@ -55,38 +55,38 @@
       padding: 18px;
       border-radius: 12px;
       border: 1px solid var(--border);
-      margin-bottom: 14px;
+      margin-bottom: 12px;
     }
-    label { display: block; margin-bottom: 6px; font-weight: 800; color: var(--muted); }
+    label { display: block; margin-bottom: 6px; font-weight: 900; color: var(--muted); font-size: 1.05rem; }
     input {
       width: 100%;
-      padding: 13px;
-      font-size: 1.08rem;
-      font-weight: 700;
+      padding: 12px;
+      font-size: 1.1rem;
+      font-weight: 800;
       border-radius: 10px;
       border: 1px solid var(--border);
       background: var(--card-2);
-      color: var(--text);
+      color: #ffffff;
       margin-bottom: 12px;
     }
     button.action-btn {
       width: 100%;
-      padding: 15px;
-      font-size: 1.1rem;
+      padding: 14px;
+      font-size: 1.12rem;
       border-radius: 10px;
       border: none;
       background: var(--primary);
-      color: #fff;
+      color: #ffffff;
       font-weight: 900;
       cursor: pointer;
     }
-    .error-msg { color: #fca5a5; font-weight: 800; margin-bottom: 10px; min-height: 20px; }
+    .error-msg { color: #fca5a5; font-weight: 900; margin-bottom: 10px; min-height: 20px; }
     #network-status {
       display: inline-block;
-      margin-top: 6px;
+      margin-top: 4px;
       font-size: 0.85rem;
-      font-weight: 800;
-      padding: 4px 10px;
+      font-weight: 900;
+      padding: 3px 9px;
       border-radius: 999px;
       background: #16a34a33;
       color: #4ade80;
@@ -99,13 +99,12 @@
       gap: 12px;
       background: var(--card-2);
       border: 1px solid var(--border);
-      padding: 14px;
+      padding: 13px;
       border-radius: 10px;
-      margin-bottom: 10px;
+      margin-bottom: 9px;
       border-left: 6px solid var(--warning);
       flex-wrap: wrap;
     }
-    .pedido-item.en_camino { border-left-color: var(--success); background: var(--card); }
     .badge {
       display: inline-block;
       padding: 3px 8px;
@@ -114,21 +113,19 @@
       font-weight: 900;
       text-transform: uppercase;
       margin-top: 5px;
+      background: #d9770644;
+      color: #fbbf24;
     }
-    .badge.pendiente { background: #d9770644; color: #fbbf24; }
-    .badge.en_camino { background: #16a34a44; color: #4ade80; }
-    .btn-small {
-      padding: 11px 15px;
+    .btn-hecho {
+      padding: 12px 18px;
       border: none;
-      border-radius: 8px;
+      border-radius: 9px;
       font-weight: 900;
       cursor: pointer;
-      color: #fff;
-      margin-left: 6px;
-      font-size: 0.95rem;
+      color: #ffffff;
+      background: var(--success);
+      font-size: 1rem;
     }
-    .btn-camino { background: var(--primary); }
-    .btn-hecho { background: var(--success); }
     .hidden { display: none !important; }
   </style>
 </head>
@@ -136,7 +133,7 @@
 <div class="wrap">
   <header>
     <div>
-      <h2 style="margin:0; font-size: 1.25rem; font-weight:900;">Cola de Carretillero</h2>
+      <h2 style="margin:0; font-size: 1.2rem; font-weight:900;">Cola de Carretillero</h2>
       <span id="network-status">● Conectado</span>
       <div id="info-carr" class="user-pill hidden"></div>
     </div>
@@ -147,17 +144,16 @@
   </header>
 
   <div id="vista-login" class="card">
-    <h3 style="margin-top:0;">Acceso Carretillero</h3>
     <label for="input-nombre">Nombre</label>
-    <input type="text" id="input-nombre" placeholder="Escribe tu nombre" autocomplete="name">
+    <input type="text" id="input-nombre" autocomplete="name">
     <div id="login-error" class="error-msg"></div>
-    <button type="button" class="action-btn" onclick="entrar()">ENTRAR A LA COLA</button>
+    <button type="button" class="action-btn" onclick="entrar()">ENTRAR</button>
   </div>
 
   <div id="vista-cola" class="hidden">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-      <h3 style="margin:0;">Peticiones pendientes</h3>
-      <span id="contador-pendientes" style="font-weight:800; color:var(--muted);">0 pendientes</span>
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+      <h3 style="margin:0;">Pendientes</h3>
+      <span id="contador-pendientes" style="font-weight:900; color:var(--muted);">0 pendientes</span>
     </div>
     <div id="lista-carretillero"></div>
   </div>
@@ -183,7 +179,7 @@
     const nombre = document.getElementById('input-nombre').value.trim();
     const err = document.getElementById('login-error');
     if (!nombre) {
-      err.innerText = 'Escribe tu nombre para entrar.';
+      err.innerText = 'Escribe tu nombre.';
       return;
     }
     err.innerText = '';
@@ -209,7 +205,7 @@
     document.getElementById('vista-login').classList.add('hidden');
     document.getElementById('vista-cola').classList.remove('hidden');
     document.getElementById('info-carr').classList.remove('hidden');
-    document.getElementById('info-carr').innerText = `Carretillero: ${sesionCarr.nombre}`;
+    document.getElementById('info-carr').innerText = sesionCarr.nombre;
     document.getElementById('btn-notif').classList.remove('hidden');
     document.getElementById('btn-salir').classList.remove('hidden');
     actualizarBotonNotif();
@@ -242,7 +238,7 @@
     const perm = await Notification.requestPermission();
     actualizarBotonNotif();
     if (perm === 'granted') {
-      emitirNotificacion('Avisos activados', 'Te avisaré al entrar una petición.');
+      emitirNotificacion('Avisos activados', 'Avisos listos.');
     }
   }
 
@@ -278,13 +274,13 @@
   }
 
   function formatearDetalle(p) {
-    const refFmt = (p.tipo_material && p.num_referencia) ? `${p.tipo_material}-${p.num_referencia}` : '';
+    const refFmt = p.num_referencia ? (p.tipo_material ? `${p.tipo_material}-${p.num_referencia}` : p.num_referencia) : '';
     const partes = [refFmt, p.opc ? `OPC ${p.opc}` : '', p.clase_material || ''].filter(Boolean);
     return partes.length > 0 ? partes.join(' · ') : (p.material || 'Material');
   }
 
-  async function cambiarEstado(id, nuevoEstado) {
-    const { error } = await db.from('pedidos').update({ estado: nuevoEstado }).eq('id', id);
+  async function marcarListo(id) {
+    const { error } = await db.from('pedidos').update({ estado: 'completado' }).eq('id', id);
     if (!error) {
       await cargarPedidos();
     } else {
@@ -305,8 +301,8 @@
         data.forEach(p => {
           if (!idsConocidos.has(p.id)) {
             emitirNotificacion(
-              `Nueva petición: ${p.linea}`,
-              `${formatearDetalle(p)} (${p.solicitado_por || 'Operaria'})`
+              `${p.linea}`,
+              `${formatearDetalle(p)} (${p.solicitado_por || ''})`
             );
           }
         });
@@ -327,7 +323,7 @@
     document.getElementById('contador-pendientes').innerText = `${pedidosCache.length} pendientes`;
 
     if (pedidosCache.length === 0) {
-      lista.innerHTML = '<p style="color:var(--muted);">Sin pedidos pendientes ahora mismo.</p>';
+      lista.innerHTML = '<p style="color:var(--muted); font-weight:800;">Sin pedidos pendientes.</p>';
       return;
     }
 
@@ -335,22 +331,17 @@
       const hora = new Date(p.creado_en).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
       const detalle = formatearDetalle(p);
       const loteTxt = (p.lote && p.lote !== 'FIFO') ? `Lote ${p.lote}` : 'FIFO';
-      const sub = [loteTxt, `Op: ${p.solicitado_por || '-'}`].join(' · ');
+      const sub = [loteTxt, p.solicitado_por || ''].filter(Boolean).join(' · ');
 
       return `
-        <div class="pedido-item ${p.estado}">
+        <div class="pedido-item">
           <div>
-            <div style="font-size:0.86rem; color:var(--muted); font-weight:700;">#${index + 1} · ${hora} · ${p.linea}</div>
-            <div style="font-size:1.22rem; font-weight:900; margin:4px 0;">${detalle}</div>
-            <div style="font-size:0.92rem; color:#cbd5e1;">${sub}</div>
-            <span class="badge ${p.estado}">${p.estado === 'en_camino' ? 'En camino' : 'Pendiente'}</span>
+            <div style="font-size:0.88rem; color:var(--muted); font-weight:800;">#${index + 1} · ${hora} · ${p.linea}</div>
+            <div style="font-size:1.2rem; font-weight:900; margin:3px 0;">${detalle}</div>
+            <div style="font-size:0.92rem; color:#cbd5e1; font-weight:700;">${sub}</div>
+            <span class="badge">Pendiente</span>
           </div>
-          <div>
-            ${p.estado === 'pendiente'
-              ? `<button class="btn-small btn-camino" onclick="cambiarEstado(${p.id}, 'en_camino')">Voy</button>`
-              : ''}
-            <button class="btn-small btn-hecho" onclick="cambiarEstado(${p.id}, 'completado')">Listo ✓</button>
-          </div>
+          <button class="btn-hecho" onclick="marcarListo(${p.id})">Listo ✓</button>
         </div>
       `;
     }).join('');
@@ -362,7 +353,7 @@
     })
     .subscribe();
 
-  setInterval(cargarPedidos, 3000);
+  setInterval(cargarPedidos, 2500);
   if (sesionCarr) {
     mostrarCola();
   }
