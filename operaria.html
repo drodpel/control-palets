@@ -36,12 +36,12 @@
     .app-shell {
       height: 100dvh;
       width: 100%;
-      max-width: 1440px;
+      max-width: 1600px;
       margin: 0 auto;
-      padding: 6px 10px;
+      padding: 8px 12px;
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 8px;
       overflow: hidden;
     }
 
@@ -50,7 +50,7 @@
       justify-content: space-between;
       align-items: center;
       gap: 8px;
-      padding-bottom: 5px;
+      padding-bottom: 6px;
       border-bottom: 1px solid var(--border);
       flex-shrink: 0;
     }
@@ -61,9 +61,9 @@
       flex-wrap: wrap;
     }
     .pill-status {
-      font-size: 0.84rem;
+      font-size: 0.85rem;
       font-weight: 900;
-      padding: 3px 9px;
+      padding: 3px 10px;
       border-radius: 999px;
       background: #16a34a33;
       color: #4ade80;
@@ -73,11 +73,11 @@
       color: #fbbf24;
     }
     .user-badge {
-      font-size: 0.96rem;
+      font-size: 1rem;
       font-weight: 900;
       color: #ffffff;
       background: var(--card);
-      padding: 3px 10px;
+      padding: 4px 11px;
       border-radius: 7px;
       border: 1px solid var(--border);
     }
@@ -85,10 +85,10 @@
       background: #334155;
       color: #ffffff;
       border: 1px solid var(--border);
-      padding: 6px 11px;
+      padding: 7px 12px;
       border-radius: 8px;
       font-weight: 900;
-      font-size: 0.86rem;
+      font-size: 0.88rem;
       cursor: pointer;
     }
 
@@ -102,9 +102,9 @@
     }
     .login-card {
       width: 100%;
-      max-width: 440px;
+      max-width: 460px;
       background: var(--card);
-      padding: 16px;
+      padding: 18px;
       border-radius: 12px;
       border: 1px solid var(--border);
     }
@@ -114,8 +114,8 @@
       min-height: 0;
       width: 100%;
       display: grid;
-      grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
-      gap: 8px;
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+      gap: 10px;
       overflow: hidden;
     }
     @media (max-width: 760px) {
@@ -128,18 +128,29 @@
     .panel {
       background: var(--card);
       border: 1px solid var(--border);
-      border-radius: 11px;
-      padding: 8px 10px;
+      border-radius: 12px;
+      padding: 10px 12px;
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 8px;
       min-width: 0;
       min-height: 0;
       overflow: hidden;
     }
+
+    /* Aprovecha el espacio vertical en pantallas medianas y grandes sin desbordar */
+    .form-spread {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-evenly;
+      gap: 8px;
+    }
+
     .panel-title {
       margin: 0;
-      font-size: 1.05rem;
+      font-size: 1.1rem;
       font-weight: 900;
       color: #ffffff;
       display: flex;
@@ -152,21 +163,20 @@
     .row-2 {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 8px;
+      gap: 10px;
       align-items: end;
-      flex-shrink: 0;
     }
     .field {
       display: flex;
       flex-direction: column;
-      gap: 3px;
+      gap: 4px;
       min-width: 0;
     }
     label {
-      font-size: 1.02rem;
+      font-size: clamp(1rem, 1.35vw, 1.25rem);
       font-weight: 900;
       color: var(--label);
-      line-height: 1.1;
+      line-height: 1.15;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -174,16 +184,16 @@
     input, select {
       width: 100%;
       min-width: 0;
-      height: 38px;
-      padding: 6px 9px;
-      font-size: 1.05rem;
+      height: clamp(38px, 5.2dvh, 52px);
+      padding: 6px 10px;
+      font-size: clamp(1.05rem, 1.4vw, 1.28rem);
       font-weight: 800;
-      border-radius: 8px;
+      border-radius: 9px;
       border: 1.5px solid var(--border);
       background: var(--card-2);
       color: #ffffff;
     }
-    input::placeholder { color: #94a3b8; font-weight: 700; font-size: 0.94rem; }
+    input::placeholder { color: #94a3b8; font-weight: 700; font-size: 0.92em; }
     input:focus, select:focus {
       outline: 2px solid #60a5fa;
       border-color: #60a5fa;
@@ -192,21 +202,21 @@
     .ref-col {
       display: flex;
       flex-direction: column;
-      gap: 3px;
+      gap: 4px;
       min-width: 0;
     }
     .st-mp-pt-row {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 4px;
+      gap: 5px;
       width: 100%;
     }
     .mat-pill {
-      padding: 2px 2px;
-      font-size: 0.84rem;
+      padding: clamp(3px, 0.5dvh, 7px) 4px;
+      font-size: clamp(0.85rem, 1.15vw, 1.05rem);
       font-weight: 900;
       line-height: 1.1;
-      border-radius: 6px;
+      border-radius: 7px;
       border: 1.5px solid var(--border);
       background: var(--card-2);
       color: #ffffff;
@@ -223,10 +233,10 @@
     .num-locked-box {
       width: 100%;
       min-width: 0;
-      height: 38px;
+      height: clamp(38px, 5.2dvh, 52px);
       display: flex;
       align-items: center;
-      border-radius: 8px;
+      border-radius: 9px;
       border: 1.5px solid var(--border);
       background: var(--card-2);
       overflow: hidden;
@@ -236,8 +246,8 @@
       border-color: #60a5fa;
     }
     .prefijo-fijo {
-      padding: 0 0 0 9px;
-      font-size: 1.05rem;
+      padding: 0 0 0 10px;
+      font-size: clamp(1.05rem, 1.4vw, 1.28rem);
       font-weight: 900;
       color: #93c5fd;
       user-select: none;
@@ -247,25 +257,36 @@
       border: none;
       background: transparent;
       height: 100%;
-      padding: 6px 8px 6px 2px;
+      padding: 6px 9px 6px 3px;
       outline: none !important;
       flex: 1;
       min-width: 0;
     }
 
+    .ayuda-visual {
+      background: var(--card-2);
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      padding: 8px 10px;
+      font-size: clamp(0.88rem, 1.15vw, 1.05rem);
+      font-weight: 800;
+      color: var(--muted);
+      line-height: 1.25;
+    }
+
     .error-msg {
       color: #fca5a5;
-      font-size: 0.94rem;
+      font-size: 0.98rem;
       font-weight: 900;
-      min-height: 18px;
+      min-height: 20px;
       flex-shrink: 0;
     }
     .btn-submit {
       width: 100%;
-      padding: 10px;
-      font-size: 1.1rem;
+      padding: clamp(11px, 1.7dvh, 18px);
+      font-size: clamp(1.1rem, 1.5vw, 1.35rem);
       font-weight: 900;
-      border-radius: 9px;
+      border-radius: 10px;
       border: none;
       background: var(--primary);
       color: #ffffff;
@@ -274,8 +295,8 @@
     }
     .btn-cancel-edit {
       width: 100%;
-      padding: 6px;
-      font-size: 0.88rem;
+      padding: 7px;
+      font-size: 0.9rem;
       font-weight: 900;
       border-radius: 8px;
       border: 1px solid var(--border);
@@ -315,7 +336,7 @@
       border-left-color: var(--success);
     }
     .pedido-main {
-      font-size: 1.02rem;
+      font-size: 1.04rem;
       font-weight: 900;
       color: #ffffff;
       line-height: 1.2;
@@ -366,10 +387,7 @@
       <span id="network-status" class="pill-status">● Conectado</span>
       <span id="user-badge" class="user-badge hidden"></span>
     </div>
-    <div style="display:flex; gap:6px; flex-wrap:wrap;">
-      <button id="btn-avisos-op" class="btn-top hidden" onclick="activarAvisosOp()">🔔 Avisos</button>
-      <button id="btn-cambiar" class="btn-top hidden" onclick="salirTurno()">Cambiar nombre</button>
-    </div>
+    <button id="btn-cambiar" class="btn-top hidden" onclick="salirTurno()">Cambiar nombre</button>
   </header>
 
   <div id="vista-inicio" class="login-wrap">
@@ -385,57 +403,63 @@
 
   <div id="vista-trabajo" class="main-grid hidden">
     <section class="panel">
-      <div class="row-2">
-        <div class="field">
-          <label for="input-opc">OPC</label>
-          <input type="text" id="input-opc" inputmode="numeric" pattern="\d{4}" maxlength="4" enterkeyhint="done" placeholder="4 últimos dígitos">
-        </div>
-
-        <div class="field">
-          <label for="input-linea">Línea</label>
-          <input type="text" id="input-linea" inputmode="numeric" pattern="[0-9]*" enterkeyhint="done">
-        </div>
-      </div>
-
-      <div id="bloque-tipo-material" class="row-2 hidden">
-        <div class="field">
-          <label for="select-clase-mat">Material</label>
-          <select id="select-clase-mat" onchange="alCambiarClaseMaterial()">
-            <option value=""></option>
-            <option value="lámina">lámina</option>
-            <option value="interior">interior</option>
-            <option value="posicionador">posicionador</option>
-            <option value="sin estuchar">sin estuchar</option>
-            <option value="sin encelofanar">sin encelofanar</option>
-            <option value="estuche">estuche</option>
-            <option value="embalaje">embalaje</option>
-            <option value="embalaje inner">embalaje inner</option>
-            <option value="otro">otro</option>
-          </select>
-        </div>
-
-        <div id="campo-otro-mat" class="field hidden">
-          <label for="input-otro-mat">Material</label>
-          <input type="text" id="input-otro-mat" enterkeyhint="done">
-        </div>
-      </div>
-
-      <div class="row-2">
-        <div class="ref-col">
-          <div class="st-mp-pt-row">
-            <button type="button" class="mat-pill" data-mat="ST" onclick="seleccionarPrefijo('ST')">ST</button>
-            <button type="button" class="mat-pill" data-mat="MP" onclick="seleccionarPrefijo('MP')">MP</button>
-            <button type="button" class="mat-pill" data-mat="PT" onclick="seleccionarPrefijo('PT')">PT</button>
+      <div class="form-spread">
+        <div class="row-2">
+          <div class="field">
+            <label for="input-opc">OPC</label>
+            <input type="text" id="input-opc" inputmode="numeric" pattern="\d{4}" maxlength="4" enterkeyhint="done" placeholder="4 últimos dígitos">
           </div>
-          <div class="num-locked-box">
-            <span id="prefijo-fijo-span" class="prefijo-fijo hidden"></span>
-            <input type="text" id="input-num-ref" inputmode="numeric" pattern="[0-9]*" enterkeyhint="done">
+
+          <div class="field">
+            <label for="input-linea">Línea</label>
+            <input type="text" id="input-linea" inputmode="numeric" pattern="[0-9]*" enterkeyhint="done">
           </div>
         </div>
 
-        <div class="field">
-          <label for="input-lote">Lote</label>
-          <input type="text" id="input-lote" enterkeyhint="done">
+        <div id="bloque-tipo-material" class="row-2 hidden">
+          <div class="field">
+            <label for="select-clase-mat">Material</label>
+            <select id="select-clase-mat" onchange="alCambiarClaseMaterial()">
+              <option value=""></option>
+              <option value="lámina">lámina</option>
+              <option value="interior">interior</option>
+              <option value="posicionador">posicionador</option>
+              <option value="sin estuchar">sin estuchar</option>
+              <option value="sin encelofanar">sin encelofanar</option>
+              <option value="estuche">estuche</option>
+              <option value="embalaje">embalaje</option>
+              <option value="embalaje inner">embalaje inner</option>
+              <option value="otro">otro</option>
+            </select>
+          </div>
+
+          <div id="campo-otro-mat" class="field hidden">
+            <label for="input-otro-mat">Material</label>
+            <input type="text" id="input-otro-mat" enterkeyhint="done">
+          </div>
+        </div>
+
+        <div class="row-2">
+          <div class="ref-col">
+            <div class="st-mp-pt-row">
+              <button type="button" class="mat-pill" data-mat="ST" onclick="seleccionarPrefijo('ST')">ST</button>
+              <button type="button" class="mat-pill" data-mat="MP" onclick="seleccionarPrefijo('MP')">MP</button>
+              <button type="button" class="mat-pill" data-mat="PT" onclick="seleccionarPrefijo('PT')">PT</button>
+            </div>
+            <div class="num-locked-box">
+              <span id="prefijo-fijo-span" class="prefijo-fijo hidden"></span>
+              <input type="text" id="input-num-ref" inputmode="numeric" pattern="[0-9]*" enterkeyhint="done">
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="input-lote">Lote</label>
+            <input type="text" id="input-lote" enterkeyhint="done">
+          </div>
+        </div>
+
+        <div class="ayuda-visual">
+          Con <strong>OPC</strong> (sin referencia completa) se indica el <strong>Material</strong>. Con <strong>Referencia completa</strong> no hace falta.
         </div>
       </div>
 
@@ -447,7 +471,7 @@
     <section class="panel">
       <div class="panel-title">
         <span>Pedidos</span>
-        <span id="contador-mios-hoy" style="font-size:0.94rem; color:#93c5fd;">Hoy: 0</span>
+        <span id="contador-mios-hoy" style="font-size:0.96rem; color:#93c5fd;">Hoy: 0</span>
       </div>
 
       <div id="lista-general" class="cola-scroll"></div>
@@ -514,14 +538,12 @@
     } catch (_) {}
   }
 
-  async function activarAvisosOp() {
-    sonarPitidoFuerteOp();
+  async function solicitarPermisoNotificacionSiProcede() {
     if ('Notification' in window && Notification.permission === 'default') {
       try {
         await Notification.requestPermission();
       } catch (_) {}
     }
-    notificarPedidoListo('Avisos activos', 'Te avisaré cuando tu pedido esté listo.');
   }
 
   function notificarPedidoListo(titulo, cuerpo) {
@@ -543,7 +565,7 @@
     }
   }
 
-  function iniciarTurno() {
+  async function iniciarTurno() {
     const nombre = document.getElementById('input-nombre').value.trim();
     const err = document.getElementById('inicio-error');
     if (!nombre) {
@@ -554,6 +576,7 @@
     sesionOp = { nombre };
     sessionStorage.setItem('sesionOperariaNombre', JSON.stringify(sesionOp));
     sonarPitidoFuerteOp();
+    await solicitarPermisoNotificacionSiProcede();
     mostrarTrabajo();
   }
 
@@ -566,7 +589,6 @@
     document.getElementById('vista-trabajo').classList.add('hidden');
     document.getElementById('vista-inicio').classList.remove('hidden');
     document.getElementById('user-badge').classList.add('hidden');
-    document.getElementById('btn-avisos-op').classList.add('hidden');
     document.getElementById('btn-cambiar').classList.add('hidden');
   }
 
@@ -577,7 +599,6 @@
     const badge = document.getElementById('user-badge');
     badge.classList.remove('hidden');
     badge.innerText = sesionOp.nombre;
-    document.getElementById('btn-avisos-op').classList.remove('hidden');
     document.getElementById('btn-cambiar').classList.remove('hidden');
     cargarPedidos();
   }
@@ -609,7 +630,12 @@
   });
   inputNumRef.addEventListener('input', (e) => {
     e.target.value = e.target.value.replace(/\D/g, '');
+    actualizarVisibilidadClaseMaterial();
   });
+
+  function tieneReferenciaCompleta() {
+    return Boolean(prefijoSeleccionado && inputNumRef.value.trim());
+  }
 
   function actualizarPrefijoVisual() {
     if (prefijoSeleccionado) {
@@ -627,13 +653,16 @@
       btn.classList.toggle('active', btn.dataset.mat === prefijoSeleccionado);
     });
     actualizarPrefijoVisual();
+    actualizarVisibilidadClaseMaterial();
     inputNumRef.focus();
   }
 
+  // Solo se exige elegir material si hay OPC y NO hay referencia completa
   function actualizarVisibilidadClaseMaterial() {
     const tieneOpc = Boolean(inputOpc.value.trim());
-    document.getElementById('bloque-tipo-material').classList.toggle('hidden', !tieneOpc);
-    if (!tieneOpc) {
+    const pedirMaterial = tieneOpc && !tieneReferenciaCompleta();
+    document.getElementById('bloque-tipo-material').classList.toggle('hidden', !pedirMaterial);
+    if (!pedirMaterial) {
       document.getElementById('select-clase-mat').value = '';
       inputOtroMat.value = '';
       document.getElementById('campo-otro-mat').classList.add('hidden');
@@ -701,7 +730,7 @@
     actualizarVisibilidadClaseMaterial();
     const claseGuardada = pedido.clase_material || '';
     const opcionesPredefinidas = ['lámina','interior','posicionador','sin estuchar','sin encelofanar','estuche','embalaje','embalaje inner'];
-    if (claseGuardada) {
+    if (claseGuardada && !document.getElementById('bloque-tipo-material').classList.contains('hidden')) {
       if (opcionesPredefinidas.includes(claseGuardada)) {
         document.getElementById('select-clase-mat').value = claseGuardada;
         document.getElementById('campo-otro-mat').classList.add('hidden');
@@ -748,9 +777,10 @@
     }
 
     const tieneOpc = Boolean(opc);
-    const tieneRef = Boolean(numRef || prefijoSeleccionado);
+    const refCompleta = tieneReferenciaCompleta();
+    const tieneRefParcial = Boolean(numRef || prefijoSeleccionado);
 
-    if (!tieneOpc && !tieneRef) {
+    if (!tieneOpc && !tieneRefParcial) {
       err.innerText = 'Indica OPC o Referencia.';
       return;
     }
@@ -760,8 +790,13 @@
       return;
     }
 
+    if (tieneRefParcial && !refCompleta) {
+      err.innerText = 'Completa ST, MP o PT y el número.';
+      return;
+    }
+
     let claseMaterial = '';
-    if (tieneOpc) {
+    if (tieneOpc && !refCompleta) {
       claseMaterial = obtenerClaseMaterialFinal();
       if (!claseMaterial) {
         err.innerText = 'Indica el material.';
@@ -769,14 +804,9 @@
       }
     }
 
-    if (tieneRef && !numRef) {
-      err.innerText = 'Indica el número.';
-      return;
-    }
-
     const nombreOp = sesionOp ? sesionOp.nombre : 'Operaria';
     const lineaTexto = `Línea ${numLinea}`;
-    const refTexto = numRef ? (prefijoSeleccionado ? `${prefijoSeleccionado}-${numRef}` : numRef) : '';
+    const refTexto = refCompleta ? `${prefijoSeleccionado}-${numRef}` : '';
     const resumenMaterial = [refTexto, opc ? `OPC ${opc}` : '', claseMaterial]
       .filter(Boolean)
       .join(' · ') || 'Pedido';
@@ -786,8 +816,8 @@
       material: resumenMaterial,
       solicitado_por: nombreOp,
       opc: opc || null,
-      tipo_material: prefijoSeleccionado || null,
-      num_referencia: numRef || null,
+      tipo_material: refCompleta ? prefijoSeleccionado : null,
+      num_referencia: refCompleta ? numRef : null,
       clase_material: claseMaterial || null,
       lote: loteInput || 'FIFO',
       estado: 'pendiente',
@@ -832,6 +862,7 @@
   }
 
   async function cancelarPedido(id) {
+    if (!confirm('¿Seguro que quieres cancelar este pedido?')) return;
     const { error } = await db.from('pedidos').update({ estado: 'cancelado' }).eq('id', id);
     if (!error) {
       if (idEditando === id) limpiarFormulario();
@@ -881,7 +912,6 @@
           });
         }
 
-        // Si un pedido se desmarca en carretillero y vuelve a pendiente, permitimos volver a avisar si se marca listo de nuevo
         const idsListosActuales = new Set(miosListos.map(p => p.id));
         idsListosAvisados = new Set([...idsListosAvisados].filter(id => idsListosActuales.has(id)));
         miosListos.forEach(p => idsListosAvisados.add(p.id));
