@@ -562,11 +562,11 @@
     renderizarTodo();
   }
 
-  function hacerScrollAbajoPedidos() {
+  function hacerScrollArribaPedidosSiProcede() {
     requestAnimationFrame(() => {
       const lista = document.getElementById('lista-general');
-      if (lista) {
-        lista.scrollTop = lista.scrollHeight;
+      if (lista && lista.scrollTop > 0) {
+        lista.scrollTop = 0;
       }
     });
   }
@@ -937,7 +937,7 @@
         }
         await cargarPedidos();
         if (eraNuevo) {
-          hacerScrollAbajoPedidos();
+          hacerScrollArribaPedidosSiProcede();
         }
       }
     }
@@ -978,7 +978,7 @@
         .select('*')
         .neq('estado', 'cancelado')
         .gte('creado_en', inicioHoyISO())
-        .order('creado_en', { ascending: true });
+        .order('creado_en', { ascending: false });
 
       if (!error && hoyPedidos) {
         const nombreActual = sesionOp.nombre.toLowerCase();
@@ -1024,20 +1024,11 @@
   }
 
   function obtenerPedidosFiltradosOperaria() {
-    const nombreActual = (sesionOp?.nombre || '').toLowerCase();
-
     return pedidosHoyTodos.filter(p => {
-      const esMio = nombreActual && (p.solicitado_por || '').toLowerCase() === nombreActual;
       const esListo = p.estado === 'completado';
       const esPendiente = p.estado !== 'completado';
 
-      // Pedidos pendientes (propios y de otras operarias) para ver la cola por delante y los propios activos
       if (esPendiente) return true;
-
-      // Pedidos propios ya completados
-      if (esListo && esMio) return true;
-
-      // Pedidos completados de otras operarias solo si "Todos listos" está activado
       if (esListo && mostrarTodosCompletados) return true;
 
       return false;
