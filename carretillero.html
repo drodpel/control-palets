@@ -6,6 +6,7 @@
   <meta name="theme-color" content="#0f172a">
   <title>Control de Palets - Carretillero</title>
   <link rel="manifest" href="manifest-carretillero.json">
+  <link rel="icon" type="image/svg+xml" href="icon.svg">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root {
@@ -14,142 +15,152 @@
       --success: #16a34a;
       --bg: #0f172a;
       --card: #1e293b;
+      --card-2: #0b1220;
       --text: #f8fafc;
-      --muted: #94a3b8;
+      --muted: #cbd5e1;
       --border: #334155;
     }
     * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
-    body { margin: 0; background: var(--bg); color: var(--text); padding: 16px; }
-
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      padding: 14px;
+      min-height: 100dvh;
+    }
+    .wrap { max-width: 1100px; margin: 0 auto; }
     header {
       display: flex;
       justify-content: space-between;
       align-items: center;
       gap: 10px;
       border-bottom: 1px solid var(--border);
-      padding-bottom: 12px;
-      margin-bottom: 18px;
+      padding-bottom: 10px;
+      margin-bottom: 14px;
       flex-wrap: wrap;
     }
-    .user-pill { font-size: 0.9rem; color: var(--muted); margin-top: 4px; }
+    .user-pill { font-size: 0.92rem; color: var(--muted); margin-top: 4px; font-weight: 700; }
     .btn-top {
       background: var(--border);
       color: var(--text);
       border: none;
-      padding: 8px 12px;
+      padding: 9px 13px;
       border-radius: 8px;
-      font-weight: 700;
+      font-weight: 800;
       cursor: pointer;
-      font-size: 0.85rem;
+      font-size: 0.9rem;
     }
-
     .card {
       background: var(--card);
       padding: 18px;
       border-radius: 12px;
-      margin-bottom: 16px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.35);
+      border: 1px solid var(--border);
+      margin-bottom: 14px;
     }
-    label { display: block; margin-bottom: 6px; font-weight: 700; color: var(--muted); font-size: 0.95rem; }
+    label { display: block; margin-bottom: 6px; font-weight: 800; color: var(--muted); }
     input {
       width: 100%;
-      padding: 14px;
-      font-size: 1.05rem;
+      padding: 13px;
+      font-size: 1.08rem;
+      font-weight: 700;
       border-radius: 10px;
       border: 1px solid var(--border);
-      background: #0f172a;
+      background: var(--card-2);
       color: var(--text);
-      margin-bottom: 14px;
+      margin-bottom: 12px;
     }
     button.action-btn {
       width: 100%;
-      padding: 16px;
-      font-size: 1.08rem;
+      padding: 15px;
+      font-size: 1.1rem;
       border-radius: 10px;
       border: none;
       background: var(--primary);
       color: #fff;
-      font-weight: 800;
+      font-weight: 900;
       cursor: pointer;
     }
-    .error-msg { color: #f87171; font-weight: 700; margin-bottom: 12px; min-height: 20px; }
-
+    .error-msg { color: #fca5a5; font-weight: 800; margin-bottom: 10px; min-height: 20px; }
     #network-status {
       display: inline-block;
       margin-top: 6px;
-      font-size: 0.82rem;
+      font-size: 0.85rem;
+      font-weight: 800;
       padding: 4px 10px;
       border-radius: 999px;
       background: #16a34a33;
       color: #4ade80;
     }
     #network-status.offline { background: #d9770633; color: #fbbf24; }
-
     .pedido-item {
       display: flex;
       justify-content: space-between;
       align-items: center;
       gap: 12px;
-      background: #0f172a;
-      padding: 15px;
+      background: var(--card-2);
+      border: 1px solid var(--border);
+      padding: 14px;
       border-radius: 10px;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
       border-left: 6px solid var(--warning);
+      flex-wrap: wrap;
     }
-    .pedido-item.en_camino { border-left-color: var(--primary); background: var(--card); }
+    .pedido-item.en_camino { border-left-color: var(--success); background: var(--card); }
     .badge {
       display: inline-block;
-      padding: 4px 8px;
+      padding: 3px 8px;
       border-radius: 6px;
-      font-size: 0.76rem;
-      font-weight: 700;
+      font-size: 0.78rem;
+      font-weight: 900;
       text-transform: uppercase;
-      margin-top: 4px;
+      margin-top: 5px;
     }
     .badge.pendiente { background: #d9770644; color: #fbbf24; }
-    .badge.en_camino { background: #2563eb44; color: #60a5fa; }
+    .badge.en_camino { background: #16a34a44; color: #4ade80; }
     .btn-small {
-      padding: 11px 14px;
+      padding: 11px 15px;
       border: none;
       border-radius: 8px;
-      font-weight: 700;
+      font-weight: 900;
       cursor: pointer;
       color: #fff;
       margin-left: 6px;
+      font-size: 0.95rem;
     }
     .btn-camino { background: var(--primary); }
     .btn-hecho { background: var(--success); }
-    .hidden { display: none; }
+    .hidden { display: none !important; }
   </style>
 </head>
 <body>
+<div class="wrap">
+  <header>
+    <div>
+      <h2 style="margin:0; font-size: 1.25rem; font-weight:900;">Cola de Carretillero</h2>
+      <span id="network-status">● Conectado</span>
+      <div id="info-carr" class="user-pill hidden"></div>
+    </div>
+    <div style="display:flex; gap:8px; flex-wrap:wrap;">
+      <button id="btn-notif" class="btn-top hidden" onclick="activarNotificaciones()">🔔 Avisos</button>
+      <button id="btn-salir" class="btn-top hidden" onclick="cerrarSesion()">Cambiar nombre</button>
+    </div>
+  </header>
 
-<header>
-  <div>
-    <h2 style="margin:0; font-size: 1.15rem;">Cola de Carretillero</h2>
-    <span id="network-status">● Conectado</span>
-    <div id="info-carr" class="user-pill hidden"></div>
+  <div id="vista-login" class="card">
+    <h3 style="margin-top:0;">Acceso Carretillero</h3>
+    <label for="input-nombre">Nombre</label>
+    <input type="text" id="input-nombre" placeholder="Escribe tu nombre" autocomplete="name">
+    <div id="login-error" class="error-msg"></div>
+    <button type="button" class="action-btn" onclick="entrar()">ENTRAR A LA COLA</button>
   </div>
-  <div style="display:flex; gap:8px; flex-wrap:wrap;">
-    <button id="btn-notif" class="btn-top hidden" onclick="activarNotificaciones()">🔔 Avisos</button>
-    <button id="btn-salir" class="btn-top hidden" onclick="cerrarSesion()">Cambiar nombre</button>
-  </div>
-</header>
 
-<div id="vista-login" class="card">
-  <h3 style="margin-top:0;">Acceso Carretillero</h3>
-  <label for="input-nombre">Tu nombre</label>
-  <input type="text" id="input-nombre" placeholder="Ej. Dani" autocomplete="name">
-  <div id="login-error" class="error-msg"></div>
-  <button type="button" class="action-btn" onclick="entrar()">ENTRAR A LA COLA</button>
-</div>
-
-<div id="vista-cola" class="hidden">
-  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-    <h3 style="margin:0;">Peticiones pendientes (Orden FIFO)</h3>
-    <span id="contador-pendientes" style="font-weight:700; color:var(--muted);">0 pendientes</span>
+  <div id="vista-cola" class="hidden">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+      <h3 style="margin:0;">Peticiones pendientes</h3>
+      <span id="contador-pendientes" style="font-weight:800; color:var(--muted);">0 pendientes</span>
+    </div>
+    <div id="lista-carretillero"></div>
   </div>
-  <div id="lista-carretillero"></div>
 </div>
 
 <script>
@@ -207,7 +218,7 @@
 
   function actualizarEstadoRed(online) {
     const badge = document.getElementById('network-status');
-    badge.innerText = online ? '● Conectado' : '● Sin cobertura (Reintentando)';
+    badge.innerText = online ? '● Conectado' : '● Sin cobertura';
     badge.className = online ? '' : 'offline';
   }
 
@@ -231,7 +242,7 @@
     const perm = await Notification.requestPermission();
     actualizarBotonNotif();
     if (perm === 'granted') {
-      emitirNotificacion('Avisos activados', 'Te avisaré cuando llegue una nueva petición.');
+      emitirNotificacion('Avisos activados', 'Te avisaré al entrar una petición.');
     }
   }
 
@@ -266,6 +277,12 @@
     }
   }
 
+  function formatearDetalle(p) {
+    const refFmt = (p.tipo_material && p.num_referencia) ? `${p.tipo_material}-${p.num_referencia}` : '';
+    const partes = [refFmt, p.opc ? `OPC ${p.opc}` : '', p.clase_material || ''].filter(Boolean);
+    return partes.length > 0 ? partes.join(' · ') : (p.material || 'Material');
+  }
+
   async function cambiarEstado(id, nuevoEstado) {
     const { error } = await db.from('pedidos').update({ estado: nuevoEstado }).eq('id', id);
     if (!error) {
@@ -280,21 +297,16 @@
     const { data, error } = await db
       .from('pedidos')
       .select('*')
-      .not('estado', 'in', '("completado","cancelado")')
+      .not('estado', 'in', '(completado,cancelado)')
       .order('creado_en', { ascending: true });
 
     if (!error && data) {
       if (!primeraCarga) {
         data.forEach(p => {
           if (!idsConocidos.has(p.id)) {
-            const refTexto = p.tipo_material && p.num_referencia
-              ? `${p.tipo_material}-${p.num_referencia}`
-              : (p.material || 'Material');
-            const opcTexto = p.opc ? ` · OPC ${p.opc}` : '';
-            const loteTexto = p.lote && p.lote !== 'FIFO' ? ` · Lote ${p.lote}` : ' · FIFO';
             emitirNotificacion(
               `Nueva petición: ${p.linea}`,
-              `${refTexto}${opcTexto}${loteTexto} (${p.solicitado_por || 'Operaria'})`
+              `${formatearDetalle(p)} (${p.solicitado_por || 'Operaria'})`
             );
           }
         });
@@ -321,21 +333,16 @@
 
     lista.innerHTML = pedidosCache.map((p, index) => {
       const hora = new Date(p.creado_en).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-      const refFmt = p.tipo_material && p.num_referencia
-        ? `${p.tipo_material}-${p.num_referencia}`
-        : (p.material || 'Material');
-      const detalles = [
-        p.opc ? `OPC: <strong>${p.opc}</strong>` : 'Sin OPC',
-        `Lote: <strong>${p.lote || 'FIFO'}</strong>`,
-        `Op: ${p.solicitado_por || '-'}`
-      ].join(' · ');
+      const detalle = formatearDetalle(p);
+      const loteTxt = (p.lote && p.lote !== 'FIFO') ? `Lote ${p.lote}` : 'FIFO';
+      const sub = [loteTxt, `Op: ${p.solicitado_por || '-'}`].join(' · ');
 
       return `
         <div class="pedido-item ${p.estado}">
           <div>
-            <div style="font-size:0.84rem; color:var(--muted);">#${index + 1} · ${hora} · ${p.linea}</div>
-            <div style="font-size:1.2rem; font-weight:800; margin:4px 0;">${refFmt}</div>
-            <div style="font-size:0.88rem; color:#cbd5e1;">${detalles}</div>
+            <div style="font-size:0.86rem; color:var(--muted); font-weight:700;">#${index + 1} · ${hora} · ${p.linea}</div>
+            <div style="font-size:1.22rem; font-weight:900; margin:4px 0;">${detalle}</div>
+            <div style="font-size:0.92rem; color:#cbd5e1;">${sub}</div>
             <span class="badge ${p.estado}">${p.estado === 'en_camino' ? 'En camino' : 'Pendiente'}</span>
           </div>
           <div>
@@ -355,7 +362,7 @@
     })
     .subscribe();
 
-  setInterval(cargarPedidos, 10000);
+  setInterval(cargarPedidos, 3000);
   if (sesionCarr) {
     mostrarCola();
   }
