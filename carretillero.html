@@ -27,7 +27,7 @@
       background: var(--bg);
       color: var(--text);
       padding: 12px;
-      min-height: 100dvh;
+      min-height: 100vh;
     }
     .wrap { max-width: 1200px; margin: 0 auto; }
     header {
@@ -120,6 +120,9 @@
       align-items: center;
       margin: 14px 0 8px 0;
     }
+    #lista-carretillero, #lista-completados, #lista-apuntes-opc {
+      overflow-anchor: none;
+    }
     .pedido-item {
       display: flex;
       justify-content: space-between;
@@ -147,6 +150,12 @@
       margin: 3px 0;
       color: #ffffff;
     }
+    .pedido-cant-info {
+      font-size: 0.96rem;
+      color: #93c5fd;
+      font-weight: 900;
+      margin-top: 3px;
+    }
     .badge {
       display: inline-block;
       padding: 3px 8px;
@@ -166,6 +175,22 @@
     .badge.tiempo {
       background: #7c3aed55;
       color: #ddd6fe;
+    }
+    .acciones-carr {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .btn-coger-uno {
+      padding: 12px 15px;
+      border: none;
+      border-radius: 9px;
+      font-weight: 900;
+      cursor: pointer;
+      color: #ffffff;
+      background: var(--primary);
+      font-size: 0.98rem;
     }
     .btn-hecho {
       padding: 12px 18px;
@@ -279,6 +304,9 @@
   let audioCtx = null;
   let pestanaActual = 'cola';
   let opcsCompletadas = new Set(JSON.parse(localStorage.getItem('opcsCompletadasCarr') || '[]'));
+  let cargandoCarr = false;
+  let ultimoRenderCarr = '';
+  let ultimoRenderOpc = '';
 
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
@@ -292,29 +320,50 @@
     return inicio.toISOString();
   }
 
+  function codificarMetaEnMaterial(resumenBase, tiempoSel, venceMs, cantidadNum, puestosNum) {
+    const cant = Math.max(1, parseInt(cantidadNum, 10) || 1);
+    const puestos = Math.max(0, Math.min(cant, parseInt(puestosNum, 10) || 0));
+    const meta = {
+      t: tiempoSel || null,
+      v: venceMs || null,
+      c: cant,
+      u: puestos
+    };
+    return `${resumenBase} [[META:${btoa(unescape(encodeURIComponent(JSON.stringify(meta))))}]]`;
+  }
+
   function decodificarPedidoConMeta(p) {
     const rawMat = String(p?.material || '');
     const match = rawMat.match(/\[\[META:([^\]]+)\]\]$/);
-    let meta = { t: null, v: null, c: 1 };
+    let meta = { t: null, v: null, c: 1, u: 0 };
     let materialLimpio = rawMat;
     if (match) {
       materialLimpio = rawMat.replace(/\[\[META:[^\]]+\]\]$/, '').trim();
       try {
         const parsed = JSON.parse(decodeURIComponent(escape(atob(match[1]))));
+        const cantParseada = Math.max(1, parseInt(parsed.c, 10) || 1);
+        const puestosParseados = p.estado === 'completado'
+          ? cantParseada
+          : Math.max(0, Math.min(cantParseada, parseInt(parsed.u, 10) || 0));
         meta = {
           t: parsed.t || null,
           v: parsed.v ? Number(parsed.v) : null,
-          c: Math.max(1, parseInt(parsed.c, 10) || 1)
+          c: cantParseada,
+          u: puestosParseados
         };
       } catch (_) {}
+    } else if (p?.estado === 'completado') {
+      meta.u = 1;
     }
+
     return {
       ...p,
       material_limpio: materialLimpio,
       tiempo_aviso: p.tiempo_aviso || meta.t,
       vence_en: p.vence_en || (meta.v ? new Date(meta.v).toISOString() : null),
       vence_ms: p.vence_en ? new Date(p.vence_en).getTime() : meta.v,
-      cantidad: Math.max(1, parseInt(p.cantidad || meta.c || 1, 10) || 1)
+      cantidad: Math.max(1, parseInt(p.cantidad || meta.c || 1, 10) || 1),
+      puestos: meta.u
     };
   }
 
@@ -325,7 +374,11 @@
     document.getElementById('pestana-cola').classList.toggle('hidden', nuevaPestana !== 'cola');
     document.getElementById('pestana-opc').classList.toggle('hidden', nuevaPestana !== 'opc');
     if (nuevaPestana === 'opc') {
+      ultimoRenderOpc = '';
       renderizarApuntesOpc();
+    } else {
+      ultimoRenderCarr = '';
+      renderizarCarretillero();
     }
   }
 
@@ -344,6 +397,7 @@
       opcsCompletadas.add(clave);
     }
     guardarOpcsCompletadasLocal();
+    ultimoRenderOpc = '';
     renderizarApuntesOpc();
   }
 
@@ -452,6 +506,8 @@
     sesionCarr = null;
     primeraCarga = true;
     idsConocidos.clear();
+    ultimoRenderCarr = '';
+    ultimoRenderOpc = '';
     document.getElementById('vista-cola').classList.add('hidden');
     document.getElementById('vista-login').classList.remove('hidden');
     document.getElementById('info-carr').classList.add('hidden');
@@ -474,8 +530,10 @@
 
   function actualizarEstadoRed(online) {
     const badge = document.getElementById('network-status');
-    badge.innerText = online ? '● Conectado' : '● Sin cobertura';
-    badge.className = online ? '' : 'offline';
+    const txt = online ? '● Conectado' : '● Sin cobertura';
+    const cls = online ? '' : 'offline';
+    if (badge.innerText !== txt) badge.innerText = txt;
+    if (badge.className !== cls) badge.className = cls;
   }
 
   function emitirNotificacion(titulo, cuerpo) {
@@ -504,7 +562,13 @@
   }
 
   function obtenerCantidadPedido(p) {
-    return (p && Number(p.cantidad) > 1) ? Number(p.cantidad) : 1;
+    return Math.max(1, Number(p?.cantidad) || 1);
+  }
+
+  function obtenerPuestosPedido(p) {
+    const cant = obtenerCantidadPedido(p);
+    if (p?.estado === 'completado') return cant;
+    return Math.max(0, Math.min(cant, Number(p?.puestos) || 0));
   }
 
   function formatearTituloPedido(p) {
@@ -519,8 +583,54 @@
     return base;
   }
 
+  async function cogerUnaUnidad(id) {
+    const pedido = pedidosHoyTodos.find(item => String(item.id) === String(id));
+    if (!pedido) return;
+    const cant = obtenerCantidadPedido(pedido);
+    const nuevosPuestos = Math.min(cant, obtenerPuestosPedido(pedido) + 1);
+    const completadoAhora = nuevosPuestos >= cant;
+
+    const nuevoMaterial = codificarMetaEnMaterial(
+      pedido.material_limpio || pedido.material || 'Material',
+      pedido.tiempo_aviso,
+      pedido.vence_ms,
+      cant,
+      nuevosPuestos
+    );
+
+    const { error } = await db
+      .from('pedidos')
+      .update({
+        material: nuevoMaterial,
+        estado: completadoAhora ? 'completado' : 'pendiente'
+      })
+      .eq('id', id);
+
+    if (!error) {
+      await cargarPedidos();
+    } else {
+      actualizarEstadoRed(false);
+    }
+  }
+
   async function marcarListo(id) {
-    const { error } = await db.from('pedidos').update({ estado: 'completado' }).eq('id', id);
+    const pedido = pedidosHoyTodos.find(item => String(item.id) === String(id));
+    const cant = pedido ? obtenerCantidadPedido(pedido) : 1;
+    const nuevoMaterial = pedido
+      ? codificarMetaEnMaterial(
+          pedido.material_limpio || pedido.material || 'Material',
+          pedido.tiempo_aviso,
+          pedido.vence_ms,
+          cant,
+          cant
+        )
+      : undefined;
+
+    const updatePayload = nuevoMaterial
+      ? { estado: 'completado', material: nuevoMaterial }
+      : { estado: 'completado' };
+
+    const { error } = await db.from('pedidos').update(updatePayload).eq('id', id);
     if (!error) {
       await cargarPedidos();
     } else {
@@ -531,7 +641,24 @@
   async function desmarcarPedido(id) {
     const confirmar = confirm('AVISO: Vas a desmarcar este pedido marcado como LISTO y volverá a aparecer como PENDIENTE. ¿Quieres continuar?');
     if (!confirmar) return;
-    const { error } = await db.from('pedidos').update({ estado: 'pendiente' }).eq('id', id);
+    const pedido = pedidosHoyTodos.find(item => String(item.id) === String(id));
+    const cant = pedido ? obtenerCantidadPedido(pedido) : 1;
+    const puestosReset = cant > 1 ? Math.max(0, cant - 1) : 0;
+    const nuevoMaterial = pedido
+      ? codificarMetaEnMaterial(
+          pedido.material_limpio || pedido.material || 'Material',
+          pedido.tiempo_aviso,
+          pedido.vence_ms,
+          cant,
+          puestosReset
+        )
+      : undefined;
+
+    const updatePayload = nuevoMaterial
+      ? { estado: 'pendiente', material: nuevoMaterial }
+      : { estado: 'pendiente' };
+
+    const { error } = await db.from('pedidos').update(updatePayload).eq('id', id);
     if (!error) {
       await cargarPedidos();
     } else {
@@ -540,41 +667,46 @@
   }
 
   async function cargarPedidos() {
-    if (!sesionCarr) return;
-    const { data, error } = await db
-      .from('pedidos')
-      .select('*')
-      .neq('estado', 'cancelado')
-      .gte('creado_en', inicioHoyISO())
-      .order('creado_en', { ascending: true });
+    if (!sesionCarr || cargandoCarr) return;
+    cargandoCarr = true;
+    try {
+      const { data, error } = await db
+        .from('pedidos')
+        .select('*')
+        .neq('estado', 'cancelado')
+        .gte('creado_en', inicioHoyISO())
+        .order('creado_en', { ascending: true });
 
-    if (!error && data) {
-      const normalizados = data.map(decodificarPedidoConMeta);
-      const pendientes = ordenarPendientesCarretillero(normalizados.filter(p => p.estado !== 'completado'));
-      const completados = normalizados.filter(p => p.estado === 'completado').reverse();
+      if (!error && data) {
+        const normalizados = data.map(decodificarPedidoConMeta);
+        const pendientes = ordenarPendientesCarretillero(normalizados.filter(p => p.estado !== 'completado'));
+        const completados = normalizados.filter(p => p.estado === 'completado').reverse();
 
-      if (!primeraCarga) {
-        pendientes.forEach(p => {
-          if (!idsConocidos.has(p.id)) {
-            const extraHora = esPedidoConTiempo(p) ? ` · Necesario ${formatearHoraVencimiento(p)}` : '';
-            emitirNotificacion(
-              `${p.linea}${extraHora}`,
-              `${formatearTituloPedido(p)} (${p.solicitado_por || ''})`
-            );
-          }
-        });
+        if (!primeraCarga) {
+          pendientes.forEach(p => {
+            if (!idsConocidos.has(p.id)) {
+              const extraHora = esPedidoConTiempo(p) ? ` · Necesario ${formatearHoraVencimiento(p)}` : '';
+              emitirNotificacion(
+                `${p.linea}${extraHora}`,
+                `${formatearTituloPedido(p)} (${p.solicitado_por || ''})`
+              );
+            }
+          });
+        }
+
+        idsConocidos = new Set(pendientes.map(p => p.id));
+        primeraCarga = false;
+        pedidosHoyTodos = normalizados;
+        pedidosPendientes = pendientes;
+        pedidosCompletados = completados;
+        renderizarCarretillero();
+        renderizarApuntesOpc();
+        actualizarEstadoRed(true);
+      } else if (error) {
+        actualizarEstadoRed(false);
       }
-
-      idsConocidos = new Set(pendientes.map(p => p.id));
-      primeraCarga = false;
-      pedidosHoyTodos = normalizados;
-      pedidosPendientes = pendientes;
-      pedidosCompletados = completados;
-      renderizarCarretillero();
-      renderizarApuntesOpc();
-      actualizarEstadoRed(true);
-    } else if (error) {
-      actualizarEstadoRed(false);
+    } finally {
+      cargandoCarr = false;
     }
   }
 
@@ -597,6 +729,7 @@
     filtrados.forEach(p => {
       const codigoOpc = String(p.opc).trim();
       const cant = obtenerCantidadPedido(p);
+      const puestos = obtenerPuestosPedido(p);
       const refFmt = p.num_referencia ? (p.tipo_material ? `${p.tipo_material}-${p.num_referencia}` : p.num_referencia) : '';
       const nombreMat = [refFmt, p.clase_material || ''].filter(Boolean).join(' · ') || (p.material_limpio || 'Material');
       const loteTxt = (p.lote && p.lote !== 'FIFO') ? `Lote ${p.lote}` : 'FIFO';
@@ -622,10 +755,13 @@
         grupo.materialesMap.set(claveMat, {
           nombre: nombreMat,
           lote: loteTxt,
-          cantidadTotal: cant
+          cantidadTotal: cant,
+          puestosTotal: puestos
         });
       } else {
-        grupo.materialesMap.get(claveMat).cantidadTotal += cant;
+        const matEntry = grupo.materialesMap.get(claveMat);
+        matEntry.cantidadTotal += cant;
+        matEntry.puestosTotal += puestos;
       }
     });
 
@@ -646,7 +782,15 @@
     if (!cont || !badge) return;
 
     const grupos = obtenerGruposOpcRelevantes();
-    badge.innerText = `${grupos.length} OPC`;
+    const badgeTxt = `${grupos.length} OPC`;
+    if (badge.innerText !== badgeTxt) badge.innerText = badgeTxt;
+
+    const firma = JSON.stringify({
+      done: [...opcsCompletadas],
+      grupos
+    });
+    if (firma === ultimoRenderOpc) return;
+    ultimoRenderOpc = firma;
 
     if (grupos.length === 0) {
       cont.innerHTML = '<p style="color:var(--muted); font-weight:800;">Sin OPC registradas en este rango.</p>';
@@ -658,7 +802,7 @@
       const hora = new Date(g.ultimaFechaMs).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
       const metaSup = [hora, g.lineas.join(', '), g.solicitantes.join(', ')].filter(Boolean).join(' · ');
       const itemsHtml = g.materiales.map(m =>
-        `<li>${m.nombre} — <strong>Cantidad: ${m.cantidadTotal}</strong> (${m.lote})</li>`
+        `<li>${m.nombre} — <strong>Cantidad pedida: ${m.cantidadTotal}</strong> (Puestos: ${m.puestosTotal}/${m.cantidadTotal} · ${m.lote})</li>`
       ).join('');
 
       return `
@@ -680,9 +824,22 @@
   function renderizarCarretillero() {
     const lista = document.getElementById('lista-carretillero');
     const listaComp = document.getElementById('lista-completados');
+    const pendBadge = document.getElementById('contador-pendientes');
+    const compBadge = document.getElementById('contador-completados');
 
-    document.getElementById('contador-pendientes').innerText = `${pedidosPendientes.length} pendientes`;
-    document.getElementById('contador-completados').innerText = `${pedidosCompletados.length} listos`;
+    const pendTxt = `${pedidosPendientes.length} pendientes`;
+    const compTxt = `${pedidosCompletados.length} listos`;
+    if (pendBadge.innerText !== pendTxt) pendBadge.innerText = pendTxt;
+    if (compBadge.innerText !== compTxt) compBadge.innerText = compTxt;
+
+    const minutoClave = Math.floor(Date.now() / 60000);
+    const firma = JSON.stringify({
+      m: minutoClave,
+      p: pedidosPendientes.map(x => [x.id, x.material, x.lote, x.linea, x.solicitado_por, x.puestos, x.cantidad]),
+      c: pedidosCompletados.map(x => [x.id, x.material, x.lote, x.linea, x.solicitado_por, x.puestos, x.cantidad])
+    });
+    if (firma === ultimoRenderCarr) return;
+    ultimoRenderCarr = firma;
 
     if (pedidosPendientes.length === 0) {
       lista.innerHTML = '<p style="color:var(--muted); font-weight:800;">Sin pedidos pendientes.</p>';
@@ -691,8 +848,9 @@
         const hora = new Date(p.creado_en).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         const titulo = formatearTituloPedido(p);
         const cant = obtenerCantidadPedido(p);
+        const puestos = obtenerPuestosPedido(p);
+        const quedan = Math.max(0, cant - puestos);
         const subPartes = [];
-        if (cant > 1) subPartes.push(`Cantidad: ${cant}`);
         if (!tieneLoteConcreto(p)) subPartes.push('FIFO');
         if (p.solicitado_por) subPartes.push(p.solicitado_por);
 
@@ -705,11 +863,15 @@
             <div>
               <div style="font-size:0.88rem; color:var(--muted); font-weight:800;">#${index + 1} · ${hora} · ${p.linea}</div>
               <div class="pedido-titulo">${titulo}</div>
+              <div class="pedido-cant-info">Cantidad pedida: ${cant} · Puestos: ${puestos} · Quedan: ${quedan}</div>
               ${subPartes.length > 0 ? `<div style="font-size:0.92rem; color:#cbd5e1; font-weight:700;">${subPartes.join(' · ')}</div>` : ''}
               <span class="badge">Pendiente</span>
               ${conTiempo ? `<span class="badge tiempo">${p.tiempo_aviso} · Hora exacta: ${horaVence}${vencido ? ' (En hora)' : ' (Programado)'}</span>` : ''}
             </div>
-            <button class="btn-hecho" onclick="marcarListo(${p.id})">Listo ✓</button>
+            <div class="acciones-carr">
+              ${cant > 1 ? `<button class="btn-coger-uno" onclick="cogerUnaUnidad(${p.id})">Coger 1 (${quedan} rest.)</button>` : ''}
+              <button class="btn-hecho" onclick="marcarListo(${p.id})">Listo ✓</button>
+            </div>
           </div>
         `;
       }).join('');
@@ -722,8 +884,7 @@
         const hora = new Date(p.creado_en).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         const titulo = formatearTituloPedido(p);
         const cant = obtenerCantidadPedido(p);
-        const subPartes = [];
-        if (cant > 1) subPartes.push(`Cantidad: ${cant}`);
+        const subPartes = [`Cantidad pedida: ${cant}`, `Puestos: ${cant}`];
         if (!tieneLoteConcreto(p)) subPartes.push('FIFO');
         if (p.solicitado_por) subPartes.push(p.solicitado_por);
 
@@ -732,7 +893,7 @@
             <div>
               <div style="font-size:0.88rem; color:var(--muted); font-weight:800;">${hora} · ${p.linea}</div>
               <div class="pedido-titulo">${titulo}</div>
-              ${subPartes.length > 0 ? `<div style="font-size:0.92rem; color:#cbd5e1; font-weight:700;">${subPartes.join(' · ')}</div>` : ''}
+              <div style="font-size:0.92rem; color:#cbd5e1; font-weight:700;">${subPartes.join(' · ')}</div>
               <span class="badge listo">Listo</span>
             </div>
             <button class="btn-desmarcar" onclick="desmarcarPedido(${p.id})">Desmarcar</button>
@@ -748,13 +909,21 @@
     })
     .subscribe();
 
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden && sesionCarr) {
+      ultimoRenderCarr = '';
+      ultimoRenderOpc = '';
+      cargarPedidos();
+    }
+  });
+
   setInterval(() => {
     if (sesionCarr && document.visibilityState === 'visible') {
       pedidosPendientes = ordenarPendientesCarretillero(pedidosPendientes);
       renderizarCarretillero();
       cargarPedidos();
     }
-  }, 5000);
+  }, 6500);
 
   if (sesionCarr) {
     mostrarCola();
