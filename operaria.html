@@ -109,7 +109,6 @@
       border: 1px solid var(--border);
     }
 
-    /* Estructura compacta y equilibrada en móvil y apaisado */
     .main-grid {
       flex: 1;
       min-height: 0;
@@ -190,7 +189,6 @@
       border-color: #60a5fa;
     }
 
-    /* Columna izquierda: pestañas ST/MP/PT + recuadro Número; Columna derecha: Lote alineado */
     .ref-col {
       display: flex;
       flex-direction: column;
@@ -222,7 +220,6 @@
       color: #ffffff;
     }
 
-    /* Recuadro Número con prefijo inmodificable */
     .num-locked-box {
       width: 100%;
       min-width: 0;
@@ -288,7 +285,6 @@
       flex-shrink: 0;
     }
 
-    /* ÚNICA zona con scroll */
     .cola-scroll {
       flex: 1;
       min-height: 0;
@@ -341,7 +337,6 @@
       margin-top: 3px;
     }
     .tag.pendiente { background: #d9770644; color: #fbbf24; }
-    .tag.en_camino { background: #2563eb66; color: #93c5fd; }
     .tag.completado { background: #16a34a55; color: #4ade80; }
     .tag.mio { background: #2563eb88; color: #ffffff; }
 
@@ -371,7 +366,10 @@
       <span id="network-status" class="pill-status">● Conectado</span>
       <span id="user-badge" class="user-badge hidden"></span>
     </div>
-    <button id="btn-cambiar" class="btn-top hidden" onclick="salirTurno()">Cambiar nombre</button>
+    <div style="display:flex; gap:6px; flex-wrap:wrap;">
+      <button id="btn-avisos-op" class="btn-top hidden" onclick="activarAvisosOp()">🔔 Avisos</button>
+      <button id="btn-cambiar" class="btn-top hidden" onclick="salirTurno()">Cambiar nombre</button>
+    </div>
   </header>
 
   <div id="vista-inicio" class="login-wrap">
@@ -387,7 +385,6 @@
 
   <div id="vista-trabajo" class="main-grid hidden">
     <section class="panel">
-      <!-- Fila 1: OPC a la izquierda, Línea a la derecha -->
       <div class="row-2">
         <div class="field">
           <label for="input-opc">OPC</label>
@@ -400,7 +397,6 @@
         </div>
       </div>
 
-      <!-- Tipo de material al poner OPC -->
       <div id="bloque-tipo-material" class="row-2 hidden">
         <div class="field">
           <label for="select-clase-mat">Material</label>
@@ -424,7 +420,6 @@
         </div>
       </div>
 
-      <!-- Fila 2: ST/MP/PT + Número a la izquierda, Lote a la derecha alineado -->
       <div class="row-2">
         <div class="ref-col">
           <div class="st-mp-pt-row">
@@ -472,8 +467,11 @@
   let idEditando = null;
   let pedidosVisibles = [];
   let peticionesHoyNombre = [];
+  let idsListosAvisados = new Set();
+  let primeraCargaOp = true;
   let colaOffline = [];
   let cargando = false;
+  let audioCtxOp = null;
 
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
@@ -487,6 +485,64 @@
     return inicio.toISOString();
   }
 
+  function sonarPitidoFuerteOp() {
+    try {
+      if (!audioCtxOp) {
+        audioCtxOp = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtxOp.state === 'suspended') {
+        audioCtxOp.resume();
+      }
+      const ahora = audioCtxOp.currentTime;
+
+      const reproducirTono = (frecuencia, inicio, duracion) => {
+        const osc = audioCtxOp.createOscillator();
+        const gain = audioCtxOp.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(frecuencia, inicio);
+        gain.gain.setValueAtTime(0.001, inicio);
+        gain.gain.exponentialRampToValueAtTime(0.45, inicio + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.001, inicio + duracion);
+        osc.connect(gain);
+        gain.connect(audioCtxOp.destination);
+        osc.start(inicio);
+        osc.stop(inicio + duracion + 0.02);
+      };
+
+      reproducirTono(987, ahora, 0.2);
+      reproducirTono(1318, ahora + 0.22, 0.25);
+    } catch (_) {}
+  }
+
+  async function activarAvisosOp() {
+    sonarPitidoFuerteOp();
+    if ('Notification' in window && Notification.permission === 'default') {
+      try {
+        await Notification.requestPermission();
+      } catch (_) {}
+    }
+    notificarPedidoListo('Avisos activos', 'Te avisaré cuando tu pedido esté listo.');
+  }
+
+  function notificarPedidoListo(titulo, cuerpo) {
+    sonarPitidoFuerteOp();
+    if ('Notification' in window && Notification.permission === 'granted') {
+      if (navigator.serviceWorker && navigator.serviceWorker.ready) {
+        navigator.serviceWorker.ready.then(reg => {
+          reg.showNotification(titulo, {
+            body: cuerpo,
+            tag: 'pedido-listo-op',
+            renotify: true
+          });
+        }).catch(() => {
+          new Notification(titulo, { body: cuerpo });
+        });
+      } else {
+        new Notification(titulo, { body: cuerpo });
+      }
+    }
+  }
+
   function iniciarTurno() {
     const nombre = document.getElementById('input-nombre').value.trim();
     const err = document.getElementById('inicio-error');
@@ -497,16 +553,20 @@
     err.innerText = '';
     sesionOp = { nombre };
     sessionStorage.setItem('sesionOperariaNombre', JSON.stringify(sesionOp));
+    sonarPitidoFuerteOp();
     mostrarTrabajo();
   }
 
   function salirTurno() {
     sessionStorage.removeItem('sesionOperariaNombre');
     sesionOp = null;
+    primeraCargaOp = true;
+    idsListosAvisados.clear();
     cancelarEdicion();
     document.getElementById('vista-trabajo').classList.add('hidden');
     document.getElementById('vista-inicio').classList.remove('hidden');
     document.getElementById('user-badge').classList.add('hidden');
+    document.getElementById('btn-avisos-op').classList.add('hidden');
     document.getElementById('btn-cambiar').classList.add('hidden');
   }
 
@@ -517,6 +577,7 @@
     const badge = document.getElementById('user-badge');
     badge.classList.remove('hidden');
     badge.innerText = sesionOp.nombre;
+    document.getElementById('btn-avisos-op').classList.remove('hidden');
     document.getElementById('btn-cambiar').classList.remove('hidden');
     cargarPedidos();
   }
@@ -803,9 +864,32 @@
         .order('creado_en', { ascending: true });
 
       if (!error && hoyPedidos) {
+        const nombreActual = sesionOp.nombre.toLowerCase();
+        const miosListos = hoyPedidos.filter(
+          p => p.estado === 'completado' &&
+               (p.solicitado_por || '').toLowerCase() === nombreActual
+        );
+
+        if (!primeraCargaOp) {
+          miosListos.forEach(p => {
+            if (!idsListosAvisados.has(p.id)) {
+              notificarPedidoListo(
+                `Pedido listo · ${p.linea}`,
+                formatearDetallePedido(p)
+              );
+            }
+          });
+        }
+
+        // Si un pedido se desmarca en carretillero y vuelve a pendiente, permitimos volver a avisar si se marca listo de nuevo
+        const idsListosActuales = new Set(miosListos.map(p => p.id));
+        idsListosAvisados = new Set([...idsListosAvisados].filter(id => idsListosActuales.has(id)));
+        miosListos.forEach(p => idsListosAvisados.add(p.id));
+        primeraCargaOp = false;
+
         pedidosVisibles = hoyPedidos;
         peticionesHoyNombre = hoyPedidos.filter(
-          p => (p.solicitado_por || '').toLowerCase() === sesionOp.nombre.toLowerCase()
+          p => (p.solicitado_por || '').toLowerCase() === nombreActual
         );
         renderizarTodo();
         actualizarEstadoRed(true);
@@ -842,10 +926,7 @@
       const loteTxt = (p.lote && p.lote !== 'FIFO') ? `Lote ${p.lote}` : 'FIFO';
       const sub = [loteTxt, hora, p.solicitado_por || ''].filter(Boolean).join(' · ');
       const itemJson = encodeURIComponent(JSON.stringify(p));
-
-      let estadoTxt = 'Pendiente';
-      if (p.estado === 'en_camino') estadoTxt = 'En camino';
-      if (esListo) estadoTxt = 'Listo';
+      const estadoTxt = esListo ? 'Listo' : 'Pendiente';
 
       return `
         <div class="pedido-card ${p.estado} ${esMio ? 'es-mio' : ''}">
