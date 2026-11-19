@@ -286,11 +286,13 @@
   const SUPABASE_KEY = 'sb_publishable_zPaFGK04be_flVvEGmaepw_YMZq9Wxn';
   const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+  localStorage.removeItem('colaOfflineOperaria');
+
   let sesionOp = JSON.parse(sessionStorage.getItem('sesionOperariaActual') || 'null');
   let tipoMaterialSeleccionado = '';
   let idEditando = null;
   let pedidosActivos = [];
-  let colaOffline = JSON.parse(localStorage.getItem('colaOfflineOperaria') || '[]');
+  let colaOffline = [];
 
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
@@ -405,6 +407,21 @@
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
+  function claveMaterial(item) {
+    const tipo = (item.tipo_material || '').toUpperCase();
+    const num = (item.num_referencia || '').trim();
+    const opc = (item.opc || '').trim();
+    const lote = (item.lote || 'FIFO').trim().toUpperCase();
+    return `${tipo}|${num}|${opc}|${lote}`;
+  }
+
+  function existeMaterialDuplicado(linea, candidato, excluirId = null) {
+    const claveNueva = claveMaterial(candidato);
+    const activosEnLinea = pedidosActivos.filter(p => p.linea === linea && p.id !== excluirId);
+    const enColaLocal = colaOffline.filter(p => p.linea === linea);
+    return [...activosEnLinea, ...enColaLocal].some(p => claveMaterial(p) === claveNueva);
+  }
+
   async function guardarPedido() {
     const err = document.getElementById('form-error');
     const linea = document.getElementById('select-linea').value;
@@ -426,11 +443,6 @@
       return;
     }
 
-    err.innerText = '';
-    const btn = document.getElementById('btn-guardar');
-    btn.disabled = true;
-    btn.innerText = 'Guardando...';
-
     const referenciaCompleta = tipoMaterialSeleccionado && numRef
       ? `${tipoMaterialSeleccionado}-${numRef}`
       : 'Según OPC';
@@ -446,6 +458,16 @@
       estado: 'pendiente',
       creado_en: new Date().toISOString()
     };
+
+    if (existeMaterialDuplicado(linea, payload, idEditando)) {
+      err.innerText = 'Ya tienes ese mismo material solicitado en esta línea. Si necesitas otro distinto, indícalo.';
+      return;
+    }
+
+    err.innerText = '';
+    const btn = document.getElementById('btn-guardar');
+    btn.disabled = true;
+    btn.innerText = 'Guardando...';
 
     if (idEditando) {
       const { error } = await db.from('pedidos').update(payload).eq('id', idEditando);
@@ -463,7 +485,6 @@
       if (error) {
         console.error('Error al insertar pedido:', error);
         colaOffline.push(payload);
-        localStorage.setItem('colaOfflineOperaria', JSON.stringify(colaOffline));
         actualizarEstadoRed(false);
         err.innerText = `Sin conexión con base de datos (${error.message}). Guardado en cola local.`;
       } else {
@@ -501,7 +522,6 @@
     const { error } = await db.from('pedidos').insert([pendiente]);
     if (!error) {
       colaOffline.shift();
-      localStorage.setItem('colaOfflineOperaria', JSON.stringify(colaOffline));
       actualizarEstadoRed(true);
       await cargarPedidos();
     }
@@ -574,7 +594,6 @@
       `;
     }).join('');
 
-    // Pedidos activos por delante del primer pedido de esta línea en la cola global
     const primerIndiceMio = mios[0].indiceGlobal;
     const porDelante = pedidosActivos.slice(0, primerIndiceMio);
 
