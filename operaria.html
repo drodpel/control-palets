@@ -15,270 +15,424 @@
       --danger: #dc2626;
       --bg: #0f172a;
       --card: #1e293b;
+      --card-2: #0b1220;
       --text: #f8fafc;
-      --muted: #94a3b8;
+      --muted: #cbd5e1;
       --border: #334155;
     }
     * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
-    body { margin: 0; background: var(--bg); color: var(--text); padding: 16px; }
-
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100dvh;
+      overflow: hidden;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 16px;
+    }
+    .app-shell {
+      height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      padding: 10px 14px;
+      gap: 10px;
+      overflow: hidden;
+    }
     header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
+      padding-bottom: 8px;
       border-bottom: 1px solid var(--border);
-      padding-bottom: 12px;
-      margin-bottom: 18px;
+      flex-shrink: 0;
+    }
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
       flex-wrap: wrap;
     }
-    .user-pill { font-size: 0.9rem; color: var(--muted); margin-top: 4px; }
-    .btn-logout {
-      background: var(--border);
-      color: var(--text);
-      border: none;
-      padding: 8px 12px;
-      border-radius: 8px;
-      font-weight: 700;
-      cursor: pointer;
+    header h1 {
+      margin: 0;
+      font-size: clamp(1.1rem, 2vw, 1.4rem);
+      font-weight: 800;
+    }
+    .pill-status {
       font-size: 0.85rem;
-    }
-
-    .card {
-      background: var(--card);
-      padding: 18px;
-      border-radius: 12px;
-      margin-bottom: 16px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.35);
-    }
-    label { display: block; margin-bottom: 6px; font-weight: 700; color: var(--muted); font-size: 0.95rem; }
-    .hint { font-size: 0.82rem; color: var(--muted); margin-top: -8px; margin-bottom: 14px; }
-
-    input, select {
-      width: 100%;
-      padding: 14px;
-      font-size: 1.05rem;
-      border-radius: 10px;
-      border: 1px solid var(--border);
-      background: #0f172a;
-      color: var(--text);
-      margin-bottom: 14px;
-    }
-    input:focus, select:focus { outline: 2px solid var(--primary); border-color: var(--primary); }
-
-    .mat-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-      margin-bottom: 12px;
-    }
-    .mat-btn {
-      padding: 16px 8px;
-      border-radius: 10px;
-      border: 2px solid var(--border);
-      background: #0f172a;
-      color: var(--text);
-      font-weight: 800;
-      font-size: 1.15rem;
-      cursor: pointer;
-    }
-    .mat-btn.active {
-      background: var(--primary);
-      border-color: var(--primary);
-      color: #fff;
-    }
-
-    .ref-combo {
-      display: grid;
-      grid-template-columns: 84px 1fr;
-      gap: 10px;
-      align-items: center;
-      margin-bottom: 14px;
-    }
-    .prefijo-box {
-      padding: 14px;
-      text-align: center;
-      font-weight: 800;
-      font-size: 1.1rem;
-      border-radius: 10px;
-      background: var(--border);
-      color: #fff;
-    }
-    .ref-combo input { margin-bottom: 0; }
-
-    button.action-btn {
-      width: 100%;
-      padding: 16px;
-      font-size: 1.08rem;
-      border-radius: 10px;
-      border: none;
-      background: var(--primary);
-      color: #fff;
-      font-weight: 800;
-      cursor: pointer;
-    }
-    .btn-secondary {
-      width: 100%;
-      padding: 12px;
-      font-size: 0.95rem;
-      border-radius: 10px;
-      border: 1px solid var(--border);
-      background: transparent;
-      color: var(--muted);
       font-weight: 700;
-      cursor: pointer;
-      margin-top: 8px;
-    }
-
-    .error-msg {
-      color: #f87171;
-      font-weight: 700;
-      margin-bottom: 12px;
-      min-height: 20px;
-    }
-
-    #network-status {
-      display: inline-block;
-      margin-top: 6px;
-      font-size: 0.82rem;
       padding: 4px 10px;
       border-radius: 999px;
       background: #16a34a33;
       color: #4ade80;
     }
-    #network-status.offline { background: #d9770633; color: #fbbf24; }
+    .pill-status.offline {
+      background: #d9770633;
+      color: #fbbf24;
+    }
+    .user-badge {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #e2e8f0;
+      background: var(--card);
+      padding: 4px 10px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+    .btn-top {
+      background: var(--border);
+      color: var(--text);
+      border: none;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-weight: 800;
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
 
-    .pedido-item {
+    /* Login compacto sin scroll */
+    .login-wrap {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .login-card {
+      width: 100%;
+      max-width: 520px;
+      background: var(--card);
+      padding: 18px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+    }
+
+    /* Grid principal en una sola pantalla */
+    .main-grid {
+      flex: 1;
+      min-height: 0;
+      display: grid;
+      grid-template-columns: 1.05fr 1fr;
+      gap: 12px;
+      overflow: hidden;
+    }
+    @media (max-width: 820px) {
+      .main-grid {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto 1fr;
+      }
+    }
+
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      overflow: hidden;
+    }
+    .panel-title {
+      margin: 0 0 8px 0;
+      font-size: 1.05rem;
+      font-weight: 800;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 10px;
-      background: #0f172a;
-      padding: 15px;
-      border-radius: 10px;
-      margin-bottom: 12px;
-      border-left: 6px solid var(--warning);
-      flex-wrap: wrap;
+      gap: 8px;
+      flex-shrink: 0;
     }
-    .pedido-item.en_camino { border-left-color: var(--primary); background: var(--card); }
-    .pedido-delante {
-      background: #0f172a;
-      padding: 12px 14px;
-      border-radius: 10px;
-      margin-bottom: 8px;
-      border-left: 4px solid var(--border);
-      font-size: 0.92rem;
-    }
-    .badge {
-      display: inline-block;
-      padding: 4px 8px;
-      border-radius: 6px;
-      font-size: 0.76rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      margin-top: 4px;
-    }
-    .badge.pendiente { background: #d9770644; color: #fbbf24; }
-    .badge.en_camino { background: #2563eb44; color: #60a5fa; }
 
-    .acciones-op { display: flex; gap: 8px; flex-wrap: wrap; }
-    .btn-small {
+    .row-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .field { margin-bottom: 8px; }
+    label {
+      display: block;
+      font-size: 0.92rem;
+      font-weight: 800;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+    input, select {
+      width: 100%;
       padding: 10px 12px;
+      font-size: 1.08rem;
+      font-weight: 700;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--card-2);
+      color: var(--text);
+    }
+    input:focus, select:focus {
+      outline: 2px solid var(--primary);
+      border-color: var(--primary);
+    }
+
+    .mat-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .mat-btn {
+      padding: 12px 6px;
+      font-size: 1.25rem;
+      font-weight: 900;
+      border-radius: 10px;
+      border: 2px solid var(--border);
+      background: var(--card-2);
+      color: var(--text);
+      cursor: pointer;
+    }
+    .mat-btn.active {
+      background: var(--primary);
+      border-color: #93c5fd;
+      color: #fff;
+    }
+
+    .ref-row {
+      display: grid;
+      grid-template-columns: 74px 1fr;
+      gap: 8px;
+      align-items: center;
+    }
+    .prefijo-box {
+      padding: 10px 6px;
+      text-align: center;
+      font-size: 1.15rem;
+      font-weight: 900;
+      border-radius: 10px;
+      background: var(--border);
+      color: #fff;
+    }
+
+    .error-msg {
+      color: #fca5a5;
+      font-size: 0.9rem;
+      font-weight: 800;
+      min-height: 20px;
+      margin: 4px 0 6px 0;
+    }
+    .btn-submit {
+      width: 100%;
+      padding: 13px;
+      font-size: 1.12rem;
+      font-weight: 900;
+      border-radius: 11px;
+      border: none;
+      background: var(--primary);
+      color: #fff;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .btn-cancel-edit {
+      width: 100%;
+      padding: 8px;
+      margin-top: 6px;
+      font-size: 0.9rem;
+      font-weight: 800;
+      border-radius: 9px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+    }
+
+    /* Resumen de posición y cola general */
+    .resumen-turno {
+      background: var(--card-2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 8px 10px;
+      margin-bottom: 8px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    .cola-scroll {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      padding-right: 2px;
+    }
+    .pedido-card {
+      background: var(--card-2);
+      border: 1px solid var(--border);
+      border-left: 6px solid var(--warning);
+      border-radius: 10px;
+      padding: 9px 11px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+    .pedido-card.es-mio {
+      background: #172554;
+      border-color: #3b82f6;
+      border-left-color: #60a5fa;
+    }
+    .pedido-card.en_camino {
+      border-left-color: var(--success);
+    }
+    .pedido-main {
+      font-size: 1rem;
+      font-weight: 800;
+      line-height: 1.25;
+    }
+    .pedido-sub {
+      font-size: 0.86rem;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+    .tag {
+      display: inline-block;
+      font-size: 0.75rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      padding: 2px 7px;
+      border-radius: 6px;
+      margin-right: 4px;
+    }
+    .tag.pendiente { background: #d9770644; color: #fbbf24; }
+    .tag.en_camino { background: #16a34a44; color: #4ade80; }
+    .tag.mio { background: #2563eb66; color: #bfdbfe; }
+
+    .acciones-card {
+      display: flex;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+    .btn-mini {
       border: none;
       border-radius: 8px;
-      font-weight: 700;
-      cursor: pointer;
+      padding: 8px 10px;
+      font-size: 0.86rem;
+      font-weight: 800;
       color: #fff;
-      font-size: 0.88rem;
+      cursor: pointer;
     }
-    .btn-edit { background: var(--border); }
-    .btn-cancel { background: var(--danger); }
-    .hidden { display: none; }
+    .btn-mod { background: #475569; }
+    .btn-can { background: var(--danger); }
+    .hidden { display: none !important; }
   </style>
 </head>
 <body>
-
-<header>
-  <div>
-    <h2 style="margin:0; font-size: 1.15rem;">Petición de Material</h2>
-    <span id="network-status">● Conectado</span>
-    <div id="info-operaria" class="user-pill hidden"></div>
-  </div>
-  <button id="btn-cambiar-op" class="btn-logout hidden" onclick="salirTurno()">Cambiar nombre / línea</button>
-</header>
-
-<div id="vista-inicio" class="card">
-  <h3 style="margin-top:0;">Inicio en este puesto</h3>
-  <label for="input-nombre">Tu nombre</label>
-  <input type="text" id="input-nombre" placeholder="Ej. Laura" autocomplete="off">
-
-  <label for="select-linea-inicio">Línea / Puesto en el que estás hoy</label>
-  <select id="select-linea-inicio">
-    <option value="Línea 1">Línea 1</option>
-    <option value="Línea 2">Línea 2</option>
-    <option value="Línea 3">Línea 3</option>
-    <option value="Línea 4">Línea 4</option>
-    <option value="Línea 5">Línea 5</option>
-    <option value="Línea 6">Línea 6</option>
-    <option value="Línea 7">Línea 7</option>
-    <option value="Línea 8">Línea 8</option>
-    <option value="Línea 9">Línea 9</option>
-    <option value="Línea 10">Línea 10</option>
-  </select>
-
-  <div id="inicio-error" class="error-msg"></div>
-  <button type="button" class="action-btn" onclick="iniciarTurno()">CONTINUAR</button>
-</div>
-
-<div id="vista-trabajo" class="hidden">
-  <div class="card">
-    <h3 id="titulo-form" style="margin-top:0;">Nueva petición</h3>
-
-    <label for="select-linea">Línea / Puesto</label>
-    <select id="select-linea">
-      <option value="Línea 1">Línea 1</option>
-      <option value="Línea 2">Línea 2</option>
-      <option value="Línea 3">Línea 3</option>
-      <option value="Línea 4">Línea 4</option>
-      <option value="Línea 5">Línea 5</option>
-      <option value="Línea 6">Línea 6</option>
-      <option value="Línea 7">Línea 7</option>
-      <option value="Línea 8">Línea 8</option>
-      <option value="Línea 9">Línea 9</option>
-      <option value="Línea 10">Línea 10</option>
-    </select>
-
-    <label for="input-opc">4 últimos dígitos de OPC (opcional)</label>
-    <input type="text" id="input-opc" inputmode="numeric" pattern="\d{4}" maxlength="4" placeholder="Ej. 4821">
-    <div class="hint">Si no lleva OPC, es obligatorio marcar ST, MP o PT y escribir su numeración.</div>
-
-    <label>Tipo de material</label>
-    <div class="mat-grid">
-      <button type="button" class="mat-btn" data-mat="ST" onclick="seleccionarMaterial('ST')">ST</button>
-      <button type="button" class="mat-btn" data-mat="MP" onclick="seleccionarMaterial('MP')">MP</button>
-      <button type="button" class="mat-btn" data-mat="PT" onclick="seleccionarMaterial('PT')">PT</button>
+<div class="app-shell">
+  <header>
+    <div class="header-left">
+      <h1>PALETS · OPERARIA</h1>
+      <span id="network-status" class="pill-status">● Conectado</span>
+      <span id="user-badge" class="user-badge hidden"></span>
     </div>
+    <button id="btn-cambiar" class="btn-top hidden" onclick="salirTurno()">Cambiar nombre / línea</button>
+  </header>
 
-    <label for="input-num-ref">Numeración de la referencia</label>
-    <div class="ref-combo">
-      <div id="prefijo-visible" class="prefijo-box">--</div>
-      <input type="text" id="input-num-ref" inputmode="numeric" pattern="[0-9]*" placeholder="Ej. 10245">
+  <!-- ACCESO RÁPIDO SIN SCROLL -->
+  <div id="vista-inicio" class="login-wrap">
+    <div class="login-card">
+      <h2 style="margin:0 0 12px 0; font-size:1.3rem;">¿Quién entra en este puesto?</h2>
+      <div class="field">
+        <label for="input-nombre">Tu nombre</label>
+        <input type="text" id="input-nombre" placeholder="Escribe tu nombre" autocomplete="off">
+      </div>
+      <div class="field">
+        <label for="select-linea-inicio">Tu línea hoy</label>
+        <select id="select-linea-inicio">
+          <option value="Línea 1">Línea 1</option>
+          <option value="Línea 2">Línea 2</option>
+          <option value="Línea 3">Línea 3</option>
+          <option value="Línea 4">Línea 4</option>
+          <option value="Línea 5">Línea 5</option>
+          <option value="Línea 6">Línea 6</option>
+          <option value="Línea 7">Línea 7</option>
+          <option value="Línea 8">Línea 8</option>
+          <option value="Línea 9">Línea 9</option>
+          <option value="Línea 10">Línea 10</option>
+        </select>
+      </div>
+      <div id="inicio-error" class="error-msg"></div>
+      <button type="button" class="btn-submit" onclick="iniciarTurno()">ENTRAR</button>
     </div>
-
-    <label for="input-lote">Lote (opcional — vacío = FIFO)</label>
-    <input type="text" id="input-lote" placeholder="Dejar vacío para seguir FIFO">
-
-    <div id="form-error" class="error-msg"></div>
-    <button type="button" class="action-btn" id="btn-guardar" onclick="guardarPedido()">SOLICITAR MATERIAL</button>
-    <button type="button" id="btn-cancelar-edicion" class="btn-secondary hidden" onclick="cancelarEdicion()">Cancelar edición</button>
-    <div id="cola-offline-msg" style="color: #fbbf24; font-weight: 700; text-align: center; margin-top: 10px;"></div>
   </div>
 
-  <h3>Pedidos activos de esta línea</h3>
-  <div id="lista-operaria"></div>
+  <!-- PANTALLA DE TRABAJO EN UNA SOLA PANTALLA -->
+  <div id="vista-trabajo" class="main-grid hidden">
+    <!-- IZQUIERDA: FORMULARIO VISUAL -->
+    <section class="panel">
+      <h2 id="titulo-form" class="panel-title">Nueva petición</h2>
 
-  <h3>Peticiones por delante en la cola</h3>
-  <div id="lista-por-delante"></div>
+      <div class="row-2">
+        <div class="field">
+          <label for="select-linea">Línea</label>
+          <select id="select-linea">
+            <option value="Línea 1">Línea 1</option>
+            <option value="Línea 2">Línea 2</option>
+            <option value="Línea 3">Línea 3</option>
+            <option value="Línea 4">Línea 4</option>
+            <option value="Línea 5">Línea 5</option>
+            <option value="Línea 6">Línea 6</option>
+            <option value="Línea 7">Línea 7</option>
+            <option value="Línea 8">Línea 8</option>
+            <option value="Línea 9">Línea 9</option>
+            <option value="Línea 10">Línea 10</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="input-opc">OPC (4 dígitos, opcional)</label>
+          <input type="text" id="input-opc" inputmode="numeric" pattern="\d{4}" maxlength="4" placeholder="Ej. 4821">
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Material (si no hay OPC, obligatorio)</label>
+        <div class="mat-row">
+          <button type="button" class="mat-btn" data-mat="ST" onclick="seleccionarMaterial('ST')">ST</button>
+          <button type="button" class="mat-btn" data-mat="MP" onclick="seleccionarMaterial('MP')">MP</button>
+          <button type="button" class="mat-btn" data-mat="PT" onclick="seleccionarMaterial('PT')">PT</button>
+        </div>
+      </div>
+
+      <div class="row-2">
+        <div class="field">
+          <label for="input-num-ref">Nº Referencia</label>
+          <div class="ref-row">
+            <div id="prefijo-visible" class="prefijo-box">--</div>
+            <input type="text" id="input-num-ref" inputmode="numeric" pattern="[0-9]*" placeholder="Nº">
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="input-lote">Lote (vacío = FIFO)</label>
+          <input type="text" id="input-lote" placeholder="FIFO">
+        </div>
+      </div>
+
+      <div id="form-error" class="error-msg"></div>
+      <button type="button" class="btn-submit" id="btn-guardar" onclick="guardarPedido()">SOLICITAR MATERIAL</button>
+      <button type="button" id="btn-cancelar-edicion" class="btn-cancel-edit hidden" onclick="cancelarEdicion()">Cancelar edición</button>
+    </section>
+
+    <!-- DERECHA: COLA GENERAL ACTIVA -->
+    <section class="panel">
+      <div class="panel-title">
+        <span>Pedidos activos (Toda la cola)</span>
+        <span id="contador-general" style="font-size:0.92rem; color:#93c5fd;">0 activos</span>
+      </div>
+
+      <div id="resumen-posicion" class="resumen-turno">Sin pedidos activos de tu línea.</div>
+
+      <div id="lista-general" class="cola-scroll"></div>
+    </section>
+  </div>
 </div>
 
 <script>
@@ -293,6 +447,7 @@
   let idEditando = null;
   let pedidosActivos = [];
   let colaOffline = [];
+  let cargando = false;
 
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
@@ -306,7 +461,7 @@
     const err = document.getElementById('inicio-error');
 
     if (!nombre) {
-      err.innerText = 'Escribe tu nombre antes de continuar.';
+      err.innerText = 'Escribe tu nombre para entrar.';
       return;
     }
     err.innerText = '';
@@ -322,17 +477,18 @@
     cancelarEdicion();
     document.getElementById('vista-trabajo').classList.add('hidden');
     document.getElementById('vista-inicio').classList.remove('hidden');
-    document.getElementById('info-operaria').classList.add('hidden');
-    document.getElementById('btn-cambiar-op').classList.add('hidden');
+    document.getElementById('user-badge').classList.add('hidden');
+    document.getElementById('btn-cambiar').classList.add('hidden');
   }
 
   function mostrarTrabajo() {
     if (!sesionOp) return;
     document.getElementById('vista-inicio').classList.add('hidden');
     document.getElementById('vista-trabajo').classList.remove('hidden');
-    document.getElementById('info-operaria').classList.remove('hidden');
-    document.getElementById('info-operaria').innerText = `${sesionOp.nombre} · ${sesionOp.linea}`;
-    document.getElementById('btn-cambiar-op').classList.remove('hidden');
+    const badge = document.getElementById('user-badge');
+    badge.classList.remove('hidden');
+    badge.innerText = `${sesionOp.nombre} · ${sesionOp.linea}`;
+    document.getElementById('btn-cambiar').classList.remove('hidden');
     cargarPedidos();
   }
 
@@ -340,8 +496,8 @@
     if (sesionOp) {
       sesionOp.linea = e.target.value;
       sessionStorage.setItem('sesionOperariaActual', JSON.stringify(sesionOp));
-      document.getElementById('info-operaria').innerText = `${sesionOp.nombre} · ${sesionOp.linea}`;
-      renderizarOperaria();
+      document.getElementById('user-badge').innerText = `${sesionOp.nombre} · ${sesionOp.linea}`;
+      renderizarTodo();
     }
   });
 
@@ -365,8 +521,8 @@
 
   function actualizarEstadoRed(online) {
     const badge = document.getElementById('network-status');
-    badge.innerText = online ? '● Conectado' : '● Sin cobertura (Reintentando)';
-    badge.className = online ? '' : 'offline';
+    badge.innerText = online ? '● Conectado' : '● Sin cobertura';
+    badge.className = online ? 'pill-status' : 'pill-status offline';
   }
 
   function limpiarFormulario() {
@@ -389,8 +545,8 @@
 
   function empezarEdicion(pedido) {
     idEditando = pedido.id;
-    document.getElementById('titulo-form').innerText = `Modificando pedido #${pedido.id} (volverá a la cola)`;
-    document.getElementById('btn-guardar').innerText = 'GUARDAR CAMBIOS Y VOLVER A COLA';
+    document.getElementById('titulo-form').innerText = `Modificando #${pedido.id} (vuelve a cola)`;
+    document.getElementById('btn-guardar').innerText = 'GUARDAR Y VOLVER A COLA';
     document.getElementById('btn-cancelar-edicion').classList.remove('hidden');
 
     document.getElementById('select-linea').value = pedido.linea || sesionOp.linea;
@@ -403,8 +559,6 @@
     document.querySelectorAll('.mat-btn').forEach(b => {
       b.classList.toggle('active', b.dataset.mat === tipoMaterialSeleccionado);
     });
-
-    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   function claveMaterial(item) {
@@ -430,15 +584,15 @@
     const loteInput = document.getElementById('input-lote').value.trim();
 
     if (opc && opc.length !== 4) {
-      err.innerText = 'La OPC debe tener exactamente 4 dígitos o dejarse vacía.';
+      err.innerText = 'La OPC debe tener 4 dígitos o dejarse vacía.';
       return;
     }
     if (!opc && (!tipoMaterialSeleccionado || !numRef)) {
-      err.innerText = 'Sin OPC debes marcar ST, MP o PT y escribir su numeración.';
+      err.innerText = 'Sin OPC marca ST, MP o PT y escribe su número.';
       return;
     }
     if (tipoMaterialSeleccionado && !numRef) {
-      err.innerText = `Escribe la numeración para ${tipoMaterialSeleccionado}.`;
+      err.innerText = `Escribe el número de ${tipoMaterialSeleccionado}.`;
       document.getElementById('input-num-ref').focus();
       return;
     }
@@ -460,21 +614,19 @@
     };
 
     if (existeMaterialDuplicado(linea, payload, idEditando)) {
-      err.innerText = 'Ya tienes ese mismo material solicitado en esta línea. Si necesitas otro distinto, indícalo.';
+      err.innerText = 'Ya hay ese mismo material pedido en esta línea.';
       return;
     }
 
     err.innerText = '';
     const btn = document.getElementById('btn-guardar');
     btn.disabled = true;
-    btn.innerText = 'Guardando...';
 
     if (idEditando) {
       const { error } = await db.from('pedidos').update(payload).eq('id', idEditando);
       if (error) {
-        console.error('Error al actualizar pedido:', error);
         actualizarEstadoRed(false);
-        err.innerText = `Error al guardar: ${error.message}`;
+        err.innerText = `Error: ${error.message}`;
       } else {
         actualizarEstadoRed(true);
         limpiarFormulario();
@@ -483,10 +635,9 @@
     } else {
       const { error } = await db.from('pedidos').insert([payload]);
       if (error) {
-        console.error('Error al insertar pedido:', error);
         colaOffline.push(payload);
         actualizarEstadoRed(false);
-        err.innerText = `Sin conexión con base de datos (${error.message}). Guardado en cola local.`;
+        err.innerText = `Sin conexión (${error.message}). Guardado en cola local.`;
       } else {
         actualizarEstadoRed(true);
         limpiarFormulario();
@@ -496,8 +647,7 @@
 
     setTimeout(() => {
       btn.disabled = false;
-      btn.innerText = idEditando ? 'GUARDAR CAMBIOS Y VOLVER A COLA' : 'SOLICITAR MATERIAL';
-    }, 400);
+    }, 350);
   }
 
   async function cancelarPedido(id) {
@@ -506,18 +656,12 @@
       if (idEditando === id) limpiarFormulario();
       await cargarPedidos();
     } else {
-      console.error('Error al cancelar pedido:', error);
       actualizarEstadoRed(false);
     }
   }
 
   setInterval(async () => {
-    const msg = document.getElementById('cola-offline-msg');
-    if (colaOffline.length === 0) {
-      msg.innerText = '';
-      return;
-    }
-    msg.innerText = `Sin cobertura: ${colaOffline.length} pedido(s) esperando señal...`;
+    if (colaOffline.length === 0) return;
     const pendiente = colaOffline[0];
     const { error } = await db.from('pedidos').insert([pendiente]);
     if (!error) {
@@ -528,20 +672,24 @@
   }, 4000);
 
   async function cargarPedidos() {
-    if (!sesionOp) return;
-    const { data, error } = await db
-      .from('pedidos')
-      .select('*')
-      .not('estado', 'in', '(completado,cancelado)')
-      .order('creado_en', { ascending: true });
+    if (!sesionOp || cargando) return;
+    cargando = true;
+    try {
+      const { data, error } = await db
+        .from('pedidos')
+        .select('*')
+        .not('estado', 'in', '(completado,cancelado)')
+        .order('creado_en', { ascending: true });
 
-    if (!error && data) {
-      pedidosActivos = data;
-      renderizarOperaria();
-      actualizarEstadoRed(true);
-    } else if (error) {
-      console.error('Error al cargar pedidos:', error);
-      actualizarEstadoRed(false);
+      if (!error && data) {
+        pedidosActivos = data;
+        renderizarTodo();
+        actualizarEstadoRed(true);
+      } else if (error) {
+        actualizarEstadoRed(false);
+      }
+    } finally {
+      cargando = false;
     }
   }
 
@@ -551,78 +699,83 @@
       : (p.material || 'Material');
   }
 
-  function renderizarOperaria() {
-    const lista = document.getElementById('lista-operaria');
-    const listaDelante = document.getElementById('lista-por-delante');
+  function renderizarTodo() {
+    const lista = document.getElementById('lista-general');
+    const resumen = document.getElementById('resumen-posicion');
     const lineaActual = document.getElementById('select-linea').value;
-    const mios = [];
 
+    document.getElementById('contador-general').innerText = `${pedidosActivos.length} activos`;
+
+    const indicesMios = [];
     pedidosActivos.forEach((p, idx) => {
-      if (p.linea === lineaActual) {
-        mios.push({ p, turno: idx + 1, indiceGlobal: idx });
-      }
+      if (p.linea === lineaActual) indicesMios.push(idx);
     });
 
-    if (mios.length === 0) {
-      lista.innerHTML = '<p style="color:var(--muted);">No hay pedidos activos en esta línea.</p>';
-      listaDelante.innerHTML = '<p style="color:var(--muted);">No tienes peticiones activas con turnos por delante.</p>';
+    if (indicesMios.length === 0) {
+      resumen.innerHTML = `Tu línea (${lineaActual}) no tiene pedidos activos ahora mismo.`;
+    } else {
+      const primeroIdx = indicesMios[0];
+      const porDelante = primeroIdx;
+      resumen.innerHTML = porDelante === 0
+        ? `¡Tu línea (${lineaActual}) va <strong>1ª en la cola</strong>! Sin peticiones por delante.`
+        : `Tu línea (${lineaActual}) tiene <strong>${porDelante}</strong> petición(es) por delante · Tu 1º pedido es el <strong>#${primeroIdx + 1}</strong>.`;
+    }
+
+    if (pedidosActivos.length === 0) {
+      lista.innerHTML = '<div style="color:var(--muted); font-weight:700;">No hay pedidos activos en este momento.</div>';
       return;
     }
 
-    lista.innerHTML = mios.map(({ p, turno }) => {
+    lista.innerHTML = pedidosActivos.map((p, idx) => {
+      const esMio = p.linea === lineaActual;
       const hora = new Date(p.creado_en).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
       const refFmt = formatearRef(p);
-      const extra = [
+      const extras = [
         p.opc ? `OPC ${p.opc}` : null,
-        `Lote ${p.lote || 'FIFO'}`
+        `Lote ${p.lote || 'FIFO'}`,
+        hora,
+        p.solicitado_por || ''
       ].filter(Boolean).join(' · ');
 
       const itemJson = encodeURIComponent(JSON.stringify(p));
+      const estadoTxt = p.estado === 'en_camino' ? 'En camino' : 'Pendiente';
 
       return `
-        <div class="pedido-item ${p.estado}">
+        <div class="pedido-card ${p.estado} ${esMio ? 'es-mio' : ''}">
           <div>
-            <strong>${refFmt}</strong> (${extra})<br>
-            <span style="color:var(--muted); font-size:0.88rem;">${hora} · Turno: <strong>#${turno}</strong> · Por ${p.solicitado_por || '-'}</span><br>
-            <span class="badge ${p.estado}">${p.estado === 'en_camino' ? '¡En camino!' : 'En espera'}</span>
+            <div class="pedido-main">
+              #${idx + 1} · ${p.linea} — ${refFmt}
+            </div>
+            <div class="pedido-sub">${extras}</div>
+            <div style="margin-top:4px;">
+              ${esMio ? '<span class="tag mio">Tu línea</span>' : ''}
+              <span class="tag ${p.estado}">${estadoTxt}</span>
+            </div>
           </div>
-          <div class="acciones-op">
-            <button type="button" class="btn-small btn-edit" onclick="empezarEdicion(JSON.parse(decodeURIComponent('${itemJson}')))">Modificar</button>
-            <button type="button" class="btn-small btn-cancel" onclick="cancelarPedido(${p.id})">Cancelar</button>
-          </div>
+          ${esMio ? `
+            <div class="acciones-card">
+              <button type="button" class="btn-mini btn-mod" onclick="empezarEdicion(JSON.parse(decodeURIComponent('${itemJson}')))">Modificar</button>
+              <button type="button" class="btn-mini btn-can" onclick="cancelarPedido(${p.id})">Cancelar</button>
+            </div>
+          ` : ''}
         </div>
       `;
     }).join('');
-
-    const primerIndiceMio = mios[0].indiceGlobal;
-    const porDelante = pedidosActivos.slice(0, primerIndiceMio);
-
-    if (porDelante.length === 0) {
-      listaDelante.innerHTML = '<p style="color:#4ade80; font-weight:700;">¡Tu línea va primera en la cola! No hay peticiones por delante.</p>';
-    } else {
-      listaDelante.innerHTML = `
-        <p style="color:var(--muted); margin-top:0;">Hay <strong>${porDelante.length}</strong> petición(es) por delante de tu primer pedido:</p>
-        ${porDelante.map((p, idx) => {
-          const hora = new Date(p.creado_en).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-          const estadoTxt = p.estado === 'en_camino' ? 'En camino' : 'Pendiente';
-          return `
-            <div class="pedido-delante">
-              <strong>#${idx + 1} · ${p.linea}</strong> — ${formatearRef(p)}
-              <span style="color:var(--muted);">(${hora} · ${estadoTxt})</span>
-            </div>
-          `;
-        }).join('')}
-      `;
-    }
   }
 
-  db.channel('cambios-pedidos-op')
+  db.channel('cambios-pedidos-op-global')
     .on('postgres_changes', { event: '*', schema: 'public', table: 'pedidos' }, () => {
       cargarPedidos();
     })
     .subscribe();
 
-  setInterval(cargarPedidos, 10000);
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden && sesionOp) {
+      cargarPedidos();
+    }
+  });
+
+  setInterval(cargarPedidos, 3000);
   if (sesionOp) {
     document.getElementById('select-linea').value = sesionOp.linea;
     mostrarTrabajo();
