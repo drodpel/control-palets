@@ -28,7 +28,7 @@
       padding: 12px;
       min-height: 100dvh;
     }
-    .wrap { max-width: 1100px; margin: 0 auto; }
+    .wrap { max-width: 1200px; margin: 0 auto; }
     header {
       display: flex;
       justify-content: space-between;
@@ -167,10 +167,7 @@
       <span id="network-status">● Conectado</span>
       <div id="info-carr" class="user-pill hidden"></div>
     </div>
-    <div style="display:flex; gap:8px; flex-wrap:wrap;">
-      <button id="btn-notif" class="btn-top hidden" onclick="activarAvisos()">🔔 Avisos activos</button>
-      <button id="btn-salir" class="btn-top hidden" onclick="cerrarSesion()">Cambiar nombre</button>
-    </div>
+    <button id="btn-salir" class="btn-top hidden" onclick="cerrarSesion()">Cambiar nombre</button>
   </header>
 
   <div id="vista-login" class="card">
@@ -248,7 +245,15 @@
     } catch (_) {}
   }
 
-  function entrar() {
+  async function solicitarPermisoNotificacionSiProcede() {
+    if ('Notification' in window && Notification.permission === 'default') {
+      try {
+        await Notification.requestPermission();
+      } catch (_) {}
+    }
+  }
+
+  async function entrar() {
     const nombre = document.getElementById('input-nombre').value.trim();
     const err = document.getElementById('login-error');
     if (!nombre) {
@@ -259,6 +264,7 @@
     sesionCarr = { nombre };
     localStorage.setItem('sesionCarretillero', JSON.stringify(sesionCarr));
     sonarPitidoFuerte();
+    await solicitarPermisoNotificacionSiProcede();
     mostrarCola();
   }
 
@@ -270,7 +276,6 @@
     document.getElementById('vista-cola').classList.add('hidden');
     document.getElementById('vista-login').classList.remove('hidden');
     document.getElementById('info-carr').classList.add('hidden');
-    document.getElementById('btn-notif').classList.add('hidden');
     document.getElementById('btn-salir').classList.add('hidden');
   }
 
@@ -280,7 +285,6 @@
     document.getElementById('vista-cola').classList.remove('hidden');
     document.getElementById('info-carr').classList.remove('hidden');
     document.getElementById('info-carr').innerText = sesionCarr.nombre;
-    document.getElementById('btn-notif').classList.remove('hidden');
     document.getElementById('btn-salir').classList.remove('hidden');
     cargarPedidos();
   }
@@ -289,16 +293,6 @@
     const badge = document.getElementById('network-status');
     badge.innerText = online ? '● Conectado' : '● Sin cobertura';
     badge.className = online ? '' : 'offline';
-  }
-
-  async function activarAvisos() {
-    sonarPitidoFuerte();
-    if ('Notification' in window && Notification.permission === 'default') {
-      try {
-        await Notification.requestPermission();
-      } catch (_) {}
-    }
-    emitirNotificacion('Avisos activos', 'Sonido de aviso activado.');
   }
 
   function emitirNotificacion(titulo, cuerpo) {
@@ -345,6 +339,7 @@
   }
 
   async function desmarcarPedido(id) {
+    if (!confirm('¿Seguro que quieres desmarcar este pedido y devolverlo a pendientes?')) return;
     const { error } = await db.from('pedidos').update({ estado: 'pendiente' }).eq('id', id);
     if (!error) {
       await cargarPedidos();
