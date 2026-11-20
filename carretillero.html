@@ -356,9 +356,10 @@
       try {
         const parsed = JSON.parse(decodeURIComponent(escape(atob(match[1].trim()))));
         const cantParseada = Math.max(1, parseInt(parsed.c, 10) || 1);
+        const rawU = Math.max(0, parseInt(parsed.u, 10) || 0);
         const puestosParseados = p.estado === 'completado'
           ? cantParseada
-          : Math.max(0, Math.min(cantParseada, parseInt(parsed.u, 10) || 0));
+          : Math.min(cantParseada, rawU);
         meta = {
           t: parsed.t || null,
           v: parsed.v ? Number(parsed.v) : null,
@@ -370,14 +371,19 @@
       meta.u = 1;
     }
 
+    const estadoEfectivo = (p.estado === 'completado' || meta.u >= meta.c)
+      ? 'completado'
+      : p.estado;
+
     return {
       ...p,
+      estado: estadoEfectivo,
       material_limpio: materialLimpio,
       tiempo_aviso: p.tiempo_aviso || meta.t,
       vence_en: p.vence_en || (meta.v ? new Date(meta.v).toISOString() : null),
       vence_ms: p.vence_en ? new Date(p.vence_en).getTime() : meta.v,
       cantidad: Math.max(1, parseInt(meta.c || p.cantidad || 1, 10) || 1),
-      puestos: meta.u
+      puestos: estadoEfectivo === 'completado' ? Math.max(1, parseInt(meta.c || p.cantidad || 1, 10) || 1) : meta.u
     };
   }
 
@@ -694,6 +700,18 @@
 
       if (!error && data) {
         const normalizados = data.map(decodificarPedidoConMeta);
+        for (const p of normalizados) {
+          if (p.estado === 'completado' && p.puestos >= p.cantidad) {
+            const raw = data.find(r => r.id === p.id);
+            if (raw && raw.estado !== 'completado') {
+              await db.from('pedidos').update({
+                estado: 'completado',
+                material: codificarMetaEnMaterial(p.material_limpio, p.tiempo_aviso, p.vence_ms, p.cantidad, p.cantidad)
+              }).eq('id', p.id);
+            }
+          }
+        }
+
         const pendientes = ordenarPendientesCarretillero(normalizados.filter(p => p.estado !== 'completado'));
         const completados = normalizados.filter(p => p.estado === 'completado').reverse();
 
