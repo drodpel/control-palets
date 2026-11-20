@@ -606,9 +606,9 @@
     return Date.now() + mins * 60000;
   }
 
-  function codificarMetaEnMaterial(resumenBase, tiempoSel, cantidadNum, puestosNum = 0) {
+  function codificarMetaEnMaterial(resumenBase, tiempoSel, cantidadNum, puestosNum = 0, venceMsOverride = null) {
     const limpio = String(resumenBase || 'Pedido').replace(/\s*\[\[META:[^\]]+\]\]\s*$/g, '').trim() || 'Pedido';
-    const venceMs = tiempoSel ? calcularVencimientoMs(tiempoSel) : null;
+    const venceMs = tiempoSel ? (venceMsOverride || calcularVencimientoMs(tiempoSel)) : null;
     const cant = Math.max(1, parseInt(cantidadNum, 10) || 1);
     const puestos = Math.max(0, Math.min(cant, parseInt(puestosNum, 10) || 0));
     const meta = {
@@ -630,9 +630,10 @@
       try {
         const parsed = JSON.parse(decodeURIComponent(escape(atob(match[1].trim()))));
         const cantParseada = Math.max(1, parseInt(parsed.c, 10) || 1);
+        const rawU = Math.max(0, parseInt(parsed.u, 10) || 0);
         const puestosParseados = p.estado === 'completado'
           ? cantParseada
-          : Math.max(0, Math.min(cantParseada, parseInt(parsed.u, 10) || 0));
+          : Math.min(cantParseada, rawU);
         meta = {
           t: parsed.t || null,
           v: parsed.v ? Number(parsed.v) : null,
@@ -644,14 +645,19 @@
       meta.u = 1;
     }
 
+    const estadoEfectivo = (p.estado === 'completado' || meta.u >= meta.c)
+      ? 'completado'
+      : p.estado;
+
     return {
       ...p,
+      estado: estadoEfectivo,
       material_limpio: materialLimpio,
       tiempo_aviso: p.tiempo_aviso || meta.t,
       vence_en: p.vence_en || (meta.v ? new Date(meta.v).toISOString() : null),
       vence_ms: p.vence_en ? new Date(p.vence_en).getTime() : meta.v,
       cantidad: Math.max(1, parseInt(meta.c || p.cantidad || 1, 10) || 1),
-      puestos: meta.u
+      puestos: estadoEfectivo === 'completado' ? Math.max(1, parseInt(meta.c || p.cantidad || 1, 10) || 1) : meta.u
     };
   }
 
@@ -1062,19 +1068,22 @@
       .join(' · ') || 'Pedido';
 
     const existenteEdit = idEditando ? pedidosHoyTodos.find(x => x.id === idEditando) : null;
-    const puestosPrevios = existenteEdit ? Math.min(cantidadNum, existenteEdit.puestos || 0) : 0;
+    const rawPuestosPrevios = existenteEdit ? Math.max(0, parseInt(existenteEdit.puestos, 10) || 0) : 0;
+    const yaCompletadoAlEditar = Boolean(existenteEdit && rawPuestosPrevios >= cantidadNum);
+    const puestosFinales = yaCompletadoAlEditar ? cantidadNum : Math.min(cantidadNum, rawPuestosPrevios);
+    const venceMsPrevio = (existenteEdit && existenteEdit.tiempo_aviso === tiempoSel) ? existenteEdit.vence_ms : null;
 
     const payload = {
       linea: lineaTexto,
-      material: codificarMetaEnMaterial(resumenBase, tiempoSel, cantidadNum, puestosPrevios),
+      material: codificarMetaEnMaterial(resumenBase, tiempoSel, cantidadNum, puestosFinales, venceMsPrevio),
       solicitado_por: nombreOp,
       opc: opc || null,
       tipo_material: refCompleta ? prefijoSeleccionado : null,
       num_referencia: refCompleta ? numRef : null,
       clase_material: claseMaterial || null,
       lote: loteInput || 'FIFO',
-      estado: 'pendiente',
-      creado_en: new Date().toISOString()
+      estado: yaCompletadoAlEditar ? 'completado' : 'pendiente',
+      creado_en: existenteEdit?.creado_en || new Date().toISOString()
     };
 
     const duplicado = buscarMaterialRegistrado(nombreOp, payload, idEditando);
@@ -1164,6 +1173,18 @@
 
       if (!error && hoyPedidos) {
         const normalizados = hoyPedidos.map(decodificarPedidoConMeta);
+        for (const p of normalizados) {
+          if (p.estado === 'completado' && p.puestos >= p.cantidad) {
+            const raw = hoyPedidos.find(r => r.id === p.id);
+            if (raw && raw.estado !== 'completado') {
+              await db.from('pedidos').update({
+                estado: 'completado',
+                material: codificarMetaEnMaterial(p.material_limpio, p.tiempo_aviso, p.cantidad, p.cantidad, p.vence_ms)
+              }).eq('id', p.id);
+            }
+          }
+        }
+
         const nombreActual = sesionOp.nombre.toLowerCase();
         const miosListos = normalizados.filter(
           p => p.estado === 'completado' &&
