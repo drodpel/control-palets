@@ -392,7 +392,7 @@
       margin-top: 2px;
     }
     .pedido-progreso {
-      font-size: 0.86rem;
+      font-size: 0.88rem;
       font-weight: 900;
       color: #93c5fd;
       margin-top: 2px;
@@ -607,6 +607,7 @@
   }
 
   function codificarMetaEnMaterial(resumenBase, tiempoSel, cantidadNum, puestosNum = 0) {
+    const limpio = String(resumenBase || 'Pedido').replace(/\s*\[\[META:[^\]]+\]\]\s*$/g, '').trim() || 'Pedido';
     const venceMs = tiempoSel ? calcularVencimientoMs(tiempoSel) : null;
     const cant = Math.max(1, parseInt(cantidadNum, 10) || 1);
     const puestos = Math.max(0, Math.min(cant, parseInt(puestosNum, 10) || 0));
@@ -616,18 +617,18 @@
       c: cant,
       u: puestos
     };
-    return `${resumenBase} [[META:${btoa(unescape(encodeURIComponent(JSON.stringify(meta))))}]]`;
+    return `${limpio} [[META:${btoa(unescape(encodeURIComponent(JSON.stringify(meta))))}]]`;
   }
 
   function decodificarPedidoConMeta(p) {
     const rawMat = String(p?.material || '');
-    const match = rawMat.match(/\[\[META:([^\]]+)\]\]$/);
+    const match = rawMat.match(/\[\[META:([^\]]+)\]\]\s*$/);
     let meta = { t: null, v: null, c: 1, u: 0 };
-    let materialLimpio = rawMat;
+    let materialLimpio = rawMat.trim();
     if (match) {
-      materialLimpio = rawMat.replace(/\[\[META:[^\]]+\]\]$/, '').trim();
+      materialLimpio = rawMat.replace(/\[\[META:[^\]]+\]\]\s*$/g, '').trim();
       try {
-        const parsed = JSON.parse(decodeURIComponent(escape(atob(match[1]))));
+        const parsed = JSON.parse(decodeURIComponent(escape(atob(match[1].trim()))));
         const cantParseada = Math.max(1, parseInt(parsed.c, 10) || 1);
         const puestosParseados = p.estado === 'completado'
           ? cantParseada
@@ -649,7 +650,7 @@
       tiempo_aviso: p.tiempo_aviso || meta.t,
       vence_en: p.vence_en || (meta.v ? new Date(meta.v).toISOString() : null),
       vence_ms: p.vence_en ? new Date(p.vence_en).getTime() : meta.v,
-      cantidad: Math.max(1, parseInt(p.cantidad || meta.c || 1, 10) || 1),
+      cantidad: Math.max(1, parseInt(meta.c || p.cantidad || 1, 10) || 1),
       puestos: meta.u
     };
   }
@@ -1203,7 +1204,7 @@
   function formatearDetallePedido(p) {
     const refFmt = p.num_referencia ? (p.tipo_material ? `${p.tipo_material}-${p.num_referencia}` : p.num_referencia) : '';
     const cant = Math.max(1, Number(p.cantidad) || 1);
-    const cantTxt = cant > 1 ? `Cant: ${cant}` : '';
+    const cantTxt = cant > 1 ? `Cantidad: ${cant}` : '';
     const partes = [refFmt, p.opc ? `OPC ${p.opc}` : '', p.clase_material || '', cantTxt].filter(Boolean);
     return partes.length > 0 ? partes.join(' · ') : (p.material_limpio || p.material || 'Material');
   }
@@ -1274,8 +1275,8 @@
       const horaVence = formatearHoraVencimiento(p);
       const cant = Math.max(1, Number(p.cantidad) || 1);
       const puestos = esListo ? cant : Math.max(0, Math.min(cant, Number(p.puestos) || 0));
-      const progresoHtml = (cant > 1 || puestos > 0)
-        ? `<div class="pedido-progreso">Puestos ya: ${puestos} / ${cant} (Pedida: ${cant})</div>`
+      const progresoHtml = cant > 1
+        ? `<div class="pedido-progreso">Cantidad pedida: ${cant} · Puestos ya: ${puestos} / ${cant}</div>`
         : '';
 
       return `
