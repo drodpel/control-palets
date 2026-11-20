@@ -321,6 +321,7 @@
   }
 
   function codificarMetaEnMaterial(resumenBase, tiempoSel, venceMs, cantidadNum, puestosNum) {
+    const limpio = String(resumenBase || 'Material').replace(/\s*\[\[META:[^\]]+\]\]\s*$/g, '').trim() || 'Material';
     const cant = Math.max(1, parseInt(cantidadNum, 10) || 1);
     const puestos = Math.max(0, Math.min(cant, parseInt(puestosNum, 10) || 0));
     const meta = {
@@ -329,18 +330,18 @@
       c: cant,
       u: puestos
     };
-    return `${resumenBase} [[META:${btoa(unescape(encodeURIComponent(JSON.stringify(meta))))}]]`;
+    return `${limpio} [[META:${btoa(unescape(encodeURIComponent(JSON.stringify(meta))))}]]`;
   }
 
   function decodificarPedidoConMeta(p) {
     const rawMat = String(p?.material || '');
-    const match = rawMat.match(/\[\[META:([^\]]+)\]\]$/);
+    const match = rawMat.match(/\[\[META:([^\]]+)\]\]\s*$/);
     let meta = { t: null, v: null, c: 1, u: 0 };
-    let materialLimpio = rawMat;
+    let materialLimpio = rawMat.trim();
     if (match) {
-      materialLimpio = rawMat.replace(/\[\[META:[^\]]+\]\]$/, '').trim();
+      materialLimpio = rawMat.replace(/\[\[META:[^\]]+\]\]\s*$/g, '').trim();
       try {
-        const parsed = JSON.parse(decodeURIComponent(escape(atob(match[1]))));
+        const parsed = JSON.parse(decodeURIComponent(escape(atob(match[1].trim()))));
         const cantParseada = Math.max(1, parseInt(parsed.c, 10) || 1);
         const puestosParseados = p.estado === 'completado'
           ? cantParseada
@@ -362,7 +363,7 @@
       tiempo_aviso: p.tiempo_aviso || meta.t,
       vence_en: p.vence_en || (meta.v ? new Date(meta.v).toISOString() : null),
       vence_ms: p.vence_en ? new Date(p.vence_en).getTime() : meta.v,
-      cantidad: Math.max(1, parseInt(p.cantidad || meta.c || 1, 10) || 1),
+      cantidad: Math.max(1, parseInt(meta.c || p.cantidad || 1, 10) || 1),
       puestos: meta.u
     };
   }
@@ -801,9 +802,12 @@
       const hecha = opcsCompletadas.has(g.opc);
       const hora = new Date(g.ultimaFechaMs).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
       const metaSup = [hora, g.lineas.join(', '), g.solicitantes.join(', ')].filter(Boolean).join(' · ');
-      const itemsHtml = g.materiales.map(m =>
-        `<li>${m.nombre} — <strong>Cantidad pedida: ${m.cantidadTotal}</strong> (Puestos: ${m.puestosTotal}/${m.cantidadTotal} · ${m.lote})</li>`
-      ).join('');
+      const itemsHtml = g.materiales.map(m => {
+        const detalleCant = m.cantidadTotal > 1
+          ? ` — <strong>Cantidad pedida: ${m.cantidadTotal}</strong> (Puestos: ${m.puestosTotal}/${m.cantidadTotal})`
+          : '';
+        return `<li>${m.nombre}${detalleCant} (${m.lote})</li>`;
+      }).join('');
 
       return `
         <div class="opc-apunte-item ${hecha ? 'hecho-apunte' : ''}">
@@ -857,13 +861,16 @@
         const conTiempo = esPedidoConTiempo(p);
         const vencido = estaVencidoTiempo(p);
         const horaVence = formatearHoraVencimiento(p);
+        const cantHtml = cant > 1
+          ? `<div class="pedido-cant-info">Cantidad pedida: ${cant} · Puestos: ${puestos} · Quedan: ${quedan}</div>`
+          : '';
 
         return `
           <div class="pedido-item ${(conTiempo && !vencido) ? 'con-tiempo-futuro' : ''}">
             <div>
               <div style="font-size:0.88rem; color:var(--muted); font-weight:800;">#${index + 1} · ${hora} · ${p.linea}</div>
               <div class="pedido-titulo">${titulo}</div>
-              <div class="pedido-cant-info">Cantidad pedida: ${cant} · Puestos: ${puestos} · Quedan: ${quedan}</div>
+              ${cantHtml}
               ${subPartes.length > 0 ? `<div style="font-size:0.92rem; color:#cbd5e1; font-weight:700;">${subPartes.join(' · ')}</div>` : ''}
               <span class="badge">Pendiente</span>
               ${conTiempo ? `<span class="badge tiempo">${p.tiempo_aviso} · Hora exacta: ${horaVence}${vencido ? ' (En hora)' : ' (Programado)'}</span>` : ''}
@@ -884,7 +891,8 @@
         const hora = new Date(p.creado_en).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         const titulo = formatearTituloPedido(p);
         const cant = obtenerCantidadPedido(p);
-        const subPartes = [`Cantidad pedida: ${cant}`, `Puestos: ${cant}`];
+        const subPartes = [];
+        if (cant > 1) subPartes.push(`Cantidad pedida: ${cant}`, `Puestos: ${cant}`);
         if (!tieneLoteConcreto(p)) subPartes.push('FIFO');
         if (p.solicitado_por) subPartes.push(p.solicitado_por);
 
@@ -893,7 +901,7 @@
             <div>
               <div style="font-size:0.88rem; color:var(--muted); font-weight:800;">${hora} · ${p.linea}</div>
               <div class="pedido-titulo">${titulo}</div>
-              <div style="font-size:0.92rem; color:#cbd5e1; font-weight:700;">${subPartes.join(' · ')}</div>
+              ${subPartes.length > 0 ? `<div style="font-size:0.92rem; color:#cbd5e1; font-weight:700;">${subPartes.join(' · ')}</div>` : ''}
               <span class="badge listo">Listo</span>
             </div>
             <button class="btn-desmarcar" onclick="desmarcarPedido(${p.id})">Desmarcar</button>
