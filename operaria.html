@@ -9,7 +9,7 @@
   <link rel="icon" type="image/svg+xml" href="icon.svg">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    :root { 
+    :root {
       --primary: #2563eb;
       --warning: #d97706;
       --success: #16a34a;
@@ -23,7 +23,7 @@
       --border: #475569;
     }
     * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
-   html, body {
+    html, body {
       margin: 0;
       padding: 0;
       min-height: 100dvh;
@@ -39,48 +39,16 @@
       width: 100%;
       max-width: 1680px;
       margin: 0 auto;
-      padding: 8px 12px 18px 12px;
+      padding: 8px 12px 16px 12px;
       display: flex;
       flex-direction: column;
       gap: 8px;
     }
-    .main-grid {
-      flex: 1;
-      width: 100%;
-      display: grid;
-      grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
-      gap: 10px;
-      align-items: start;
-    }
-    @media (max-width: 900px) {
-      .main-grid {
-        grid-template-columns: 1fr;
+
+    @media (orientation: landscape) and (max-height: 540px) {
+      .cola-scroll {
+        max-height: 260px;
       }
-    }
-    .panel {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 10px 14px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      min-width: 0;
-    }
-    .form-spread {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-    .cola-scroll {
-      max-height: 60dvh;
-      overflow-y: auto;
-      overflow-anchor: none;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      padding-right: 2px;
-    }
     }
 
     header {
@@ -91,12 +59,14 @@
       padding-bottom: 6px;
       border-bottom: 1px solid var(--border);
       flex-shrink: 0;
+      flex-wrap: nowrap;
     }
     .header-left {
       display: flex;
       align-items: center;
       gap: 8px;
-      flex-wrap: wrap;
+      min-width: 0;
+      overflow: hidden;
     }
     .pill-status {
       font-size: 0.86rem;
@@ -105,6 +75,8 @@
       border-radius: 999px;
       background: #16a34a33;
       color: #4ade80;
+      white-space: nowrap;
+      flex-shrink: 0;
     }
     .pill-status.offline {
       background: #d9770633;
@@ -118,6 +90,9 @@
       padding: 4px 11px;
       border-radius: 7px;
       border: 1px solid var(--border);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
     .btn-top {
       background: #334155;
@@ -128,15 +103,16 @@
       font-weight: 900;
       font-size: 0.88rem;
       cursor: pointer;
+      white-space: nowrap;
+      flex-shrink: 0;
     }
 
     .login-wrap {
       flex: 1;
-      min-height: 0;
+      min-height: 60dvh;
       display: flex;
       align-items: center;
       justify-content: center;
-      overflow: hidden;
     }
     .login-card {
       width: 100%;
@@ -149,17 +125,19 @@
 
     .main-grid {
       flex: 1;
-      min-height: 0;
       width: 100%;
       display: grid;
-      grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
-      gap: 10px;
-      overflow: hidden;
+      grid-template-columns: minmax(0, 1.05fr) minmax(0, 1.15fr);
+      gap: 12px;
+      align-items: stretch;
     }
     @media (max-width: 760px) and (orientation: portrait) {
       .main-grid {
         grid-template-columns: 1fr;
-        grid-template-rows: auto minmax(0, 1fr);
+        align-items: start;
+      }
+      .panel {
+        min-height: auto !important;
       }
     }
 
@@ -167,23 +145,21 @@
       background: var(--card);
       border: 1px solid var(--border);
       border-radius: 12px;
-      padding: 10px 14px;
+      padding: 12px 16px;
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      justify-content: space-between;
+      gap: 10px;
       min-width: 0;
-      min-height: 0;
-      overflow: hidden;
+      min-height: calc(100dvh - 68px);
     }
 
     .form-spread {
       flex: 1;
-      min-height: 0;
       display: flex;
       flex-direction: column;
-      justify-content: space-evenly;
-      gap: 8px;
-      overflow-y: auto;
+      justify-content: space-between;
+      gap: 10px;
       overflow-anchor: none;
     }
 
@@ -231,8 +207,12 @@
     .row-2 {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 10px;
+      gap: 12px;
       align-items: end;
+    }
+    .row-2 > .field:only-child,
+    .row-2 > .field:first-child:has(+ .hidden) {
+      grid-column: 1 / -1;
     }
     .field {
       display: flex;
@@ -252,9 +232,9 @@
     input, select {
       width: 100%;
       min-width: 0;
-      height: clamp(38px, 5.6vh, 58px);
-      padding: 6px 10px;
-      font-size: clamp(1.05rem, 1.55vw, 1.38rem);
+      height: clamp(44px, 6.4vh, 62px);
+      padding: 8px 12px;
+      font-size: clamp(1.08rem, 1.6vw, 1.42rem);
       font-weight: 800;
       border-radius: 10px;
       border: 1.5px solid var(--border);
@@ -280,8 +260,8 @@
       width: 100%;
     }
     .mat-pill {
-      padding: clamp(4px, 0.75vh, 9px) 4px;
-      font-size: clamp(0.88rem, 1.2vw, 1.1rem);
+      padding: clamp(6px, 0.9vh, 10px) 4px;
+      font-size: clamp(0.9rem, 1.25vw, 1.12rem);
       font-weight: 900;
       line-height: 1.1;
       border-radius: 8px;
@@ -301,7 +281,7 @@
     .num-locked-box {
       width: 100%;
       min-width: 0;
-      height: clamp(38px, 5.6vh, 58px);
+      height: clamp(44px, 6.4vh, 62px);
       display: flex;
       align-items: center;
       border-radius: 10px;
@@ -315,7 +295,7 @@
     }
     .prefijo-fijo {
       padding: 0 0 0 10px;
-      font-size: clamp(1.05rem, 1.55vw, 1.38rem);
+      font-size: clamp(1.08rem, 1.6vw, 1.42rem);
       font-weight: 900;
       color: #93c5fd;
       user-select: none;
@@ -325,7 +305,7 @@
       border: none;
       background: transparent;
       height: 100%;
-      padding: 6px 10px 6px 4px;
+      padding: 8px 12px 8px 4px;
       outline: none !important;
       flex: 1;
       min-width: 0;
@@ -340,8 +320,8 @@
     }
     .btn-submit {
       width: 100%;
-      padding: clamp(10px, 1.8vh, 18px);
-      font-size: clamp(1.1rem, 1.7vw, 1.45rem);
+      padding: clamp(12px, 2vh, 20px);
+      font-size: clamp(1.12rem, 1.75vw, 1.48rem);
       font-weight: 900;
       border-radius: 11px;
       border: none;
@@ -352,8 +332,8 @@
     }
     .btn-cancel-edit {
       width: 100%;
-      padding: 7px;
-      font-size: 0.92rem;
+      padding: 8px;
+      font-size: 0.94rem;
       font-weight: 900;
       border-radius: 8px;
       border: 1px solid var(--border);
@@ -365,12 +345,12 @@
 
     .cola-scroll {
       flex: 1;
-      min-height: 0;
+      max-height: calc(100dvh - 130px);
       overflow-y: auto;
       overflow-anchor: none;
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 8px;
       padding-right: 2px;
     }
     .pedido-card {
@@ -378,7 +358,7 @@
       border: 1px solid var(--border);
       border-left: 6px solid var(--warning);
       border-radius: 9px;
-      padding: 8px 10px;
+      padding: 9px 12px;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -394,13 +374,13 @@
       border-left-color: var(--success);
     }
     .pedido-main {
-      font-size: 1.02rem;
+      font-size: 1.04rem;
       font-weight: 900;
       color: #ffffff;
       line-height: 1.2;
     }
     .pedido-sub {
-      font-size: 0.86rem;
+      font-size: 0.88rem;
       font-weight: 700;
       color: var(--muted);
       margin-top: 2px;
