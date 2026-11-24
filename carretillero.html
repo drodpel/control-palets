@@ -86,17 +86,15 @@
       margin-bottom: 12px;
     }
     label { display: block; margin-bottom: 6px; font-weight: 900; color: var(--muted); font-size: 1.05rem; }
-    input, select {
+    input {
       width: 100%;
-      padding: 11px 12px;
-      font-size: 1.05rem;
+      padding: 12px;
+      font-size: 1.1rem;
       font-weight: 800;
       border-radius: 10px;
       border: 1px solid var(--border);
       background: var(--card-2);
       color: #ffffff;
-    }
-    #vista-login input {
       margin-bottom: 12px;
     }
     button.action-btn {
@@ -110,8 +108,7 @@
       font-weight: 900;
       cursor: pointer;
     }
-    .error-msg { color: #fca5a5; font-weight: 900; margin-top: 8px; margin-bottom: 8px; min-height: 20px; }
-    .ok-msg { color: #4ade80; font-weight: 900; margin-top: 8px; margin-bottom: 8px; min-height: 20px; }
+    .error-msg { color: #fca5a5; font-weight: 900; margin-bottom: 10px; min-height: 20px; }
     #network-status {
       display: inline-block;
       font-size: 0.85rem;
@@ -131,12 +128,10 @@
     #lista-carretillero, #lista-completados, #lista-apuntes-opc {
       overflow-anchor: none;
     }
-
-    /* Botón siempre en esquina inferior derecha */
     .pedido-item {
       display: flex;
       justify-content: space-between;
-      align-items: stretch;
+      align-items: center;
       gap: 12px;
       background: var(--card-2);
       border: 1px solid var(--border);
@@ -144,6 +139,7 @@
       border-radius: 10px;
       margin-bottom: 9px;
       border-left: 6px solid var(--warning);
+      flex-wrap: wrap;
     }
     .pedido-item.con-tiempo-futuro {
       border-left-color: var(--purple);
@@ -152,10 +148,6 @@
     .pedido-item.completado {
       border-left-color: var(--success);
       opacity: 0.92;
-    }
-    .pedido-cuerpo {
-      min-width: 0;
-      flex: 1;
     }
     .pedido-titulo {
       font-size: 1.2rem;
@@ -191,15 +183,12 @@
     }
     .acciones-carr {
       display: flex;
-      flex-direction: column;
-      justify-content: flex-end;
-      align-items: flex-end;
-      align-self: flex-end;
       gap: 8px;
-      flex-shrink: 0;
+      flex-wrap: wrap;
+      align-items: center;
     }
     .btn-coger-uno {
-      padding: 11px 16px;
+      padding: 12px 16px;
       border: none;
       border-radius: 9px;
       font-weight: 900;
@@ -207,10 +196,9 @@
       color: #ffffff;
       background: var(--primary);
       font-size: 1rem;
-      white-space: nowrap;
     }
     .btn-hecho {
-      padding: 11px 18px;
+      padding: 12px 18px;
       border: none;
       border-radius: 9px;
       font-weight: 900;
@@ -218,7 +206,6 @@
       color: #ffffff;
       background: var(--success);
       font-size: 1rem;
-      white-space: nowrap;
     }
     .btn-desmarcar {
       padding: 10px 14px;
@@ -229,77 +216,11 @@
       color: #ffffff;
       background: #334155;
       font-size: 0.92rem;
-      white-space: nowrap;
-    }
-
-    /* Paneles de gestión manual en Apuntes OPC */
-    .opc-tools-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 12px;
-      margin-bottom: 12px;
-    }
-    .opc-box {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 14px;
-    }
-    .opc-box h4 {
-      margin: 0 0 10px 0;
-      font-size: 1.02rem;
-      font-weight: 900;
-      color: #93c5fd;
-    }
-    .row-2 {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      margin-bottom: 8px;
-    }
-    .row-3 {
-      display: grid;
-      grid-template-columns: 95px 1fr 1fr;
-      gap: 8px;
-      margin-bottom: 8px;
-    }
-    .btn-sec {
-      width: 100%;
-      padding: 10px 12px;
-      border: none;
-      border-radius: 9px;
-      font-weight: 900;
-      font-size: 0.98rem;
-      color: #ffffff;
-      background: var(--primary);
-      cursor: pointer;
-    }
-    .btn-verde-sm {
-      padding: 6px 10px;
-      border: none;
-      border-radius: 7px;
-      font-weight: 900;
-      font-size: 0.86rem;
-      color: #ffffff;
-      background: var(--success);
-      cursor: pointer;
-      white-space: nowrap;
-    }
-    .btn-azul-sm {
-      padding: 6px 10px;
-      border: none;
-      border-radius: 7px;
-      font-weight: 900;
-      font-size: 0.86rem;
-      color: #ffffff;
-      background: var(--primary);
-      cursor: pointer;
-      white-space: nowrap;
     }
     .opc-apunte-item {
       display: flex;
       justify-content: space-between;
-      align-items: stretch;
+      align-items: center;
       gap: 12px;
       background: var(--card-2);
       border: 1px solid var(--border);
@@ -307,43 +228,21 @@
       padding: 12px 14px;
       border-radius: 10px;
       margin-bottom: 8px;
+      flex-wrap: wrap;
     }
     .opc-apunte-item.hecho-apunte {
       border-left-color: var(--success);
-      opacity: 0.82;
+      opacity: 0.78;
     }
     .opc-mat-list {
       margin: 6px 0 4px 0;
-      padding-left: 0;
-      list-style: none;
+      padding-left: 18px;
       color: #ffffff;
       font-weight: 800;
       font-size: 0.96rem;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
     }
-    .opc-mat-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 8px;
-      background: #111b2e;
-      border: 1px solid #334155;
-      border-radius: 8px;
-      padding: 7px 10px;
-      flex-wrap: wrap;
-    }
-    .opc-mat-acciones {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .input-sumar-puestos {
-      width: 66px !important;
-      padding: 5px 7px !important;
-      font-size: 0.92rem !important;
-      text-align: center;
+    .opc-mat-list li {
+      margin-bottom: 3px;
     }
     .hidden { display: none !important; }
   </style>
@@ -386,68 +285,6 @@
     </div>
 
     <div id="pestana-opc" class="hidden">
-      <div class="opc-tools-grid">
-        <div class="opc-box">
-          <h4>Añadir OPC nueva</h4>
-          <div class="row-2">
-            <div>
-              <label for="nueva-opc-codigo" style="font-size:0.88rem;">OPC (4 dígitos)</label>
-              <input type="text" id="nueva-opc-codigo" maxlength="4" inputmode="numeric" placeholder="Ej. 5450">
-            </div>
-            <div>
-              <label for="nueva-opc-linea" style="font-size:0.88rem;">Línea (opcional)</label>
-              <input type="text" id="nueva-opc-linea" inputmode="numeric" placeholder="Ej. 4">
-            </div>
-          </div>
-          <button type="button" class="btn-sec" onclick="anadirOpcManual()">Añadir OPC</button>
-        </div>
-
-        <div class="opc-box">
-          <h4>Añadir material manual a una OPC</h4>
-          <div class="row-3">
-            <div>
-              <label for="mat-manual-opc" style="font-size:0.88rem;">OPC</label>
-              <input type="text" id="mat-manual-opc" maxlength="4" inputmode="numeric" placeholder="5450">
-            </div>
-            <div>
-              <label for="mat-manual-prefijo" style="font-size:0.88rem;">Prefijo</label>
-              <select id="mat-manual-prefijo">
-                <option value="">--</option>
-                <option value="MP">MP</option>
-                <option value="ST">ST</option>
-                <option value="PT">PT</option>
-              </select>
-            </div>
-            <div>
-              <label for="mat-manual-ref" style="font-size:0.88rem;">Ref. (5 díg.)</label>
-              <input type="text" id="mat-manual-ref" maxlength="5" inputmode="numeric" placeholder="12345">
-            </div>
-          </div>
-          <div class="row-3">
-            <div>
-              <label for="mat-manual-cant" style="font-size:0.88rem;">Cantidad</label>
-              <input type="number" id="mat-manual-cant" min="1" value="1">
-            </div>
-            <div>
-              <label for="mat-manual-puestos" style="font-size:0.88rem;">Ya puestos</label>
-              <input type="number" id="mat-manual-puestos" min="0" value="0">
-            </div>
-            <div>
-              <label for="mat-manual-lote" style="font-size:0.88rem;">Lote</label>
-              <input type="text" id="mat-manual-lote" placeholder="FIFO">
-            </div>
-          </div>
-          <div style="margin-bottom:8px;">
-            <label for="mat-manual-clase" style="font-size:0.88rem;">Tipo / descripción (si no hay ref. de 5 dígitos)</label>
-            <input type="text" id="mat-manual-clase" placeholder="Ej. estuche, embalaje...">
-          </div>
-          <button type="button" class="btn-sec" onclick="anadirMaterialManual()">Guardar material en OPC</button>
-        </div>
-      </div>
-
-      <div id="opc-msg-error" class="error-msg"></div>
-      <div id="opc-msg-ok" class="ok-msg"></div>
-
       <div class="seccion-titulo">
         <h3 style="margin:0;">OPC recopiladas hoy</h3>
         <span id="contador-apuntes-opc" style="font-weight:900; color:#93c5fd;">0 OPC</span>
@@ -462,8 +299,6 @@
   const SUPABASE_KEY = 'sb_publishable_zPaFGK04be_flVvEGmaepw_YMZq9Wxn';
   const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-  const STORAGE_APUNTES_MANUALES = 'apuntesOpcManualesCarr_v1';
-
   let sesionCarr = JSON.parse(localStorage.getItem('sesionCarretillero') || 'null');
   let pedidosHoyTodos = [];
   let pedidosPendientes = [];
@@ -473,7 +308,6 @@
   let audioCtx = null;
   let pestanaActual = 'cola';
   let opcsCompletadas = new Set(JSON.parse(localStorage.getItem('opcsCompletadasCarr') || '[]'));
-  let apuntesManuales = cargarApuntesManualesLocal();
   let cargandoCarr = false;
   let ultimoRenderCarr = '';
   let ultimoRenderOpc = '';
@@ -482,176 +316,6 @@
     window.addEventListener('load', () => {
       navigator.serviceWorker.register('./sw.js').catch(() => {});
     });
-  }
-
-  function hoyClaveLocal() {
-    const d = new Date();
-    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-  }
-
-  function cargarApuntesManualesLocal() {
-    try {
-      const raw = JSON.parse(localStorage.getItem(STORAGE_APUNTES_MANUALES) || 'null');
-      if (!raw || raw.fecha !== hoyClaveLocal()) {
-        return { fecha: hoyClaveLocal(), opcs: {} };
-      }
-      return { fecha: raw.fecha, opcs: raw.opcs || {} };
-    } catch (_) {
-      return { fecha: hoyClaveLocal(), opcs: {} };
-    }
-  }
-
-  function guardarApuntesManualesLocal() {
-    apuntesManuales.fecha = hoyClaveLocal();
-    try {
-      localStorage.setItem(STORAGE_APUNTES_MANUALES, JSON.stringify(apuntesManuales));
-    } catch (_) {}
-  }
-
-  function mostrarMensajeOpc(tipo, texto) {
-    const errEl = document.getElementById('opc-msg-error');
-    const okEl = document.getElementById('opc-msg-ok');
-    if (errEl) errEl.innerText = tipo === 'error' ? texto : '';
-    if (okEl) okEl.innerText = tipo === 'ok' ? texto : '';
-  }
-
-  function asegurarEntradaOpcManual(opcCodigo, lineaNum = '') {
-    if (apuntesManuales.fecha !== hoyClaveLocal()) {
-      apuntesManuales = { fecha: hoyClaveLocal(), opcs: {} };
-    }
-    if (!apuntesManuales.opcs[opcCodigo]) {
-      apuntesManuales.opcs[opcCodigo] = {
-        opc: opcCodigo,
-        ultimaFechaMs: Date.now(),
-        lineas: lineaNum ? [`Línea ${lineaNum}`] : [],
-        solicitantes: [sesionCarr?.nombre || 'Carretillero'],
-        materiales: []
-      };
-    } else {
-      apuntesManuales.opcs[opcCodigo].ultimaFechaMs = Date.now();
-      if (lineaNum && !apuntesManuales.opcs[opcCodigo].lineas.includes(`Línea ${lineaNum}`)) {
-        apuntesManuales.opcs[opcCodigo].lineas.push(`Línea ${lineaNum}`);
-      }
-    }
-  }
-
-  function anadirOpcManual() {
-    const inputOpc = document.getElementById('nueva-opc-codigo');
-    const inputLin = document.getElementById('nueva-opc-linea');
-    const opcCod = (inputOpc?.value || '').replace(/\D/g, '').slice(0, 4);
-    const linNum = (inputLin?.value || '').replace(/\D/g, '').trim();
-
-    if (opcCod.length !== 4) {
-      mostrarMensajeOpc('error', 'La OPC debe tener 4 dígitos.');
-      return;
-    }
-
-    asegurarEntradaOpcManual(opcCod, linNum);
-    guardarApuntesManualesLocal();
-
-    const selectMatOpc = document.getElementById('mat-manual-opc');
-    if (selectMatOpc) selectMatOpc.value = opcCod;
-    if (inputOpc) inputOpc.value = '';
-    if (inputLin) inputLin.value = '';
-
-    mostrarMensajeOpc('ok', `OPC ${opcCod} añadida.`);
-    ultimoRenderOpc = '';
-    renderizarApuntesOpc();
-  }
-
-  function anadirMaterialManual() {
-    const opcCod = (document.getElementById('mat-manual-opc')?.value || '').replace(/\D/g, '').slice(0, 4);
-    const pref = (document.getElementById('mat-manual-prefijo')?.value || '').trim().toUpperCase();
-    const ref = (document.getElementById('mat-manual-ref')?.value || '').replace(/\D/g, '').slice(0, 5);
-    const cant = Math.max(1, parseInt(document.getElementById('mat-manual-cant')?.value, 10) || 1);
-    const puestosIni = Math.max(0, parseInt(document.getElementById('mat-manual-puestos')?.value, 10) || 0);
-    const loteTxt = ((document.getElementById('mat-manual-lote')?.value || '').trim() || 'FIFO');
-    const claseTxt = (document.getElementById('mat-manual-clase')?.value || '').trim();
-
-    if (opcCod.length !== 4) {
-      mostrarMensajeOpc('error', 'Indica una OPC válida de 4 dígitos.');
-      return;
-    }
-
-    const refValida = Boolean(pref && ref.length === 5);
-    if (pref && ref.length > 0 && ref.length !== 5) {
-      mostrarMensajeOpc('error', 'La referencia debe tener 5 dígitos.');
-      return;
-    }
-    if (!refValida && !claseTxt) {
-      mostrarMensajeOpc('error', 'Indica prefijo + 5 dígitos o un tipo/descripción de material.');
-      return;
-    }
-
-    const nombreMat = [
-      refValida ? `${pref}-${ref}` : '',
-      claseTxt
-    ].filter(Boolean).join(' · ');
-
-    const loteNorm = loteTxt.toUpperCase() === 'FIFO' ? 'FIFO' : `Lote ${loteTxt}`;
-
-    asegurarEntradaOpcManual(opcCod);
-    const lista = apuntesManuales.opcs[opcCod].materiales;
-    const clave = `${nombreMat.toLowerCase()}|${loteNorm.toLowerCase()}`;
-    const existente = lista.find(m => `${m.nombre.toLowerCase()}|${m.lote.toLowerCase()}` === clave);
-
-    if (existente) {
-      existente.cantidadTotal += cant;
-      existente.puestosTotal += puestosIni;
-    } else {
-      lista.push({
-        id: `m_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
-        nombre: nombreMat,
-        lote: loteNorm,
-        cantidadTotal: cant,
-        puestosTotal: puestosIni
-      });
-    }
-
-    guardarApuntesManualesLocal();
-    document.getElementById('mat-manual-ref').value = '';
-    document.getElementById('mat-manual-clase').value = '';
-    document.getElementById('mat-manual-puestos').value = '0';
-    mostrarMensajeOpc('ok', `Material guardado en OPC ${opcCod}.`);
-    ultimoRenderOpc = '';
-    renderizarApuntesOpc();
-  }
-
-  function sumarPuestosEnOpc(opcCod, claveMatCodificada, cantidadExtra = 1) {
-    const extra = Math.max(1, parseInt(cantidadExtra, 10) || 1);
-    const nombreMat = decodeURIComponent(claveMatCodificada);
-
-    asegurarEntradaOpcManual(opcCod);
-    const grupoManual = apuntesManuales.opcs[opcCod];
-    const matManual = grupoManual.materiales.find(
-      m => m.nombre.toLowerCase() === nombreMat.toLowerCase()
-    );
-
-    if (matManual) {
-      matManual.puestosTotal += extra;
-      if (matManual.puestosTotal > matManual.cantidadTotal) {
-        matManual.cantidadTotal = matManual.puestosTotal;
-      }
-    } else {
-      grupoManual.materiales.push({
-        id: `m_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
-        nombre: nombreMat,
-        lote: 'FIFO',
-        cantidadTotal: extra,
-        puestosTotal: extra
-      });
-    }
-
-    guardarApuntesManualesLocal();
-    mostrarMensajeOpc('ok', `Sumados +${extra} puestos a ${nombreMat} (OPC ${opcCod}).`);
-    ultimoRenderOpc = '';
-    renderizarApuntesOpc();
-  }
-
-  function sumarPuestosDesdeInput(opcCod, claveMatCodificada, inputId) {
-    const inp = document.getElementById(inputId);
-    const val = Math.max(1, parseInt(inp?.value, 10) || 1);
-    sumarPuestosEnOpc(opcCod, claveMatCodificada, val);
   }
 
   function inicioHoyISO() {
@@ -1123,46 +787,6 @@
       }
     });
 
-    if (apuntesManuales.fecha === hoyClaveLocal()) {
-      Object.values(apuntesManuales.opcs || {}).forEach(man => {
-        const codigoOpc = String(man.opc || '').trim();
-        if (!codigoOpc) return;
-
-        if (!mapaOpc.has(codigoOpc)) {
-          mapaOpc.set(codigoOpc, {
-            opc: codigoOpc,
-            ultimaFechaMs: man.ultimaFechaMs || Date.now(),
-            lineas: new Set(man.lineas || []),
-            solicitantes: new Set(man.solicitantes || []),
-            materialesMap: new Map()
-          });
-        }
-
-        const grupo = mapaOpc.get(codigoOpc);
-        if ((man.ultimaFechaMs || 0) > grupo.ultimaFechaMs) {
-          grupo.ultimaFechaMs = man.ultimaFechaMs;
-        }
-        (man.lineas || []).forEach(l => grupo.lineas.add(l));
-        (man.solicitantes || []).forEach(s => grupo.solicitantes.add(s));
-
-        (man.materiales || []).forEach(m => {
-          const claveMat = `${(m.nombre || '').toLowerCase()}|${(m.lote || 'FIFO').toLowerCase()}`;
-          if (!grupo.materialesMap.has(claveMat)) {
-            grupo.materialesMap.set(claveMat, {
-              nombre: m.nombre,
-              lote: m.lote || 'FIFO',
-              cantidadTotal: Number(m.cantidadTotal) || 0,
-              puestosTotal: Number(m.puestosTotal) || 0
-            });
-          } else {
-            const matEntry = grupo.materialesMap.get(claveMat);
-            matEntry.cantidadTotal += Number(m.cantidadTotal) || 0;
-            matEntry.puestosTotal += Number(m.puestosTotal) || 0;
-          }
-        });
-      });
-    }
-
     return [...mapaOpc.values()]
       .map(g => ({
         opc: g.opc,
@@ -1195,46 +819,28 @@
       return;
     }
 
-    cont.innerHTML = grupos.map((g, gIdx) => {
+    cont.innerHTML = grupos.map(g => {
       const hecha = opcsCompletadas.has(g.opc);
       const hora = new Date(g.ultimaFechaMs).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
       const metaSup = [hora, g.lineas.join(', '), g.solicitantes.join(', ')].filter(Boolean).join(' · ');
-
-      const itemsHtml = g.materiales.length === 0
-        ? '<li class="opc-mat-row"><span>Sin materiales apuntados aún</span></li>'
-        : g.materiales.map((m, mIdx) => {
-            const cantMostrada = Math.max(m.cantidadTotal, m.puestosTotal);
-            const detalleCant = cantMostrada > 1 || m.puestosTotal > 0
-              ? ` — <strong>Puestos: ${m.puestosTotal}/${cantMostrada}</strong>`
-              : '';
-            const matCod = encodeURIComponent(m.nombre);
-            const inpId = `sumar-inp-${gIdx}-${mIdx}`;
-
-            return `
-              <li class="opc-mat-row">
-                <span>${m.nombre}${detalleCant} (${m.lote})</span>
-                <div class="opc-mat-acciones">
-                  <button type="button" class="btn-verde-sm" onclick="sumarPuestosEnOpc('${g.opc}', '${matCod}', 1)">+1 puesto</button>
-                  <input type="number" id="${inpId}" class="input-sumar-puestos" min="1" value="1">
-                  <button type="button" class="btn-azul-sm" onclick="sumarPuestosDesdeInput('${g.opc}', '${matCod}', '${inpId}')">Sumar</button>
-                </div>
-              </li>
-            `;
-          }).join('');
+      const itemsHtml = g.materiales.map(m => {
+        const detalleCant = m.cantidadTotal > 1
+          ? ` — <strong>Cantidad pedida: ${m.cantidadTotal}</strong> (Puestos: ${m.puestosTotal}/${m.cantidadTotal})`
+          : '';
+        return `<li>${m.nombre}${detalleCant} (${m.lote})</li>`;
+      }).join('');
 
       return `
         <div class="opc-apunte-item ${hecha ? 'hecho-apunte' : ''}">
-          <div class="pedido-cuerpo">
+          <div>
             <div style="font-size:0.88rem; color:var(--muted); font-weight:800;">${metaSup}</div>
             <div class="pedido-titulo">OPC ${g.opc}</div>
             <ul class="opc-mat-list">${itemsHtml}</ul>
             <span class="badge ${hecha ? 'listo' : ''}">${hecha ? 'OPC completada' : 'OPC pendiente'}</span>
           </div>
-          <div class="acciones-carr">
-            <button type="button" class="${hecha ? 'btn-desmarcar' : 'btn-hecho'}" onclick="alternarOpcCompletada('${g.opc}')">
-              ${hecha ? 'Desmarcar OPC' : 'Marcar OPC completada ✓'}
-            </button>
-          </div>
+          <button type="button" class="${hecha ? 'btn-desmarcar' : 'btn-hecho'}" onclick="alternarOpcCompletada('${g.opc}')">
+            ${hecha ? 'Desmarcar OPC' : 'Marcar OPC completada ✓'}
+          </button>
         </div>
       `;
     }).join('');
@@ -1281,12 +887,12 @@
           : '';
 
         const accionHtml = cant > 1
-          ? `<button type="button" class="btn-coger-uno" onclick="cogerUnaUnidad(${p.id})">Coger 1 (${quedan} rest.)</button>`
-          : `<button type="button" class="btn-hecho" onclick="marcarListo(${p.id})">Listo ✓</button>`;
+          ? `<button class="btn-coger-uno" onclick="cogerUnaUnidad(${p.id})">Coger 1 (${quedan} rest.)</button>`
+          : `<button class="btn-hecho" onclick="marcarListo(${p.id})">Listo ✓</button>`;
 
         return `
           <div class="pedido-item ${(conTiempo && !vencido) ? 'con-tiempo-futuro' : ''}">
-            <div class="pedido-cuerpo">
+            <div>
               <div style="font-size:0.88rem; color:var(--muted); font-weight:800;">#${index + 1} · ${hora} · ${p.linea}</div>
               <div class="pedido-titulo">${titulo}</div>
               ${cantHtml}
@@ -1316,15 +922,13 @@
 
         return `
           <div class="pedido-item completado">
-            <div class="pedido-cuerpo">
+            <div>
               <div style="font-size:0.88rem; color:var(--muted); font-weight:800;">${hora} · ${p.linea}</div>
               <div class="pedido-titulo">${titulo}</div>
               ${subPartes.length > 0 ? `<div style="font-size:0.92rem; color:#cbd5e1; font-weight:700;">${subPartes.join(' · ')}</div>` : ''}
               <span class="badge listo">Listo</span>
             </div>
-            <div class="acciones-carr">
-              <button type="button" class="btn-desmarcar" onclick="desmarcarPedido(${p.id})">Desmarcar</button>
-            </div>
+            <button class="btn-desmarcar" onclick="desmarcarPedido(${p.id})">Desmarcar</button>
           </div>
         `;
       }).join('');
