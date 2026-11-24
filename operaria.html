@@ -427,7 +427,6 @@
       border-color: #60a5fa;
       border-left-color: #93c5fd;
     }
-    /* Diferenciación visual clara cuando el pedido ya está listo */
     .pedido-card.completado,
     .pedido-card.es-mio.completado {
       background: #052e16;
@@ -439,31 +438,33 @@
       color: #dcfce7;
     }
     .pedido-card.completado .pedido-sub {
-      color: #bbf7d0;
+      color: #86efac;
     }
     .pedido-info {
       min-width: 0;
       flex: 1;
     }
+    /* Destacado: OPC + material/referencia + lote */
     .pedido-main {
-      font-size: 0.96rem;
+      font-size: 1rem;
       font-weight: 900;
       color: #ffffff;
-      line-height: 1.2;
+      line-height: 1.25;
+      letter-spacing: 0.01em;
     }
+    /* Menos destacado y al final: hora, nombre y línea */
     .pedido-sub {
-      font-size: 0.82rem;
-      font-weight: 700;
-      color: var(--muted);
-      margin-top: 2px;
+      font-size: 0.76rem;
+      font-weight: 600;
+      color: #94a3b8;
+      margin-top: 3px;
     }
     .pedido-progreso {
-      font-size: 0.82rem;
-      font-weight: 900;
+      font-size: 0.8rem;
+      font-weight: 800;
       color: #93c5fd;
-      margin-top: 2px;
+      margin-top: 3px;
     }
-    /* Etiquetas siempre una al lado de la otra en horizontal */
     .tags-row {
       display: flex;
       flex-wrap: nowrap;
@@ -475,7 +476,7 @@
     .tag {
       display: inline-flex;
       align-items: center;
-      font-size: 0.72rem;
+      font-size: 0.7rem;
       font-weight: 900;
       text-transform: uppercase;
       padding: 2px 7px;
@@ -1449,7 +1450,7 @@
             if (!idsListosAvisados.has(p.id)) {
               notificarPedidoListo(
                 `Pedido listo · ${p.linea}`,
-                formatearDetallePedido(p)
+                formatearDetalleDestacado(p)
               );
             }
           });
@@ -1474,23 +1475,31 @@
     }
   }
 
-  function formatearDetallePedido(p) {
+  /* Destacado: OPC + material/referencia (y clase/cantidad si aplica) + lote */
+  function formatearDetalleDestacado(p) {
     const tieneRef5 = Boolean(p.num_referencia && String(p.num_referencia).trim().length === 5);
     const refFmt = tieneRef5
       ? (p.tipo_material ? `${p.tipo_material}-${p.num_referencia}` : p.num_referencia)
       : '';
     const cant = Math.max(1, Number(p.cantidad) || 1);
-    const cantTxt = cant > 1 ? `Cantidad: ${cant}` : '';
-    const partes = [refFmt, p.opc ? `OPC ${p.opc}` : '', p.clase_material || '', cantTxt].filter(Boolean);
+    const cantTxt = cant > 1 ? `Cant. ${cant}` : '';
+    const loteTxt = (p.lote && p.lote !== 'FIFO') ? `Lote ${p.lote}` : 'FIFO';
+    const partes = [
+      p.opc ? `OPC ${p.opc}` : '',
+      refFmt,
+      p.clase_material || '',
+      cantTxt,
+      loteTxt
+    ].filter(Boolean);
     return partes.length > 0 ? partes.join(' · ') : (p.material_limpio || p.material || 'Material');
   }
 
   function pintarTarjetaPedido(p, numeroCola, esMio) {
     const esListo = p.estado === 'completado';
     const hora = new Date(p.creado_en).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    const detalle = formatearDetallePedido(p);
-    const loteTxt = (p.lote && p.lote !== 'FIFO') ? `Lote ${p.lote}` : 'FIFO';
-    const sub = [loteTxt, hora, p.solicitado_por || ''].filter(Boolean).join(' · ');
+    const destacado = formatearDetalleDestacado(p);
+    /* Secundario y al final: hora, nombre y línea */
+    const secundario = [hora, p.solicitado_por || '', p.linea || ''].filter(Boolean).join(' · ');
     const estadoTxt = esListo ? '✓ Listo' : 'Pendiente';
     const horaVence = formatearHoraVencimiento(p);
     const cant = Math.max(1, Number(p.cantidad) || 1);
@@ -1503,8 +1512,8 @@
     return `
       <div class="pedido-card ${p.estado} ${esMio ? 'es-mio' : ''}">
         <div class="pedido-info">
-          <div class="pedido-main">${prefijoTurno}${p.linea} — ${detalle}</div>
-          <div class="pedido-sub">${sub}</div>
+          <div class="pedido-main">${prefijoTurno}${destacado}</div>
+          <div class="pedido-sub">${secundario}</div>
           ${progresoHtml}
           <div class="tags-row">
             ${esMio ? '<span class="tag mio">Mío</span>' : ''}
@@ -1532,7 +1541,6 @@
       p => nombreActual && (p.solicitado_por || '').toLowerCase() === nombreActual
     );
 
-    // Cola visible (más reciente arriba, más antiguo abajo)
     const colaPedidos = pedidosHoyTodos.filter(p => {
       const esMio = nombreActual && (p.solicitado_por || '').toLowerCase() === nombreActual;
       if (p.estado === 'completado') return false;
@@ -1540,7 +1548,6 @@
       return true;
     });
 
-    // Posición real en la cola: #1 el más antiguo pendiente (primero en salir), número más alto el último en llegar
     const posicionPorId = new Map();
     const totalEnCola = colaPedidos.length;
     colaPedidos.forEach((p, idx) => {
