@@ -26,23 +26,23 @@
     html, body {
       margin: 0;
       padding: 0;
-      min-height: 100dvh;
+      height: 100dvh;
       width: 100%;
-      overflow-x: hidden;
-      overflow-y: auto;
+      overflow: hidden;
       background: var(--bg);
       color: var(--text);
       font-size: 16px;
     }
     .app-shell {
-      min-height: 100dvh;
+      height: 100dvh;
       width: 100%;
       max-width: 1680px;
       margin: 0 auto;
-      padding: 6px 10px 20px 10px;
+      padding: 6px 10px 8px 10px;
       display: flex;
       flex-direction: column;
       gap: 6px;
+      overflow: hidden;
     }
 
     header {
@@ -103,7 +103,6 @@
 
     .login-wrap {
       flex: 1;
-      min-height: 60dvh;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -119,15 +118,18 @@
 
     .main-grid {
       flex: 1;
+      min-height: 0;
       width: 100%;
       display: grid;
       grid-template-columns: minmax(0, 0.88fr) minmax(0, 1.42fr);
       gap: 9px;
-      align-items: start;
+      align-items: stretch;
+      overflow: hidden;
     }
     @media (max-width: 780px) and (orientation: portrait) {
       .main-grid {
         grid-template-columns: 1fr;
+        overflow-y: auto;
       }
     }
 
@@ -135,12 +137,14 @@
       background: var(--card);
       border: 1px solid var(--border);
       border-radius: 10px;
-      padding: 9px 11px 12px 11px;
+      padding: 8px 10px;
       display: flex;
       flex-direction: column;
       justify-content: flex-start;
-      gap: 7px;
+      gap: 6px;
       min-width: 0;
+      min-height: 0;
+      overflow: hidden;
     }
 
     .tabs-bar {
@@ -169,23 +173,51 @@
       color: #ffffff;
     }
 
-    /* Mitad y mitad: campos legibles a la izquierda, teclado numérico cuadrado a la derecha */
+    .cola-scroll {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      overflow-anchor: none;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      padding-right: 2px;
+    }
+
+    /* Contenedor autoajustable del panel derecho */
+    .right-fit-viewport {
+      flex: 1;
+      min-height: 0;
+      width: 100%;
+      overflow: hidden;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+    }
+    .right-fit-sizer {
+      width: 100%;
+      flex-shrink: 0;
+    }
+    .right-fit-inner {
+      width: 100%;
+      transform-origin: top center;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    /* Campos a la izquierda | Teclado numérico + Botón Solicitar debajo a la derecha */
     .entrada-y-teclado {
       display: grid;
       grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
       gap: 10px;
       align-items: start;
     }
-    @media (max-width: 640px) {
-      .entrada-y-teclado {
-        grid-template-columns: 1fr;
-      }
-    }
 
     .campos-verticales {
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 5px;
       min-width: 0;
       overflow-anchor: none;
     }
@@ -207,16 +239,16 @@
     input, select {
       width: 100%;
       min-width: 0;
-      height: 38px;
-      padding: 4px 10px;
-      font-size: 15.5px;
+      height: 36px;
+      padding: 3px 9px;
+      font-size: 15px;
       font-weight: 800;
       border-radius: 7px;
       border: 1.5px solid var(--border);
       background: var(--card-2);
       color: #ffffff;
     }
-    input::placeholder { color: #94a3b8; font-weight: 700; font-size: 14px; }
+    input::placeholder { color: #94a3b8; font-weight: 700; font-size: 13.5px; }
     input:focus, select:focus {
       outline: 2px solid #60a5fa;
       border-color: #60a5fa;
@@ -230,12 +262,12 @@
     .st-mp-pt-row {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 5px;
+      gap: 4px;
       width: 100%;
       margin-bottom: 2px;
     }
     .mat-pill {
-      padding: 5px 4px;
+      padding: 4px 4px;
       font-size: 13.5px;
       font-weight: 900;
       line-height: 1.1;
@@ -256,7 +288,7 @@
     .num-locked-box {
       width: 100%;
       min-width: 0;
-      height: 38px;
+      height: 36px;
       display: flex;
       align-items: center;
       border-radius: 7px;
@@ -272,7 +304,7 @@
     }
     .prefijo-fijo {
       padding: 0 0 0 8px;
-      font-size: 15.5px;
+      font-size: 15px;
       font-weight: 900;
       color: #93c5fd;
       user-select: none;
@@ -283,33 +315,27 @@
       background: transparent !important;
       box-shadow: none !important;
       height: 100%;
-      padding: 4px 10px 4px 4px;
+      padding: 3px 9px 3px 4px;
       outline: none !important;
       flex: 1;
       min-width: 0;
     }
 
-    /* Teclado numérico en la otra mitad, con botones cuadrados y buena legibilidad */
+    /* Columna derecha del formulario: teclado numérico sin etiquetas + botón SOLICITAR debajo */
+    .keypad-and-action {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      width: 100%;
+    }
     .fixed-numpad {
       background: var(--card-2);
       border: 1px solid var(--border);
       border-radius: 9px;
-      padding: 8px;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
+      padding: 7px;
       user-select: none;
       touch-action: manipulation;
       width: 100%;
-    }
-    .numpad-header {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-      font-size: 13.5px;
-      font-weight: 800;
-      color: #93c5fd;
-      padding: 0 2px;
     }
     .numpad-grid {
       display: grid;
@@ -318,7 +344,7 @@
     }
     .num-key {
       aspect-ratio: 1 / 1;
-      max-height: 60px;
+      max-height: 56px;
       width: 100%;
       justify-self: center;
       border-radius: 8px;
@@ -352,16 +378,19 @@
 
     .error-msg {
       color: #fca5a5;
-      font-size: 14px;
+      font-size: 13.5px;
       font-weight: 900;
-      min-height: 16px;
-      line-height: 1.25;
+      min-height: 0;
+      line-height: 1.2;
       flex-shrink: 0;
+    }
+    .error-msg:empty {
+      display: none;
     }
     .btn-submit {
       width: 100%;
-      padding: 11px 14px;
-      font-size: 16.5px;
+      padding: 10px 12px;
+      font-size: 16px;
       font-weight: 900;
       border-radius: 8px;
       border: none;
@@ -369,12 +398,11 @@
       color: #ffffff;
       cursor: pointer;
       flex-shrink: 0;
-      margin-top: 2px;
     }
     .btn-cancel-edit {
       width: 100%;
-      padding: 7px;
-      font-size: 14px;
+      padding: 6px;
+      font-size: 13.5px;
       font-weight: 900;
       border-radius: 7px;
       border: 1px solid var(--border);
@@ -384,15 +412,6 @@
       flex-shrink: 0;
     }
 
-    .cola-scroll {
-      max-height: calc(100dvh - 115px);
-      overflow-y: auto;
-      overflow-anchor: none;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      padding-right: 2px;
-    }
     .pedido-card {
       background: var(--card-2);
       border: 1px solid var(--border);
@@ -503,103 +522,107 @@
       <div id="lista-cola-pedidos" class="cola-scroll hidden"></div>
     </section>
 
-    <!-- DERECHA: Mitad y mitad -> Campos a la izquierda, teclado numérico cuadrado a la derecha -->
-    <section class="panel">
-      <div class="entrada-y-teclado">
-        <div class="campos-verticales">
-          <div class="field">
-            <label for="input-linea">Línea</label>
-            <input type="text" id="input-linea" inputmode="none" pattern="[0-9]*">
-          </div>
+    <!-- DERECHA: Autoajustable al tamaño de pantalla y desplegables -->
+    <section class="panel" id="panel-derecho">
+      <div class="right-fit-viewport" id="right-fit-viewport">
+        <div class="right-fit-sizer" id="right-fit-sizer">
+          <div class="right-fit-inner" id="right-fit-inner">
+            <div class="entrada-y-teclado">
+              <div class="campos-verticales">
+                <div class="field">
+                  <label for="input-linea">Línea</label>
+                  <input type="text" id="input-linea" inputmode="none" pattern="[0-9]*">
+                </div>
 
-          <div class="field">
-            <label for="input-opc">OPC</label>
-            <input type="text" id="input-opc" inputmode="none" pattern="\d{4}" maxlength="4" placeholder="4 dígitos">
-          </div>
+                <div class="field">
+                  <label for="input-opc">OPC</label>
+                  <input type="text" id="input-opc" inputmode="none" pattern="\d{4}" maxlength="4" placeholder="4 dígitos">
+                </div>
 
-          <!-- Tipo de material justo debajo de OPC y antes de Material -->
-          <div id="bloque-tipo-material" class="field hidden">
-            <label for="select-clase-mat">Tipo de material</label>
-            <select id="select-clase-mat" onchange="alCambiarClaseMaterial()">
-              <option value=""></option>
-              <option value="lámina">lámina</option>
-              <option value="interior">interior</option>
-              <option value="posicionador">posicionador</option>
-              <option value="sin estuchar">sin estuchar</option>
-              <option value="sin encelofanar">sin encelofanar</option>
-              <option value="estuche">estuche</option>
-              <option value="embalaje">embalaje</option>
-              <option value="embalaje inner">embalaje inner</option>
-              <option value="otro">otro</option>
-            </select>
-          </div>
+                <div id="bloque-tipo-material" class="field hidden">
+                  <label for="select-clase-mat">Tipo de material</label>
+                  <select id="select-clase-mat" onchange="alCambiarClaseMaterial()">
+                    <option value=""></option>
+                    <option value="lámina">lámina</option>
+                    <option value="interior">interior</option>
+                    <option value="posicionador">posicionador</option>
+                    <option value="sin estuchar">sin estuchar</option>
+                    <option value="sin encelofanar">sin encelofanar</option>
+                    <option value="estuche">estuche</option>
+                    <option value="embalaje">embalaje</option>
+                    <option value="embalaje inner">embalaje inner</option>
+                    <option value="otro">otro</option>
+                  </select>
+                </div>
 
-          <div id="campo-otro-mat" class="field hidden">
-            <label for="input-otro-mat">Tipo de material (otro)</label>
-            <input type="text" id="input-otro-mat" enterkeyhint="done">
-          </div>
+                <div id="campo-otro-mat" class="field hidden">
+                  <label for="input-otro-mat">Tipo de material (otro)</label>
+                  <input type="text" id="input-otro-mat" enterkeyhint="done">
+                </div>
 
-          <div class="field">
-            <label>Material</label>
-            <div class="st-mp-pt-row">
-              <button type="button" class="mat-pill" data-mat="ST" onclick="seleccionarPrefijo('ST')">ST</button>
-              <button type="button" class="mat-pill" data-mat="MP" onclick="seleccionarPrefijo('MP')">MP</button>
-              <button type="button" class="mat-pill" data-mat="PT" onclick="seleccionarPrefijo('PT')">PT</button>
+                <div class="field">
+                  <label>Material</label>
+                  <div class="st-mp-pt-row">
+                    <button type="button" class="mat-pill" data-mat="ST" onclick="seleccionarPrefijo('ST')">ST</button>
+                    <button type="button" class="mat-pill" data-mat="MP" onclick="seleccionarPrefijo('MP')">MP</button>
+                    <button type="button" class="mat-pill" data-mat="PT" onclick="seleccionarPrefijo('PT')">PT</button>
+                  </div>
+                  <div id="box-num-ref" class="num-locked-box">
+                    <span id="prefijo-fijo-span" class="prefijo-fijo hidden"></span>
+                    <input type="text" id="input-num-ref" inputmode="none" pattern="\d{5}" maxlength="5" placeholder="5 dígitos">
+                  </div>
+                </div>
+
+                <div class="field">
+                  <label for="input-lote">Lote</label>
+                  <input type="text" id="input-lote" enterkeyhint="done">
+                </div>
+
+                <div class="field">
+                  <label for="select-tiempo">Lo necesito en...</label>
+                  <select id="select-tiempo" onchange="alCambiarTiempo()">
+                    <option value="">poner en cola</option>
+                    <option value="15 min">15 min</option>
+                    <option value="30 min">30 min</option>
+                    <option value="1 hora">1 hora</option>
+                    <option value="2 horas">2 horas</option>
+                    <option value="+ de 2 horas">+ de 2 horas</option>
+                  </select>
+                </div>
+
+                <div id="campo-cantidad" class="field hidden">
+                  <label for="input-cantidad">Cantidad</label>
+                  <input type="text" id="input-cantidad" inputmode="none" pattern="[0-9]*" value="1">
+                </div>
+              </div>
+
+              <div class="keypad-and-action">
+                <div class="fixed-numpad" aria-label="Teclado numérico fijo">
+                  <div class="numpad-grid">
+                    <button type="button" class="num-key" onpointerdown="pulsarNumero(event, '1')">1</button>
+                    <button type="button" class="num-key" onpointerdown="pulsarNumero(event, '2')">2</button>
+                    <button type="button" class="num-key" onpointerdown="pulsarNumero(event, '3')">3</button>
+                    <button type="button" class="num-key" onpointerdown="pulsarNumero(event, '4')">4</button>
+                    <button type="button" class="num-key" onpointerdown="pulsarNumero(event, '5')">5</button>
+                    <button type="button" class="num-key" onpointerdown="pulsarNumero(event, '6')">6</button>
+                    <button type="button" class="num-key" onpointerdown="pulsarNumero(event, '7')">7</button>
+                    <button type="button" class="num-key" onpointerdown="pulsarNumero(event, '8')">8</button>
+                    <button type="button" class="num-key" onpointerdown="pulsarNumero(event, '9')">9</button>
+                    <button type="button" class="num-key key-clear" onpointerdown="limpiarCampoNumerico(event)">C</button>
+                    <button type="button" class="num-key" onpointerdown="pulsarNumero(event, '0')">0</button>
+                    <button type="button" class="num-key key-del" onpointerdown="borrarNumero(event)">⌫</button>
+                  </div>
+                </div>
+
+                <button type="button" class="btn-submit" id="btn-guardar" onclick="guardarPedido()">SOLICITAR</button>
+                <button type="button" id="btn-cancelar-edicion" class="btn-cancel-edit hidden" onclick="cancelarEdicion()">Cancelar edición</button>
+              </div>
             </div>
-            <div id="box-num-ref" class="num-locked-box">
-              <span id="prefijo-fijo-span" class="prefijo-fijo hidden"></span>
-              <input type="text" id="input-num-ref" inputmode="none" pattern="\d{5}" maxlength="5" placeholder="5 dígitos">
-            </div>
-          </div>
 
-          <div class="field">
-            <label for="input-lote">Lote</label>
-            <input type="text" id="input-lote" enterkeyhint="done">
-          </div>
-
-          <div class="field">
-            <label for="select-tiempo">Lo necesito en...</label>
-            <select id="select-tiempo" onchange="alCambiarTiempo()">
-              <option value="">poner en cola</option>
-              <option value="15 min">15 min</option>
-              <option value="30 min">30 min</option>
-              <option value="1 hora">1 hora</option>
-              <option value="2 horas">2 horas</option>
-              <option value="+ de 2 horas">+ de 2 horas</option>
-            </select>
-          </div>
-
-          <div id="campo-cantidad" class="field hidden">
-            <label for="input-cantidad">Cantidad</label>
-            <input type="text" id="input-cantidad" inputmode="none" pattern="[0-9]*" value="1">
-          </div>
-        </div>
-
-        <div class="fixed-numpad" aria-label="Teclado numérico fijo">
-          <div class="numpad-header">
-            <span>Teclado numérico</span>
-            <span id="numpad-campo-label">Escribiendo en: Línea</span>
-          </div>
-          <div class="numpad-grid">
-            <button type="button" class="num-key" onpointerdown="pulsarNumero(event, '1')">1</button>
-            <button type="button" class="num-key" onpointerdown="pulsarNumero(event, '2')">2</button>
-            <button type="button" class="num-key" onpointerdown="pulsarNumero(event, '3')">3</button>
-            <button type="button" class="num-key" onpointerdown="pulsarNumero(event, '4')">4</button>
-            <button type="button" class="num-key" onpointerdown="pulsarNumero(event, '5')">5</button>
-            <button type="button" class="num-key" onpointerdown="pulsarNumero(event, '6')">6</button>
-            <button type="button" class="num-key" onpointerdown="pulsarNumero(event, '7')">7</button>
-            <button type="button" class="num-key" onpointerdown="pulsarNumero(event, '8')">8</button>
-            <button type="button" class="num-key" onpointerdown="pulsarNumero(event, '9')">9</button>
-            <button type="button" class="num-key key-clear" onpointerdown="limpiarCampoNumerico(event)">C</button>
-            <button type="button" class="num-key" onpointerdown="pulsarNumero(event, '0')">0</button>
-            <button type="button" class="num-key key-del" onpointerdown="borrarNumero(event)">⌫</button>
+            <div id="form-error" class="error-msg"></div>
           </div>
         </div>
       </div>
-
-      <div id="form-error" class="error-msg"></div>
-      <button type="button" class="btn-submit" id="btn-guardar" onclick="guardarPedido()">SOLICITAR</button>
-      <button type="button" id="btn-cancelar-edicion" class="btn-cancel-edit hidden" onclick="cancelarEdicion()">Cancelar edición</button>
     </section>
   </div>
 </div>
@@ -639,6 +662,42 @@
     window.addEventListener('load', () => {
       navigator.serviceWorker.register('./sw.js').catch(() => {});
     });
+  }
+
+  function ajustarEscalaPanelDerecho() {
+    const viewport = document.getElementById('right-fit-viewport');
+    const sizer = document.getElementById('right-fit-sizer');
+    const inner = document.getElementById('right-fit-inner');
+    if (!viewport || !sizer || !inner) return;
+
+    inner.style.transform = 'scale(1)';
+    sizer.style.height = 'auto';
+
+    const availH = viewport.clientHeight;
+    const availW = viewport.clientWidth;
+    const natH = inner.scrollHeight;
+    const natW = inner.scrollWidth;
+
+    if (availH <= 0 || availW <= 0 || natH <= 0 || natW <= 0) return;
+
+    const scaleH = availH / natH;
+    const scaleW = availW / natW;
+    const scale = Math.min(1, scaleH, scaleW);
+
+    inner.style.transform = `scale(${scale})`;
+    sizer.style.height = `${Math.ceil(natH * scale)}px`;
+  }
+
+  function programarAjusteEscala() {
+    requestAnimationFrame(() => {
+      ajustarEscalaPanelDerecho();
+    });
+  }
+
+  const roRight = new ResizeObserver(() => programarAjusteEscala());
+  window.addEventListener('resize', programarAjusteEscala);
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', programarAjusteEscala);
   }
 
   function cambiarPestanaPedidos(tab) {
@@ -854,6 +913,13 @@
     document.getElementById('btn-cambiar').classList.remove('hidden');
     cambiarPestanaPedidos(pestanaActiva);
     seleccionarCampoNumerico(inputLinea);
+
+    const panelDer = document.getElementById('panel-derecho');
+    const innerFit = document.getElementById('right-fit-inner');
+    if (panelDer) roRight.observe(panelDer);
+    if (innerFit) roRight.observe(innerFit);
+
+    programarAjusteEscala();
     cargarPedidos();
   }
 
@@ -909,12 +975,6 @@
     });
     if (boxNumRef) {
       boxNumRef.classList.toggle('keypad-box-active', el === inputNumRef);
-    }
-
-    const meta = CAMPOS_NUMERICOS.find(item => item.el === el);
-    const lbl = document.getElementById('numpad-campo-label');
-    if (lbl && meta) {
-      lbl.textContent = `Escribiendo en: ${meta.nombre}`;
     }
   }
 
@@ -1011,6 +1071,7 @@
     } else if (campoNumericoActivo === inputCantidad) {
       seleccionarCampoNumerico(inputOpc);
     }
+    programarAjusteEscala();
   }
 
   function tieneReferenciaCompleta() {
@@ -1047,6 +1108,7 @@
       inputOtroMat.value = '';
       document.getElementById('campo-otro-mat').classList.add('hidden');
     }
+    programarAjusteEscala();
   }
 
   function alCambiarClaseMaterial() {
@@ -1056,6 +1118,7 @@
     if (esOtro) {
       inputOtroMat.focus();
     }
+    programarAjusteEscala();
   }
 
   function obtenerClaseMaterialFinal() {
@@ -1091,6 +1154,7 @@
     document.getElementById('form-error').innerText = '';
     actualizarVisibilidadClaseMaterial();
     seleccionarCampoNumerico(inputOpc);
+    programarAjusteEscala();
   }
 
   function cancelarEdicion() {
@@ -1135,6 +1199,7 @@
       }
     }
     seleccionarCampoNumerico(inputLinea);
+    programarAjusteEscala();
   }
 
   function claveMaterial(item) {
@@ -1171,6 +1236,7 @@
     if (!numLinea) {
       err.innerText = 'Indica la línea.';
       seleccionarCampoNumerico(inputLinea);
+      programarAjusteEscala();
       return;
     }
 
@@ -1178,16 +1244,14 @@
     if (tieneOpc && opc.length !== 4) {
       err.innerText = 'La OPC debe tener 4 dígitos.';
       seleccionarCampoNumerico(inputOpc);
+      programarAjusteEscala();
       return;
     }
 
     actualizarVisibilidadClaseMaterial();
     const claseMaterial = tieneOpc ? obtenerClaseMaterialFinal() : '';
 
-    // Referencia completa si tiene prefijo ST/MP/PT y 5 dígitos exactos
     const refCompleta = Boolean(prefijoSeleccionado && numRef.length === 5);
-
-    // Si hay OPC + Tipo de material rellenos, aunque haya marcado ST/MP/PT sin 5 dígitos, se permite y se omite el prefijo suelto
     const permiteOmitirPrefijoIncompleto = Boolean(tieneOpc && claseMaterial && numRef.length === 0);
 
     if (!tieneOpc && !refCompleta) {
@@ -1198,23 +1262,27 @@
         err.innerText = 'Indica OPC o Material (5 dígitos).';
         seleccionarCampoNumerico(inputOpc);
       }
+      programarAjusteEscala();
       return;
     }
 
     if (numRef.length > 0 && numRef.length !== 5) {
       err.innerText = 'El número de referencia debe tener 5 dígitos.';
       seleccionarCampoNumerico(inputNumRef);
+      programarAjusteEscala();
       return;
     }
 
     if (prefijoSeleccionado && !refCompleta && !permiteOmitirPrefijoIncompleto) {
       err.innerText = 'Escribe los 5 dígitos de referencia o desmarca ST/MP/PT si solo vas por OPC y tipo de material.';
       seleccionarCampoNumerico(inputNumRef);
+      programarAjusteEscala();
       return;
     }
 
     if (tieneOpc && !refCompleta && !claseMaterial) {
       err.innerText = 'Indica el tipo de material o escribe los 5 dígitos de referencia.';
+      programarAjusteEscala();
       return;
     }
 
@@ -1249,15 +1317,18 @@
     if (duplicado) {
       if (!estaOnlineOp || colaOffline.length > 0) {
         err.innerText = 'Ya tienes ese mismo material pedido.';
+        programarAjusteEscala();
         return;
       }
       if (!tiempoSel) {
         err.innerText = 'Este material ya está registrado: elige un tiempo en "Lo necesito en..." para volver a pedirlo.';
+        programarAjusteEscala();
         return;
       }
     }
 
     err.innerText = '';
+    programarAjusteEscala();
     const btn = document.getElementById('btn-guardar');
     btn.disabled = true;
 
@@ -1268,6 +1339,7 @@
       if (error) {
         actualizarEstadoRed(false);
         err.innerText = `Error: ${error.message}`;
+        programarAjusteEscala();
       } else {
         actualizarEstadoRed(true);
         limpiarTrasSolicitar();
@@ -1279,6 +1351,7 @@
         colaOffline.push(payload);
         actualizarEstadoRed(false);
         err.innerText = `Sin conexión (${error.message}).`;
+        programarAjusteEscala();
       } else {
         actualizarEstadoRed(true);
         limpiarTrasSolicitar();
