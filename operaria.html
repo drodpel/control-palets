@@ -39,7 +39,7 @@
       width: 100%;
       max-width: 1680px;
       margin: 0 auto;
-      padding: 6px 10px 14px 10px;
+      padding: 6px 10px 12px 10px;
       display: flex;
       flex-direction: column;
       gap: 6px;
@@ -117,15 +117,16 @@
       border: 1px solid var(--border);
     }
 
+    /* Izquierda: Pedidos (Mis pedidos + Cola) | Derecha: Datos + Teclado numérico al lado */
     .main-grid {
       flex: 1;
       width: 100%;
       display: grid;
-      grid-template-columns: minmax(0, 1.05fr) minmax(0, 1.15fr);
+      grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.35fr);
       gap: 10px;
       align-items: start;
     }
-    @media (max-width: 760px) and (orientation: portrait) {
+    @media (max-width: 820px) and (orientation: portrait) {
       .main-grid {
         grid-template-columns: 1fr;
       }
@@ -139,67 +140,54 @@
       display: flex;
       flex-direction: column;
       justify-content: flex-start;
-      gap: 5px;
+      gap: 6px;
       min-width: 0;
     }
 
-    .form-spread {
+    /* Dos bloques dentro de Pedidos: Mis pedidos y Cola de pedidos */
+    .pedidos-split {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .sub-bloque {
+      background: #141d2e;
+      border: 1px solid #334155;
+      border-radius: 9px;
+      padding: 7px 9px;
       display: flex;
       flex-direction: column;
       gap: 5px;
-      overflow-anchor: none;
     }
-
-    .panel-title {
+    .sub-titulo {
       margin: 0;
-      font-size: 1.02rem;
+      font-size: 0.92rem;
       font-weight: 900;
-      color: #ffffff;
+      color: #93c5fd;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 6px;
-      flex-shrink: 0;
-      flex-wrap: wrap;
-    }
-    .panel-title-left {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      flex-wrap: wrap;
-      min-width: 0;
-    }
-    .btn-filtro {
-      background: #334155;
-      color: #ffffff;
-      border: 1px solid var(--border);
-      border-radius: 7px;
-      padding: 3px 8px;
-      font-size: 0.74rem;
-      font-weight: 900;
-      cursor: pointer;
-      white-space: nowrap;
-    }
-    .btn-filtro.activo-listos {
-      background: var(--success);
-      border-color: #4ade80;
-      color: #ffffff;
-    }
-    .btn-filtro.activo-mios {
-      background: var(--primary);
-      border-color: #93c5fd;
-      color: #ffffff;
     }
 
-    .row-2 {
+    /* Dentro del panel derecho: un campo por fila a la izquierda y teclado numérico al lado */
+    .entrada-y-teclado {
       display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 8px;
-      align-items: end;
+      grid-template-columns: minmax(0, 1.15fr) minmax(190px, 0.85fr);
+      gap: 10px;
+      align-items: start;
     }
-    .row-2 > .field:only-child,
-    .row-2 > .field:first-child:has(+ .hidden) {
-      grid-column: 1 / -1;
+    @media (max-width: 820px) {
+      .entrada-y-teclado {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .campos-verticales {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-width: 0;
+      overflow-anchor: none;
     }
     .field {
       display: flex;
@@ -208,7 +196,7 @@
       min-width: 0;
     }
     label {
-      font-size: clamp(0.9rem, 1.25vw, 1.12rem);
+      font-size: clamp(0.88rem, 1.15vw, 1.05rem);
       font-weight: 900;
       color: var(--label);
       line-height: 1.1;
@@ -219,9 +207,9 @@
     input, select {
       width: 100%;
       min-width: 0;
-      height: clamp(35px, 4.6vh, 46px);
-      padding: 4px 10px;
-      font-size: clamp(1rem, 1.4vw, 1.22rem);
+      height: clamp(34px, 4.4vh, 42px);
+      padding: 3px 9px;
+      font-size: clamp(0.96rem, 1.3vw, 1.15rem);
       font-weight: 800;
       border-radius: 8px;
       border: 1.5px solid var(--border);
@@ -239,21 +227,16 @@
       background: #0f1c33;
     }
 
-    .ref-col {
-      display: flex;
-      flex-direction: column;
-      gap: 3px;
-      min-width: 0;
-    }
     .st-mp-pt-row {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 5px;
       width: 100%;
+      margin-bottom: 3px;
     }
     .mat-pill {
       padding: 4px 4px;
-      font-size: clamp(0.84rem, 1.1vw, 0.98rem);
+      font-size: clamp(0.82rem, 1vw, 0.94rem);
       font-weight: 900;
       line-height: 1.1;
       border-radius: 7px;
@@ -273,7 +256,7 @@
     .num-locked-box {
       width: 100%;
       min-width: 0;
-      height: clamp(35px, 4.6vh, 46px);
+      height: clamp(34px, 4.4vh, 42px);
       display: flex;
       align-items: center;
       border-radius: 8px;
@@ -289,7 +272,7 @@
     }
     .prefijo-fijo {
       padding: 0 0 0 9px;
-      font-size: clamp(1rem, 1.4vw, 1.22rem);
+      font-size: clamp(0.96rem, 1.3vw, 1.15rem);
       font-weight: 900;
       color: #93c5fd;
       user-select: none;
@@ -300,29 +283,29 @@
       background: transparent !important;
       box-shadow: none !important;
       height: 100%;
-      padding: 4px 10px 4px 4px;
+      padding: 3px 9px 3px 4px;
       outline: none !important;
       flex: 1;
       min-width: 0;
     }
 
-    /* Teclado numérico fijo en 3 columnas compactas */
+    /* Teclado numérico fijo al lado (3x4 clásico) */
     .fixed-numpad {
       background: var(--card-2);
       border: 1px solid var(--border);
       border-radius: 9px;
-      padding: 5px 6px;
+      padding: 6px;
       display: flex;
       flex-direction: column;
-      gap: 4px;
+      gap: 5px;
       user-select: none;
       touch-action: manipulation;
     }
     .numpad-header {
       display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 0.74rem;
+      flex-direction: column;
+      gap: 2px;
+      font-size: 0.76rem;
       font-weight: 800;
       color: #93c5fd;
       padding: 0 2px;
@@ -330,15 +313,15 @@
     .numpad-grid {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 4px;
+      gap: 5px;
     }
     .num-key {
-      height: clamp(30px, 4.1vh, 38px);
+      height: clamp(36px, 5vh, 46px);
       border-radius: 7px;
       border: 1.5px solid var(--border);
       background: #1e293b;
       color: #ffffff;
-      font-size: clamp(1.02rem, 1.45vw, 1.25rem);
+      font-size: clamp(1.05rem, 1.5vw, 1.28rem);
       font-weight: 900;
       cursor: pointer;
       display: flex;
@@ -360,7 +343,7 @@
       background: #3f1d24;
       border-color: #7f1d1d;
       color: #fca5a5;
-      font-size: 0.96rem;
+      font-size: 0.98rem;
     }
 
     .error-msg {
@@ -372,8 +355,8 @@
     }
     .btn-submit {
       width: 100%;
-      padding: clamp(8px, 1.2vh, 13px);
-      font-size: clamp(1.02rem, 1.5vw, 1.28rem);
+      padding: clamp(9px, 1.3vh, 14px);
+      font-size: clamp(1rem, 1.45vw, 1.25rem);
       font-weight: 900;
       border-radius: 9px;
       border: none;
@@ -396,7 +379,7 @@
     }
 
     .cola-scroll {
-      max-height: calc(100dvh - 110px);
+      max-height: 34dvh;
       overflow-y: auto;
       overflow-anchor: none;
       display: flex;
@@ -408,8 +391,8 @@
       background: var(--card-2);
       border: 1px solid var(--border);
       border-left: 6px solid var(--warning);
-      border-radius: 9px;
-      padding: 8px 11px;
+      border-radius: 8px;
+      padding: 7px 10px;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -425,29 +408,29 @@
       border-left-color: var(--success);
     }
     .pedido-main {
-      font-size: 1rem;
+      font-size: 0.96rem;
       font-weight: 900;
       color: #ffffff;
       line-height: 1.2;
     }
     .pedido-sub {
-      font-size: 0.85rem;
+      font-size: 0.82rem;
       font-weight: 700;
       color: var(--muted);
       margin-top: 2px;
     }
     .pedido-progreso {
-      font-size: 0.85rem;
+      font-size: 0.82rem;
       font-weight: 900;
       color: #93c5fd;
       margin-top: 2px;
     }
     .tag {
       display: inline-block;
-      font-size: 0.72rem;
+      font-size: 0.7rem;
       font-weight: 900;
       text-transform: uppercase;
-      padding: 2px 7px;
+      padding: 2px 6px;
       border-radius: 5px;
       margin-right: 4px;
       margin-top: 3px;
@@ -465,8 +448,8 @@
     .btn-mini {
       border: none;
       border-radius: 7px;
-      padding: 6px 9px;
-      font-size: 0.84rem;
+      padding: 5px 8px;
+      font-size: 0.82rem;
       font-weight: 900;
       color: #ffffff;
       cursor: pointer;
@@ -498,9 +481,30 @@
   </div>
 
   <div id="vista-trabajo" class="main-grid hidden">
+    <!-- IZQUIERDA: Pedidos (Mis pedidos + Cola de pedidos) -->
     <section class="panel">
-      <div class="form-spread">
-        <div class="row-2">
+      <div class="pedidos-split">
+        <div class="sub-bloque">
+          <h2 class="sub-titulo">
+            <span>Mis pedidos</span>
+            <span id="contador-mios-hoy">Hoy: 0</span>
+          </h2>
+          <div id="lista-mis-pedidos" class="cola-scroll"></div>
+        </div>
+
+        <div class="sub-bloque">
+          <h2 class="sub-titulo">
+            <span>Cola de pedidos</span>
+          </h2>
+          <div id="lista-cola-pedidos" class="cola-scroll"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- DERECHA: Un campo por línea + Teclado numérico al lado -->
+    <section class="panel">
+      <div class="entrada-y-teclado">
+        <div class="campos-verticales">
           <div class="field">
             <label for="input-opc">OPC</label>
             <input type="text" id="input-opc" inputmode="none" pattern="\d{4}" maxlength="4" placeholder="4 últimos dígitos">
@@ -510,10 +514,8 @@
             <label for="input-linea">Línea</label>
             <input type="text" id="input-linea" inputmode="none" pattern="[0-9]*">
           </div>
-        </div>
 
-        <div id="bloque-tipo-material" class="row-2 hidden">
-          <div class="field">
+          <div id="bloque-tipo-material" class="field hidden">
             <label for="select-clase-mat">Material</label>
             <select id="select-clase-mat" onchange="alCambiarClaseMaterial()">
               <option value=""></option>
@@ -530,13 +532,12 @@
           </div>
 
           <div id="campo-otro-mat" class="field hidden">
-            <label for="input-otro-mat">Material</label>
+            <label for="input-otro-mat">Material (otro)</label>
             <input type="text" id="input-otro-mat" enterkeyhint="done">
           </div>
-        </div>
 
-        <div class="row-2">
-          <div class="ref-col">
+          <div class="field">
+            <label>Referencia</label>
             <div class="st-mp-pt-row">
               <button type="button" class="mat-pill" data-mat="ST" onclick="seleccionarPrefijo('ST')">ST</button>
               <button type="button" class="mat-pill" data-mat="MP" onclick="seleccionarPrefijo('MP')">MP</button>
@@ -552,9 +553,7 @@
             <label for="input-lote">Lote</label>
             <input type="text" id="input-lote" enterkeyhint="done">
           </div>
-        </div>
 
-        <div class="row-2">
           <div class="field">
             <label for="select-tiempo">Lo necesito en...</label>
             <select id="select-tiempo" onchange="alCambiarTiempo()">
@@ -573,7 +572,6 @@
           </div>
         </div>
 
-        <!-- Teclado numérico fijo (disposición 3x4 clásica) -->
         <div class="fixed-numpad" aria-label="Teclado numérico fijo">
           <div class="numpad-header">
             <span>Teclado numérico</span>
@@ -600,19 +598,6 @@
       <button type="button" class="btn-submit" id="btn-guardar" onclick="guardarPedido()">SOLICITAR</button>
       <button type="button" id="btn-cancelar-edicion" class="btn-cancel-edit hidden" onclick="cancelarEdicion()">Cancelar edición</button>
     </section>
-
-    <section class="panel">
-      <div class="panel-title">
-        <div class="panel-title-left">
-          <span>Pedidos</span>
-          <button type="button" id="btn-todos-listos" class="btn-filtro" onclick="alternarTodosListos()">Todos listos</button>
-          <button type="button" id="btn-todos-mios" class="btn-filtro" onclick="alternarTodosMios()">Todos míos</button>
-        </div>
-        <span id="contador-mios-hoy" style="font-size:0.94rem; color:#93c5fd;">Hoy: 0</span>
-      </div>
-
-      <div id="lista-general" class="cola-scroll"></div>
-    </section>
   </div>
 </div>
 
@@ -638,8 +623,6 @@
   let idEditando = null;
   let pedidosHoyTodos = [];
   let peticionesHoyNombre = [];
-  let mostrarTodosCompletados = false;
-  let mostrarSoloMios = false;
   let idsListosAvisados = new Set();
   let primeraCargaOp = true;
   let colaOffline = [];
@@ -745,39 +728,11 @@
     return new Date(ms).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   }
 
-  function actualizarVisualBotonesFiltro() {
-    const btnListos = document.getElementById('btn-todos-listos');
-    const btnMios = document.getElementById('btn-todos-mios');
-    if (btnListos) btnListos.classList.toggle('activo-listos', mostrarTodosCompletados);
-    if (btnMios) btnMios.classList.toggle('activo-mios', mostrarSoloMios);
-  }
-
-  function limpiarFiltrosPedidos() {
-    mostrarTodosCompletados = false;
-    mostrarSoloMios = false;
-    actualizarVisualBotonesFiltro();
-  }
-
-  function alternarTodosListos() {
-    mostrarTodosCompletados = !mostrarTodosCompletados;
-    actualizarVisualBotonesFiltro();
-    ultimoRenderOp = '';
-    renderizarTodo();
-  }
-
-  function alternarTodosMios() {
-    mostrarSoloMios = !mostrarSoloMios;
-    actualizarVisualBotonesFiltro();
-    ultimoRenderOp = '';
-    renderizarTodo();
-  }
-
   function hacerScrollArribaPedidosSiProcede() {
     requestAnimationFrame(() => {
-      const lista = document.getElementById('lista-general');
-      if (lista && lista.scrollTop > 0) {
-        lista.scrollTop = 0;
-      }
+      document.querySelectorAll('.cola-scroll').forEach(el => {
+        if (el.scrollTop > 0) el.scrollTop = 0;
+      });
     });
   }
 
@@ -1293,9 +1248,6 @@
       } else {
         actualizarEstadoRed(true);
         limpiarFormulario();
-        if (eraNuevo) {
-          limpiarFiltrosPedidos();
-        }
         await cargarPedidos();
         if (eraNuevo) {
           hacerScrollArribaPedidosSiProcede();
@@ -1400,39 +1352,58 @@
     return partes.length > 0 ? partes.join(' · ') : (p.material_limpio || p.material || 'Material');
   }
 
-  function obtenerPedidosFiltradosOperaria() {
-    const nombreActual = (sesionOp?.nombre || '').toLowerCase();
+  function pintarTarjetaPedido(p, idx, esMio) {
+    const esListo = p.estado === 'completado';
+    const hora = new Date(p.creado_en).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const detalle = formatearDetallePedido(p);
+    const loteTxt = (p.lote && p.lote !== 'FIFO') ? `Lote ${p.lote}` : 'FIFO';
+    const sub = [loteTxt, hora, p.solicitado_por || ''].filter(Boolean).join(' · ');
+    const estadoTxt = esListo ? 'Listo' : 'Pendiente';
+    const horaVence = formatearHoraVencimiento(p);
+    const cant = Math.max(1, Number(p.cantidad) || 1);
+    const puestos = esListo ? cant : Math.max(0, Math.min(cant, Number(p.puestos) || 0));
+    const progresoHtml = cant > 1
+      ? `<div class="pedido-progreso">Cantidad pedida: ${cant} · Puestos ya: ${puestos} / ${cant}</div>`
+      : '';
 
-    return pedidosHoyTodos.filter(p => {
-      const esMio = nombreActual && (p.solicitado_por || '').toLowerCase() === nombreActual;
-      const esListo = p.estado === 'completado';
-      const esPendiente = p.estado !== 'completado';
-
-      if (esPedidoConTiempo(p) && !esMio && !haVencidoTiempoPedido(p)) {
-        return false;
-      }
-
-      if (mostrarSoloMios && mostrarTodosCompletados) {
-        return esMio && esListo;
-      }
-      if (mostrarSoloMios) {
-        return esMio && esPendiente;
-      }
-      if (esPendiente) {
-        return true;
-      }
-      if (esListo && mostrarTodosCompletados) {
-        return true;
-      }
-      return false;
-    });
+    return `
+      <div class="pedido-card ${p.estado} ${esMio ? 'es-mio' : ''}">
+        <div>
+          <div class="pedido-main">#${idx + 1} · ${p.linea} — ${detalle}</div>
+          <div class="pedido-sub">${sub}</div>
+          ${progresoHtml}
+          <div>
+            ${esMio ? '<span class="tag mio">Mío</span>' : ''}
+            <span class="tag ${p.estado}">${estadoTxt}</span>
+            ${p.tiempo_aviso ? `<span class="tag tiempo">${p.tiempo_aviso}${horaVence ? ` (${horaVence})` : ''}</span>` : ''}
+          </div>
+        </div>
+        ${(esMio && !esListo) ? `
+          <div class="acciones-card">
+            <button type="button" class="btn-mini btn-mod" onclick="editarPedidoPorId(${p.id})">Modificar</button>
+            <button type="button" class="btn-mini btn-can" onclick="cancelarPedido(${p.id})">Cancelar</button>
+          </div>
+        ` : ''}
+      </div>
+    `;
   }
 
   function renderizarTodo() {
-    const lista = document.getElementById('lista-general');
+    const listaMios = document.getElementById('lista-mis-pedidos');
+    const listaCola = document.getElementById('lista-cola-pedidos');
     const contadorEl = document.getElementById('contador-mios-hoy');
     const nombreActual = (sesionOp?.nombre || '').toLowerCase();
-    const visibles = obtenerPedidosFiltradosOperaria();
+
+    const misPedidos = pedidosHoyTodos.filter(
+      p => nombreActual && (p.solicitado_por || '').toLowerCase() === nombreActual
+    );
+
+    const colaPedidos = pedidosHoyTodos.filter(p => {
+      const esMio = nombreActual && (p.solicitado_por || '').toLowerCase() === nombreActual;
+      if (p.estado === 'completado') return false;
+      if (esPedidoConTiempo(p) && !esMio && !haVencidoTiempoPedido(p)) return false;
+      return true;
+    });
 
     const contadorTxt = `Hoy: ${peticionesHoyNombre.length}`;
     if (contadorEl.innerText !== contadorTxt) {
@@ -1442,55 +1413,22 @@
     const minutoClave = Math.floor(Date.now() / 60000);
     const firma = JSON.stringify({
       m: minutoClave,
-      c: peticionesHoyNombre.length,
-      f1: mostrarTodosCompletados,
-      f2: mostrarSoloMios,
-      items: visibles.map(p => [p.id, p.estado, p.material, p.lote, p.linea, p.solicitado_por, p.puestos, p.cantidad])
+      mios: misPedidos.map(p => [p.id, p.estado, p.material, p.lote, p.linea, p.puestos, p.cantidad]),
+      cola: colaPedidos.map(p => [p.id, p.estado, p.material, p.lote, p.linea, p.solicitado_por, p.puestos, p.cantidad])
     });
     if (firma === ultimoRenderOp) return;
     ultimoRenderOp = firma;
 
-    if (visibles.length === 0) {
-      lista.innerHTML = '<div style="color:var(--muted); font-weight:800;">Sin pedidos que mostrar.</div>';
-      return;
-    }
+    listaMios.innerHTML = misPedidos.length === 0
+      ? '<div style="color:var(--muted); font-weight:800; font-size:0.88rem;">Sin pedidos tuyos hoy.</div>'
+      : misPedidos.map((p, idx) => pintarTarjetaPedido(p, idx, true)).join('');
 
-    lista.innerHTML = visibles.map((p, idx) => {
-      const esMio = nombreActual && (p.solicitado_por || '').toLowerCase() === nombreActual;
-      const esListo = p.estado === 'completado';
-      const hora = new Date(p.creado_en).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-      const detalle = formatearDetallePedido(p);
-      const loteTxt = (p.lote && p.lote !== 'FIFO') ? `Lote ${p.lote}` : 'FIFO';
-      const sub = [loteTxt, hora, p.solicitado_por || ''].filter(Boolean).join(' · ');
-      const estadoTxt = esListo ? 'Listo' : 'Pendiente';
-      const horaVence = formatearHoraVencimiento(p);
-      const cant = Math.max(1, Number(p.cantidad) || 1);
-      const puestos = esListo ? cant : Math.max(0, Math.min(cant, Number(p.puestos) || 0));
-      const progresoHtml = cant > 1
-        ? `<div class="pedido-progreso">Cantidad pedida: ${cant} · Puestos ya: ${puestos} / ${cant}</div>`
-        : '';
-
-      return `
-        <div class="pedido-card ${p.estado} ${esMio ? 'es-mio' : ''}">
-          <div>
-            <div class="pedido-main">#${idx + 1} · ${p.linea} — ${detalle}</div>
-            <div class="pedido-sub">${sub}</div>
-            ${progresoHtml}
-            <div>
-              ${esMio ? '<span class="tag mio">Mío</span>' : ''}
-              <span class="tag ${p.estado}">${estadoTxt}</span>
-              ${p.tiempo_aviso ? `<span class="tag tiempo">${p.tiempo_aviso}${horaVence ? ` (${horaVence})` : ''}</span>` : ''}
-            </div>
-          </div>
-          ${(esMio && !esListo) ? `
-            <div class="acciones-card">
-              <button type="button" class="btn-mini btn-mod" onclick="editarPedidoPorId(${p.id})">Modificar</button>
-              <button type="button" class="btn-mini btn-can" onclick="cancelarPedido(${p.id})">Cancelar</button>
-            </div>
-          ` : ''}
-        </div>
-      `;
-    }).join('');
+    listaCola.innerHTML = colaPedidos.length === 0
+      ? '<div style="color:var(--muted); font-weight:800; font-size:0.88rem;">Sin pedidos en cola.</div>'
+      : colaPedidos.map((p, idx) => {
+          const esMio = nombreActual && (p.solicitado_por || '').toLowerCase() === nombreActual;
+          return pintarTarjetaPedido(p, idx, esMio);
+        }).join('');
   }
 
   window.addEventListener('online', () => {
@@ -1499,7 +1437,6 @@
   });
   window.addEventListener('offline', () => {
     actualizarEstadoRed(false);
-
   });
 
   db.channel('cambios-pedidos-op-global')
