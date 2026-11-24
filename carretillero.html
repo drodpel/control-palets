@@ -86,7 +86,7 @@
       margin-bottom: 12px;
     }
     label { display: block; margin-bottom: 6px; font-weight: 900; color: var(--muted); font-size: 1.05rem; }
-    input {
+    input, select {
       width: 100%;
       padding: 12px;
       font-size: 1.1rem;
@@ -123,15 +123,25 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
       margin: 14px 0 8px 0;
+    }
+    .seccion-titulo-izq {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
     }
     #lista-carretillero, #lista-completados, #lista-apuntes-opc {
       overflow-anchor: none;
     }
+
+    /* Registro de cola: botón siempre en la esquina inferior derecha */
     .pedido-item {
       display: flex;
       justify-content: space-between;
-      align-items: center;
+      align-items: stretch;
       gap: 12px;
       background: var(--card-2);
       border: 1px solid var(--border);
@@ -139,7 +149,6 @@
       border-radius: 10px;
       margin-bottom: 9px;
       border-left: 6px solid var(--warning);
-      flex-wrap: wrap;
     }
     .pedido-item.con-tiempo-futuro {
       border-left-color: var(--purple);
@@ -148,6 +157,10 @@
     .pedido-item.completado {
       border-left-color: var(--success);
       opacity: 0.92;
+    }
+    .pedido-info {
+      min-width: 0;
+      flex: 1;
     }
     .pedido-titulo {
       font-size: 1.2rem;
@@ -183,9 +196,12 @@
     }
     .acciones-carr {
       display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      align-items: flex-end;
+      align-self: flex-end;
       gap: 8px;
-      flex-wrap: wrap;
-      align-items: center;
+      flex-shrink: 0;
     }
     .btn-coger-uno {
       padding: 12px 16px;
@@ -196,6 +212,7 @@
       color: #ffffff;
       background: var(--primary);
       font-size: 1rem;
+      white-space: nowrap;
     }
     .btn-hecho {
       padding: 12px 18px;
@@ -206,6 +223,7 @@
       color: #ffffff;
       background: var(--success);
       font-size: 1rem;
+      white-space: nowrap;
     }
     .btn-desmarcar {
       padding: 10px 14px;
@@ -216,11 +234,25 @@
       color: #ffffff;
       background: #334155;
       font-size: 0.92rem;
+      white-space: nowrap;
     }
+    .btn-opc-accion {
+      padding: 7px 12px;
+      border: 1px solid #93c5fd;
+      border-radius: 8px;
+      font-weight: 900;
+      cursor: pointer;
+      color: #ffffff;
+      background: var(--primary);
+      font-size: 0.88rem;
+      white-space: nowrap;
+    }
+
+    /* Tarjetas Apuntes OPC */
     .opc-apunte-item {
       display: flex;
       justify-content: space-between;
-      align-items: center;
+      align-items: stretch;
       gap: 12px;
       background: var(--card-2);
       border: 1px solid var(--border);
@@ -228,11 +260,17 @@
       padding: 12px 14px;
       border-radius: 10px;
       margin-bottom: 8px;
-      flex-wrap: wrap;
     }
     .opc-apunte-item.hecho-apunte {
       border-left-color: var(--success);
       opacity: 0.78;
+    }
+    .opc-titulo-linea {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin: 3px 0;
     }
     .opc-mat-list {
       margin: 6px 0 4px 0;
@@ -243,6 +281,186 @@
     }
     .opc-mat-list li {
       margin-bottom: 3px;
+    }
+
+    /* Desplegable estilo operaria para añadir material puesto */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(2, 6, 23, 0.84);
+      z-index: 999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px;
+      overflow-y: auto;
+    }
+    .modal-operaria-panel {
+      width: 100%;
+      max-width: 760px;
+      background: var(--card);
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 6px;
+    }
+    .entrada-y-teclado {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 10px;
+      align-items: start;
+    }
+    @media (max-width: 640px) {
+      .entrada-y-teclado {
+        grid-template-columns: 1fr;
+      }
+    }
+    .campos-verticales {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-width: 0;
+    }
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      min-width: 0;
+    }
+    .field label {
+      font-size: 13.5px;
+      font-weight: 900;
+      color: #ffffff;
+      margin-bottom: 0;
+    }
+    .modal-operaria-panel input,
+    .modal-operaria-panel select {
+      height: 38px;
+      padding: 4px 9px;
+      font-size: 15px;
+      border-radius: 7px;
+      margin-bottom: 0;
+    }
+    .modal-operaria-panel input.keypad-target-active {
+      border-color: #60a5fa;
+      box-shadow: 0 0 0 2px #60a5fa55;
+      background: #0f1c33;
+    }
+    .st-mp-pt-row {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 4px;
+      margin-bottom: 2px;
+    }
+    .mat-pill {
+      padding: 5px 2px;
+      font-size: 13px;
+      font-weight: 900;
+      border-radius: 6px;
+      border: 1.5px solid var(--border);
+      background: var(--card-2);
+      color: #ffffff;
+      cursor: pointer;
+      text-align: center;
+    }
+    .mat-pill.active {
+      background: var(--primary);
+      border-color: #93c5fd;
+    }
+    .num-locked-box {
+      width: 100%;
+      height: 38px;
+      display: flex;
+      align-items: center;
+      border-radius: 7px;
+      border: 1.5px solid var(--border);
+      background: var(--card-2);
+      overflow: hidden;
+    }
+    .num-locked-box.keypad-box-active,
+    .num-locked-box:focus-within {
+      border-color: #60a5fa;
+      box-shadow: 0 0 0 2px #60a5fa55;
+      background: #0f1c33;
+    }
+    .prefijo-fijo {
+      padding: 0 0 0 8px;
+      font-size: 15px;
+      font-weight: 900;
+      color: #93c5fd;
+      user-select: none;
+      flex-shrink: 0;
+    }
+    .num-locked-box input {
+      border: none !important;
+      background: transparent !important;
+      box-shadow: none !important;
+      height: 100%;
+      padding: 3px 8px 3px 4px;
+      outline: none !important;
+      flex: 1;
+      min-width: 0;
+    }
+    .keypad-and-action {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      width: 100%;
+    }
+    .fixed-numpad {
+      background: var(--card-2);
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      padding: 6px;
+      user-select: none;
+      touch-action: manipulation;
+    }
+    .numpad-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 5px;
+    }
+    .num-key {
+      aspect-ratio: 1 / 1;
+      max-height: 52px;
+      width: 100%;
+      justify-self: center;
+      border-radius: 8px;
+      border: 1.5px solid var(--border);
+      background: #1e293b;
+      color: #ffffff;
+      font-size: 18px;
+      font-weight: 900;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      touch-action: manipulation;
+    }
+    .num-key:active {
+      background: var(--primary);
+      border-color: #93c5fd;
+    }
+    .num-key.key-del {
+      background: #334155;
+      color: #fbbf24;
+    }
+    .num-key.key-clear {
+      background: #3f1d24;
+      border-color: #7f1d1d;
+      color: #fca5a5;
+      font-size: 16px;
     }
     .hidden { display: none !important; }
   </style>
@@ -286,11 +504,105 @@
 
     <div id="pestana-opc" class="hidden">
       <div class="seccion-titulo">
-        <h3 style="margin:0;">OPC recopiladas hoy</h3>
+        <div class="seccion-titulo-izq">
+          <h3 style="margin:0;">OPC recopiladas hoy</h3>
+          <button type="button" class="btn-opc-accion" onclick="anadirOpcManualPrompt()">+ Añadir OPC</button>
+        </div>
         <span id="contador-apuntes-opc" style="font-weight:900; color:#93c5fd;">0 OPC</span>
       </div>
       <div id="lista-apuntes-opc"></div>
     </div>
+  </div>
+</div>
+
+<!-- Vista desplegable tipo operaria para añadir material puesto a una OPC -->
+<div id="modal-material-puesto" class="modal-backdrop hidden" onclick="cerrarModalSiFondo(event)">
+  <div class="modal-operaria-panel">
+    <div class="modal-header">
+      <strong id="modal-opc-titulo" style="font-size:1.05rem;">Añadir material puesto · OPC</strong>
+      <button type="button" class="btn-top" onclick="cerrarModalMaterialPuesto()">Cerrar</button>
+    </div>
+
+    <div class="entrada-y-teclado">
+      <div class="campos-verticales">
+        <div class="field">
+          <label for="mp-linea">Línea (opcional)</label>
+          <input type="text" id="mp-linea" inputmode="none" pattern="[0-9]*">
+        </div>
+
+        <div class="field">
+          <label for="mp-opc">OPC</label>
+          <input type="text" id="mp-opc" readonly>
+        </div>
+
+        <div id="mp-bloque-tipo-material" class="field">
+          <label for="mp-select-clase-mat">Tipo de material</label>
+          <select id="mp-select-clase-mat" onchange="mpAlCambiarClaseMaterial()">
+            <option value=""></option>
+            <option value="lámina">lámina</option>
+            <option value="interior">interior</option>
+            <option value="posicionador">posicionador</option>
+            <option value="sin estuchar">sin estuchar</option>
+            <option value="sin encelofanar">sin encelofanar</option>
+            <option value="estuche">estuche</option>
+            <option value="embalaje">embalaje</option>
+            <option value="embalaje inner">embalaje inner</option>
+            <option value="otro">otro</option>
+          </select>
+        </div>
+
+        <div id="mp-campo-otro-mat" class="field hidden">
+          <label for="mp-otro-mat">Tipo de material (otro)</label>
+          <input type="text" id="mp-otro-mat" enterkeyhint="done">
+        </div>
+
+        <div class="field">
+          <label>Material</label>
+          <div class="st-mp-pt-row">
+            <button type="button" class="mat-pill" data-mat="ST" onclick="mpSeleccionarPrefijo('ST')">ST</button>
+            <button type="button" class="mat-pill" data-mat="MP" onclick="mpSeleccionarPrefijo('MP')">MP</button>
+            <button type="button" class="mat-pill" data-mat="PT" onclick="mpSeleccionarPrefijo('PT')">PT</button>
+          </div>
+          <div id="mp-box-num-ref" class="num-locked-box">
+            <span id="mp-prefijo-fijo-span" class="prefijo-fijo hidden"></span>
+            <input type="text" id="mp-num-ref" inputmode="none" pattern="\d{5}" maxlength="5">
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="mp-lote">Lote</label>
+          <input type="text" id="mp-lote" enterkeyhint="done">
+        </div>
+
+        <div class="field">
+          <label for="mp-cantidad">Cantidad puesta</label>
+          <input type="text" id="mp-cantidad" inputmode="none" pattern="[0-9]*" value="1">
+        </div>
+      </div>
+
+      <div class="keypad-and-action">
+        <div class="fixed-numpad" aria-label="Teclado numérico fijo">
+          <div class="numpad-grid">
+            <button type="button" class="num-key" onpointerdown="mpPulsarNumero(event, '1')">1</button>
+            <button type="button" class="num-key" onpointerdown="mpPulsarNumero(event, '2')">2</button>
+            <button type="button" class="num-key" onpointerdown="mpPulsarNumero(event, '3')">3</button>
+            <button type="button" class="num-key" onpointerdown="mpPulsarNumero(event, '4')">4</button>
+            <button type="button" class="num-key" onpointerdown="mpPulsarNumero(event, '5')">5</button>
+            <button type="button" class="num-key" onpointerdown="mpPulsarNumero(event, '6')">6</button>
+            <button type="button" class="num-key" onpointerdown="mpPulsarNumero(event, '7')">7</button>
+            <button type="button" class="num-key" onpointerdown="mpPulsarNumero(event, '8')">8</button>
+            <button type="button" class="num-key" onpointerdown="mpPulsarNumero(event, '9')">9</button>
+            <button type="button" class="num-key key-clear" onpointerdown="mpLimpiarCampoNumerico(event)">C</button>
+            <button type="button" class="num-key" onpointerdown="mpPulsarNumero(event, '0')">0</button>
+            <button type="button" class="num-key key-del" onpointerdown="mpBorrarNumero(event)">⌫</button>
+          </div>
+        </div>
+
+        <button type="button" class="action-btn" style="background:var(--success);" onclick="guardarMaterialPuestoEnOpc()">AÑADIR MATERIAL PUESTO</button>
+      </div>
+    </div>
+
+    <div id="mp-form-error" class="error-msg" style="margin:0;"></div>
   </div>
 </div>
 
@@ -308,14 +620,79 @@
   let audioCtx = null;
   let pestanaActual = 'cola';
   let opcsCompletadas = new Set(JSON.parse(localStorage.getItem('opcsCompletadasCarr') || '[]'));
+  let apuntesOpcManuales = cargarApuntesOpcManuales();
   let cargandoCarr = false;
   let ultimoRenderCarr = '';
   let ultimoRenderOpc = '';
+
+  // Estado del desplegable de añadir material puesto
+  let mpPrefijoSeleccionado = '';
+  let mpCampoActivo = null;
+  let mpReemplazarSiguiente = false;
+  let scrollPrevioOpc = 0;
 
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
       navigator.serviceWorker.register('./sw.js').catch(() => {});
     });
+  }
+
+  function hoyFechaClave() {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  }
+
+  function cargarApuntesOpcManuales() {
+    try {
+      const raw = JSON.parse(localStorage.getItem('apuntesOpcManualesCarr') || 'null');
+      if (!raw || raw.fecha !== hoyFechaClave()) {
+        return { fecha: hoyFechaClave(), opcs: {} };
+      }
+      return { fecha: raw.fecha, opcs: raw.opcs || {} };
+    } catch (_) {
+      return { fecha: hoyFechaClave(), opcs: {} };
+    }
+  }
+
+  function guardarApuntesOpcManuales() {
+    apuntesOpcManuales.fecha = hoyFechaClave();
+    try {
+      localStorage.setItem('apuntesOpcManualesCarr', JSON.stringify(apuntesOpcManuales));
+    } catch (_) {}
+  }
+
+  function asegurarOpcManual(codigoOpc, lineaTexto = '') {
+    if (apuntesOpcManuales.fecha !== hoyFechaClave()) {
+      apuntesOpcManuales = { fecha: hoyFechaClave(), opcs: {} };
+    }
+    if (!apuntesOpcManuales.opcs[codigoOpc]) {
+      apuntesOpcManuales.opcs[codigoOpc] = {
+        opc: codigoOpc,
+        ultimaFechaMs: Date.now(),
+        lineas: lineaTexto ? [lineaTexto] : [],
+        solicitantes: [sesionCarr?.nombre || 'Carretillero'],
+        materiales: []
+      };
+    } else {
+      apuntesOpcManuales.opcs[codigoOpc].ultimaFechaMs = Date.now();
+      if (lineaTexto && !apuntesOpcManuales.opcs[codigoOpc].lineas.includes(lineaTexto)) {
+        apuntesOpcManuales.opcs[codigoOpc].lineas.push(lineaTexto);
+      }
+    }
+  }
+
+  function anadirOpcManualPrompt() {
+    const entrada = prompt('Escribe el número de OPC (4 dígitos):');
+    if (entrada === null) return;
+    const codigo = String(entrada).replace(/\D/g, '').trim();
+    if (codigo.length !== 4) {
+      alert('La OPC debe tener 4 dígitos.');
+      return;
+    }
+    asegurarOpcManual(codigo);
+    guardarApuntesOpcManuales();
+    ultimoRenderOpc = '';
+    renderizarApuntesOpc();
   }
 
   function inicioHoyISO() {
@@ -743,6 +1120,241 @@
     }
   }
 
+  /* =========================================================
+     LÓGICA DEL DESPLEGABLE TIPO OPERARIA PARA MATERIAL PUESTO
+     ========================================================= */
+  const mpInputLinea = document.getElementById('mp-linea');
+  const mpInputOpc = document.getElementById('mp-opc');
+  const mpInputNumRef = document.getElementById('mp-num-ref');
+  const mpInputOtroMat = document.getElementById('mp-otro-mat');
+  const mpInputLote = document.getElementById('mp-lote');
+  const mpInputCantidad = document.getElementById('mp-cantidad');
+  const mpPrefijoSpan = document.getElementById('mp-prefijo-fijo-span');
+  const mpBoxNumRef = document.getElementById('mp-box-num-ref');
+
+  const MP_CAMPOS_NUMERICOS = [
+    { el: mpInputLinea, maxLen: 4, soloDigitos: true },
+    { el: mpInputNumRef, maxLen: 5, soloDigitos: true },
+    { el: mpInputLote, maxLen: 24, soloDigitos: false },
+    { el: mpInputCantidad, maxLen: 3, soloDigitos: true }
+  ];
+
+  function mpSeleccionarCampo(el, reemplazar = false) {
+    if (!el) return;
+    mpCampoActivo = el;
+    mpReemplazarSiguiente = Boolean(reemplazar);
+    MP_CAMPOS_NUMERICOS.forEach(item => {
+      item.el.classList.toggle('keypad-target-active', item.el === el);
+    });
+    if (mpBoxNumRef) {
+      mpBoxNumRef.classList.toggle('keypad-box-active', el === mpInputNumRef);
+    }
+  }
+
+  MP_CAMPOS_NUMERICOS.forEach(item => {
+    item.el.addEventListener('focus', () => {
+      mpSeleccionarCampo(item.el, item.el === mpInputCantidad);
+    });
+    item.el.addEventListener('pointerdown', () => {
+      mpSeleccionarCampo(item.el, item.el === mpInputCantidad);
+    });
+    item.el.addEventListener('input', (e) => {
+      if (item.soloDigitos) {
+        e.target.value = e.target.value.replace(/\D/g, '').slice(0, item.maxLen);
+      } else {
+        e.target.value = e.target.value.slice(0, item.maxLen);
+      }
+      if (item.el === mpInputNumRef) {
+        mpActualizarVisibilidadClaseMaterial();
+      }
+    });
+  });
+
+  function mpPulsarNumero(ev, digito) {
+    if (ev) ev.preventDefault();
+    const target = mpCampoActivo || mpInputNumRef;
+    mpSeleccionarCampo(target, false);
+    const meta = MP_CAMPOS_NUMERICOS.find(i => i.el === target);
+    const maxLen = meta ? meta.maxLen : 5;
+    const soloDigitos = meta ? meta.soloDigitos : true;
+
+    let actual = soloDigitos ? target.value.replace(/\D/g, '') : target.value;
+    if (mpReemplazarSiguiente) {
+      actual = '';
+      mpReemplazarSiguiente = false;
+    }
+    if (actual.length >= maxLen) return;
+
+    target.value = actual + digito;
+    target.focus();
+    if (target === mpInputNumRef) mpActualizarVisibilidadClaseMaterial();
+  }
+
+  function mpBorrarNumero(ev) {
+    if (ev) ev.preventDefault();
+    const target = mpCampoActivo || mpInputNumRef;
+    mpSeleccionarCampo(target, false);
+    const meta = MP_CAMPOS_NUMERICOS.find(i => i.el === target);
+    const soloDigitos = meta ? meta.soloDigitos : true;
+    const actual = soloDigitos ? target.value.replace(/\D/g, '') : target.value;
+    target.value = actual.slice(0, -1);
+    target.focus();
+    if (target === mpInputNumRef) mpActualizarVisibilidadClaseMaterial();
+  }
+
+  function mpLimpiarCampoNumerico(ev) {
+    if (ev) ev.preventDefault();
+    const target = mpCampoActivo || mpInputNumRef;
+    mpSeleccionarCampo(target, false);
+    target.value = (target === mpInputCantidad) ? '1' : '';
+    if (target === mpInputCantidad) mpReemplazarSiguiente = true;
+    target.focus();
+    if (target === mpInputNumRef) mpActualizarVisibilidadClaseMaterial();
+  }
+
+  function mpTieneReferenciaCompleta() {
+    return Boolean(mpPrefijoSeleccionado && mpInputNumRef.value.trim().length === 5);
+  }
+
+  function mpActualizarPrefijoVisual() {
+    if (mpPrefijoSeleccionado) {
+      mpPrefijoSpan.textContent = `${mpPrefijoSeleccionado}-`;
+      mpPrefijoSpan.classList.remove('hidden');
+    } else {
+      mpPrefijoSpan.textContent = '';
+      mpPrefijoSpan.classList.add('hidden');
+    }
+  }
+
+  function mpSeleccionarPrefijo(pref) {
+    mpPrefijoSeleccionado = (mpPrefijoSeleccionado === pref) ? '' : pref;
+    document.querySelectorAll('#modal-material-puesto .mat-pill').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.mat === mpPrefijoSeleccionado);
+    });
+    mpActualizarPrefijoVisual();
+    mpActualizarVisibilidadClaseMaterial();
+    mpSeleccionarCampo(mpInputNumRef);
+    mpInputNumRef.focus();
+  }
+
+  function mpActualizarVisibilidadClaseMaterial() {
+    const pedirMaterial = !mpTieneReferenciaCompleta();
+    document.getElementById('mp-bloque-tipo-material').classList.toggle('hidden', !pedirMaterial);
+    if (!pedirMaterial) {
+      document.getElementById('mp-select-clase-mat').value = '';
+      mpInputOtroMat.value = '';
+      document.getElementById('mp-campo-otro-mat').classList.add('hidden');
+    }
+  }
+
+  function mpAlCambiarClaseMaterial() {
+    const sel = document.getElementById('mp-select-clase-mat').value;
+    const esOtro = sel === 'otro';
+    document.getElementById('mp-campo-otro-mat').classList.toggle('hidden', !esOtro);
+    if (esOtro) mpInputOtroMat.focus();
+  }
+
+  function mpObtenerClaseMaterialFinal() {
+    const sel = document.getElementById('mp-select-clase-mat').value;
+    if (sel === 'otro') return mpInputOtroMat.value.trim();
+    return sel.trim();
+  }
+
+  function abrirModalMaterialPuesto(codigoOpc) {
+    scrollPrevioOpc = window.scrollY || document.documentElement.scrollTop || 0;
+    document.getElementById('modal-opc-titulo').innerText = `Añadir material puesto · OPC ${codigoOpc}`;
+    mpInputOpc.value = codigoOpc;
+    mpInputLinea.value = '';
+    mpInputNumRef.value = '';
+    mpInputLote.value = '';
+    mpInputOtroMat.value = '';
+    mpInputCantidad.value = '1';
+    document.getElementById('mp-select-clase-mat').value = '';
+    document.getElementById('mp-campo-otro-mat').classList.add('hidden');
+    document.getElementById('mp-form-error').innerText = '';
+
+    mpPrefijoSeleccionado = '';
+    mpActualizarPrefijoVisual();
+    document.querySelectorAll('#modal-material-puesto .mat-pill').forEach(b => b.classList.remove('active'));
+    mpActualizarVisibilidadClaseMaterial();
+
+    document.getElementById('modal-material-puesto').classList.remove('hidden');
+    mpSeleccionarCampo(mpInputNumRef);
+  }
+
+  function cerrarModalMaterialPuesto() {
+    document.getElementById('modal-material-puesto').classList.add('hidden');
+    requestAnimationFrame(() => {
+      window.scrollTo(0, scrollPrevioOpc);
+    });
+  }
+
+  function cerrarModalSiFondo(ev) {
+    if (ev.target && ev.target.id === 'modal-material-puesto') {
+      cerrarModalMaterialPuesto();
+    }
+  }
+
+  function guardarMaterialPuestoEnOpc() {
+    const err = document.getElementById('mp-form-error');
+    const codigoOpc = mpInputOpc.value.trim();
+    const numLinea = mpInputLinea.value.trim();
+    const numRef = mpInputNumRef.value.trim();
+    const loteInput = mpInputLote.value.trim();
+    const cantidadPuesta = Math.max(1, parseInt(mpInputCantidad.value, 10) || 1);
+
+    const claseMaterial = mpObtenerClaseMaterialFinal();
+    const refCompleta = Boolean(mpPrefijoSeleccionado && numRef.length === 5);
+    const permiteSoloClase = Boolean(claseMaterial && numRef.length === 0 && !mpPrefijoSeleccionado);
+
+    if (numRef.length > 0 && numRef.length !== 5) {
+      err.innerText = 'El número de referencia debe tener 5 dígitos.';
+      mpSeleccionarCampo(mpInputNumRef);
+      return;
+    }
+
+    if (mpPrefijoSeleccionado && !refCompleta) {
+      err.innerText = 'Escribe los 5 dígitos de referencia o desmarca ST/MP/PT.';
+      mpSeleccionarCampo(mpInputNumRef);
+      return;
+    }
+
+    if (!refCompleta && !permiteSoloClase) {
+      err.innerText = 'Indica Material (ST/MP/PT + 5 dígitos) o Tipo de material.';
+      return;
+    }
+
+    const refFmt = refCompleta ? `${mpPrefijoSeleccionado}-${numRef}` : '';
+    const nombreMat = [refFmt, claseMaterial].filter(Boolean).join(' · ') || 'Material';
+    const loteTxt = loteInput ? `Lote ${loteInput}` : 'FIFO';
+    const lineaTexto = numLinea ? `Línea ${numLinea}` : '';
+
+    asegurarOpcManual(codigoOpc, lineaTexto);
+    const listaMat = apuntesOpcManuales.opcs[codigoOpc].materiales;
+    const claveMat = `${nombreMat.toLowerCase()}|${loteTxt.toLowerCase()}`;
+    const existente = listaMat.find(m => `${m.nombre.toLowerCase()}|${m.lote.toLowerCase()}` === claveMat);
+
+    if (existente) {
+      existente.cantidadTotal += cantidadPuesta;
+      existente.puestosTotal += cantidadPuesta;
+    } else {
+      listaMat.push({
+        nombre: nombreMat,
+        lote: loteTxt,
+        cantidadTotal: cantidadPuesta,
+        puestosTotal: cantidadPuesta
+      });
+    }
+
+    guardarApuntesOpcManuales();
+    ultimoRenderOpc = '';
+    renderizarApuntesOpc();
+    cerrarModalMaterialPuesto();
+  }
+
+  /* =========================================================
+     AGRUPACIÓN Y RENDER DE APUNTES OPC
+     ========================================================= */
   function obtenerGruposOpcRelevantes() {
     const mapaOpc = new Map();
 
@@ -787,6 +1399,46 @@
       }
     });
 
+    if (apuntesOpcManuales.fecha === hoyFechaClave()) {
+      Object.values(apuntesOpcManuales.opcs || {}).forEach(man => {
+        const codigoOpc = String(man.opc || '').trim();
+        if (!codigoOpc) return;
+
+        if (!mapaOpc.has(codigoOpc)) {
+          mapaOpc.set(codigoOpc, {
+            opc: codigoOpc,
+            ultimaFechaMs: man.ultimaFechaMs || Date.now(),
+            lineas: new Set(man.lineas || []),
+            solicitantes: new Set(man.solicitantes || []),
+            materialesMap: new Map()
+          });
+        }
+
+        const grupo = mapaOpc.get(codigoOpc);
+        if ((man.ultimaFechaMs || 0) > grupo.ultimaFechaMs) {
+          grupo.ultimaFechaMs = man.ultimaFechaMs;
+        }
+        (man.lineas || []).forEach(l => grupo.lineas.add(l));
+        (man.solicitantes || []).forEach(s => grupo.solicitantes.add(s));
+
+        (man.materiales || []).forEach(m => {
+          const claveMat = `${(m.nombre || '').toLowerCase()}|${(m.lote || 'FIFO').toLowerCase()}`;
+          if (!grupo.materialesMap.has(claveMat)) {
+            grupo.materialesMap.set(claveMat, {
+              nombre: m.nombre,
+              lote: m.lote || 'FIFO',
+              cantidadTotal: Number(m.cantidadTotal) || 1,
+              puestosTotal: Number(m.puestosTotal) || 0
+            });
+          } else {
+            const matEntry = grupo.materialesMap.get(claveMat);
+            matEntry.cantidadTotal += Number(m.cantidadTotal) || 1;
+            matEntry.puestosTotal += Number(m.puestosTotal) || 0;
+          }
+        });
+      });
+    }
+
     return [...mapaOpc.values()]
       .map(g => ({
         opc: g.opc,
@@ -823,24 +1475,31 @@
       const hecha = opcsCompletadas.has(g.opc);
       const hora = new Date(g.ultimaFechaMs).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
       const metaSup = [hora, g.lineas.join(', '), g.solicitantes.join(', ')].filter(Boolean).join(' · ');
-      const itemsHtml = g.materiales.map(m => {
-        const detalleCant = m.cantidadTotal > 1
-          ? ` — <strong>Cantidad pedida: ${m.cantidadTotal}</strong> (Puestos: ${m.puestosTotal}/${m.cantidadTotal})`
-          : '';
-        return `<li>${m.nombre}${detalleCant} (${m.lote})</li>`;
-      }).join('');
+      const itemsHtml = g.materiales.length === 0
+        ? '<li style="color:var(--muted);">Sin materiales aún</li>'
+        : g.materiales.map(m => {
+            const detalleCant = (m.cantidadTotal > 1 || m.puestosTotal > 0)
+              ? ` — <strong>Cantidad: ${m.cantidadTotal}</strong> (Puestos: ${m.puestosTotal}/${m.cantidadTotal})`
+              : '';
+            return `<li>${m.nombre}${detalleCant} (${m.lote})</li>`;
+          }).join('');
 
       return `
         <div class="opc-apunte-item ${hecha ? 'hecho-apunte' : ''}">
-          <div>
+          <div class="pedido-info">
             <div style="font-size:0.88rem; color:var(--muted); font-weight:800;">${metaSup}</div>
-            <div class="pedido-titulo">OPC ${g.opc}</div>
+            <div class="opc-titulo-linea">
+              <div class="pedido-titulo" style="margin:0;">OPC ${g.opc}</div>
+              <button type="button" class="btn-opc-accion" onclick="abrirModalMaterialPuesto('${g.opc}')">+ Añadir material puesto</button>
+            </div>
             <ul class="opc-mat-list">${itemsHtml}</ul>
             <span class="badge ${hecha ? 'listo' : ''}">${hecha ? 'OPC completada' : 'OPC pendiente'}</span>
           </div>
-          <button type="button" class="${hecha ? 'btn-desmarcar' : 'btn-hecho'}" onclick="alternarOpcCompletada('${g.opc}')">
-            ${hecha ? 'Desmarcar OPC' : 'Marcar OPC completada ✓'}
-          </button>
+          <div class="acciones-carr">
+            <button type="button" class="${hecha ? 'btn-desmarcar' : 'btn-hecho'}" onclick="alternarOpcCompletada('${g.opc}')">
+              ${hecha ? 'Desmarcar OPC' : 'Marcar OPC completada ✓'}
+            </button>
+          </div>
         </div>
       `;
     }).join('');
@@ -887,12 +1546,12 @@
           : '';
 
         const accionHtml = cant > 1
-          ? `<button class="btn-coger-uno" onclick="cogerUnaUnidad(${p.id})">Coger 1 (${quedan} rest.)</button>`
-          : `<button class="btn-hecho" onclick="marcarListo(${p.id})">Listo ✓</button>`;
+          ? `<button type="button" class="btn-coger-uno" onclick="cogerUnaUnidad(${p.id})">Coger 1 (${quedan} rest.)</button>`
+          : `<button type="button" class="btn-hecho" onclick="marcarListo(${p.id})">Listo ✓</button>`;
 
         return `
           <div class="pedido-item ${(conTiempo && !vencido) ? 'con-tiempo-futuro' : ''}">
-            <div>
+            <div class="pedido-info">
               <div style="font-size:0.88rem; color:var(--muted); font-weight:800;">#${index + 1} · ${hora} · ${p.linea}</div>
               <div class="pedido-titulo">${titulo}</div>
               ${cantHtml}
@@ -922,13 +1581,15 @@
 
         return `
           <div class="pedido-item completado">
-            <div>
+            <div class="pedido-info">
               <div style="font-size:0.88rem; color:var(--muted); font-weight:800;">${hora} · ${p.linea}</div>
               <div class="pedido-titulo">${titulo}</div>
               ${subPartes.length > 0 ? `<div style="font-size:0.92rem; color:#cbd5e1; font-weight:700;">${subPartes.join(' · ')}</div>` : ''}
               <span class="badge listo">Listo</span>
             </div>
-            <button class="btn-desmarcar" onclick="desmarcarPedido(${p.id})">Desmarcar</button>
+            <div class="acciones-carr">
+              <button type="button" class="btn-desmarcar" onclick="desmarcarPedido(${p.id})">Desmarcar</button>
+            </div>
           </div>
         `;
       }).join('');
