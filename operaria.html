@@ -32,17 +32,17 @@
       overflow-y: auto;
       background: var(--bg);
       color: var(--text);
-      font-size: 16px;
+      font-size: 14px;
     }
     .app-shell {
       min-height: 100dvh;
       width: 100%;
       max-width: 1680px;
       margin: 0 auto;
-      padding: 6px 10px 12px 10px;
+      padding: 5px 9px 16px 9px;
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 5px;
     }
 
     header {
@@ -63,9 +63,9 @@
       overflow: hidden;
     }
     .pill-status {
-      font-size: 0.82rem;
+      font-size: 0.78rem;
       font-weight: 900;
-      padding: 2px 9px;
+      padding: 2px 8px;
       border-radius: 999px;
       background: #16a34a33;
       color: #4ade80;
@@ -77,11 +77,11 @@
       color: #fbbf24;
     }
     .user-badge {
-      font-size: 0.94rem;
+      font-size: 0.9rem;
       font-weight: 900;
       color: #ffffff;
       background: var(--card);
-      padding: 3px 10px;
+      padding: 2px 9px;
       border-radius: 7px;
       border: 1px solid var(--border);
       white-space: nowrap;
@@ -92,10 +92,10 @@
       background: #334155;
       color: #ffffff;
       border: 1px solid var(--border);
-      padding: 5px 10px;
+      padding: 4px 10px;
       border-radius: 8px;
       font-weight: 900;
-      font-size: 0.84rem;
+      font-size: 0.8rem;
       cursor: pointer;
       white-space: nowrap;
       flex-shrink: 0;
@@ -117,16 +117,15 @@
       border: 1px solid var(--border);
     }
 
-    /* Izquierda: Pestañas Mis pedidos / Cola de pedidos | Derecha: Campos + Teclado numérico */
     .main-grid {
       flex: 1;
       width: 100%;
       display: grid;
-      grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.35fr);
-      gap: 10px;
+      grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.45fr);
+      gap: 8px;
       align-items: start;
     }
-    @media (max-width: 820px) and (orientation: portrait) {
+    @media (max-width: 780px) and (orientation: portrait) {
       .main-grid {
         grid-template-columns: 1fr;
       }
@@ -135,16 +134,15 @@
     .panel {
       background: var(--card);
       border: 1px solid var(--border);
-      border-radius: 11px;
-      padding: 8px 11px;
+      border-radius: 10px;
+      padding: 6px 9px 9px 9px;
       display: flex;
       flex-direction: column;
       justify-content: flex-start;
-      gap: 6px;
+      gap: 4px;
       min-width: 0;
     }
 
-    /* Pestañas Mis pedidos / Cola de pedidos */
     .tabs-bar {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -152,18 +150,18 @@
       flex-shrink: 0;
     }
     .tab-btn {
-      padding: 7px 8px;
+      padding: 6px 8px;
       border-radius: 8px;
       border: 1.5px solid var(--border);
       background: var(--card-2);
       color: var(--muted);
-      font-size: 0.92rem;
+      font-size: 0.88rem;
       font-weight: 900;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 6px;
+      gap: 5px;
     }
     .tab-btn.active {
       background: var(--primary);
@@ -171,14 +169,14 @@
       color: #ffffff;
     }
 
-    /* Dentro del panel derecho: un campo por fila a la izquierda y teclado numérico al lado */
+    /* Mitad y mitad: campos a la izquierda, teclado numérico grande con teclas cuadradas a la derecha */
     .entrada-y-teclado {
       display: grid;
-      grid-template-columns: minmax(0, 1.15fr) minmax(185px, 0.85fr);
-      gap: 10px;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 8px;
       align-items: start;
     }
-    @media (max-width: 820px) {
+    @media (max-width: 640px) {
       .entrada-y-teclado {
         grid-template-columns: 1fr;
       }
@@ -187,21 +185,21 @@
     .campos-verticales {
       display: flex;
       flex-direction: column;
-      gap: 5px;
+      gap: 3px;
       min-width: 0;
       overflow-anchor: none;
     }
     .field {
       display: flex;
       flex-direction: column;
-      gap: 2px;
+      gap: 1px;
       min-width: 0;
     }
     label {
-      font-size: clamp(0.84rem, 1.1vw, 1rem);
+      font-size: clamp(0.76rem, 0.95vw, 0.9rem);
       font-weight: 900;
       color: var(--label);
-      line-height: 1.08;
+      line-height: 1.05;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -209,16 +207,16 @@
     input, select {
       width: 100%;
       min-width: 0;
-      height: clamp(32px, 4vh, 39px);
-      padding: 2px 9px;
-      font-size: clamp(0.94rem, 1.25vw, 1.12rem);
+      height: clamp(27px, 3.2vh, 33px);
+      padding: 1px 7px;
+      font-size: clamp(0.86rem, 1.1vw, 1rem);
       font-weight: 800;
-      border-radius: 8px;
+      border-radius: 7px;
       border: 1.5px solid var(--border);
       background: var(--card-2);
       color: #ffffff;
     }
-    input::placeholder { color: #94a3b8; font-weight: 700; font-size: 0.82em; }
+    input::placeholder { color: #94a3b8; font-weight: 700; font-size: 0.78em; }
     input:focus, select:focus {
       outline: 2px solid #60a5fa;
       border-color: #60a5fa;
@@ -232,16 +230,16 @@
     .st-mp-pt-row {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 5px;
+      gap: 3px;
       width: 100%;
-      margin-bottom: 2px;
+      margin-bottom: 1px;
     }
     .mat-pill {
-      padding: 3px 4px;
-      font-size: clamp(0.8rem, 0.98vw, 0.92rem);
+      padding: 2px 3px;
+      font-size: clamp(0.74rem, 0.88vw, 0.84rem);
       font-weight: 900;
-      line-height: 1.1;
-      border-radius: 7px;
+      line-height: 1.05;
+      border-radius: 6px;
       border: 1.5px solid var(--border);
       background: var(--card-2);
       color: #ffffff;
@@ -258,10 +256,10 @@
     .num-locked-box {
       width: 100%;
       min-width: 0;
-      height: clamp(32px, 4vh, 39px);
+      height: clamp(27px, 3.2vh, 33px);
       display: flex;
       align-items: center;
-      border-radius: 8px;
+      border-radius: 7px;
       border: 1.5px solid var(--border);
       background: var(--card-2);
       overflow: hidden;
@@ -273,8 +271,8 @@
       background: #0f1c33;
     }
     .prefijo-fijo {
-      padding: 0 0 0 9px;
-      font-size: clamp(0.94rem, 1.25vw, 1.12rem);
+      padding: 0 0 0 7px;
+      font-size: clamp(0.86rem, 1.1vw, 1rem);
       font-weight: 900;
       color: #93c5fd;
       user-select: none;
@@ -285,13 +283,13 @@
       background: transparent !important;
       box-shadow: none !important;
       height: 100%;
-      padding: 2px 9px 2px 4px;
+      padding: 1px 7px 1px 3px;
       outline: none !important;
       flex: 1;
       min-width: 0;
     }
 
-    /* Teclado numérico fijo al lado (3x4 clásico) */
+    /* Teclado numérico en la otra mitad, con botones cuadrados */
     .fixed-numpad {
       background: var(--card-2);
       border: 1px solid var(--border);
@@ -302,12 +300,13 @@
       gap: 5px;
       user-select: none;
       touch-action: manipulation;
+      width: 100%;
     }
     .numpad-header {
       display: flex;
       flex-direction: column;
-      gap: 2px;
-      font-size: 0.75rem;
+      gap: 1px;
+      font-size: 0.74rem;
       font-weight: 800;
       color: #93c5fd;
       padding: 0 2px;
@@ -318,12 +317,15 @@
       gap: 5px;
     }
     .num-key {
-      height: clamp(34px, 4.6vh, 44px);
-      border-radius: 7px;
+      aspect-ratio: 1 / 1;
+      max-height: 54px;
+      width: 100%;
+      justify-self: center;
+      border-radius: 8px;
       border: 1.5px solid var(--border);
       background: #1e293b;
       color: #ffffff;
-      font-size: clamp(1.02rem, 1.45vw, 1.24rem);
+      font-size: clamp(1.05rem, 1.5vw, 1.3rem);
       font-weight: 900;
       cursor: pointer;
       display: flex;
@@ -345,34 +347,36 @@
       background: #3f1d24;
       border-color: #7f1d1d;
       color: #fca5a5;
-      font-size: 0.96rem;
+      font-size: 0.98rem;
     }
 
     .error-msg {
       color: #fca5a5;
-      font-size: 0.86rem;
+      font-size: 0.82rem;
       font-weight: 900;
-      min-height: 14px;
+      min-height: 12px;
+      line-height: 1.1;
       flex-shrink: 0;
     }
     .btn-submit {
       width: 100%;
-      padding: clamp(8px, 1.15vh, 13px);
-      font-size: clamp(0.98rem, 1.4vw, 1.2rem);
+      padding: 8px 10px;
+      font-size: clamp(0.94rem, 1.25vw, 1.12rem);
       font-weight: 900;
-      border-radius: 9px;
+      border-radius: 8px;
       border: none;
       background: var(--primary);
       color: #ffffff;
       cursor: pointer;
       flex-shrink: 0;
+      margin-top: 2px;
     }
     .btn-cancel-edit {
       width: 100%;
-      padding: 6px;
-      font-size: 0.85rem;
+      padding: 5px;
+      font-size: 0.82rem;
       font-weight: 900;
-      border-radius: 8px;
+      border-radius: 7px;
       border: 1px solid var(--border);
       background: transparent;
       color: var(--muted);
@@ -381,7 +385,7 @@
     }
 
     .cola-scroll {
-      max-height: calc(100dvh - 125px);
+      max-height: calc(100dvh - 115px);
       overflow-y: auto;
       overflow-anchor: none;
       display: flex;
@@ -410,26 +414,26 @@
       border-left-color: var(--success);
     }
     .pedido-main {
-      font-size: 0.96rem;
+      font-size: 0.92rem;
       font-weight: 900;
       color: #ffffff;
       line-height: 1.2;
     }
     .pedido-sub {
-      font-size: 0.82rem;
+      font-size: 0.78rem;
       font-weight: 700;
       color: var(--muted);
       margin-top: 2px;
     }
     .pedido-progreso {
-      font-size: 0.82rem;
+      font-size: 0.78rem;
       font-weight: 900;
       color: #93c5fd;
       margin-top: 2px;
     }
     .tag {
       display: inline-block;
-      font-size: 0.7rem;
+      font-size: 0.68rem;
       font-weight: 900;
       text-transform: uppercase;
       padding: 2px 6px;
@@ -451,7 +455,7 @@
       border: none;
       border-radius: 7px;
       padding: 5px 8px;
-      font-size: 0.82rem;
+      font-size: 0.8rem;
       font-weight: 900;
       color: #ffffff;
       cursor: pointer;
@@ -499,35 +503,23 @@
       <div id="lista-cola-pedidos" class="cola-scroll hidden"></div>
     </section>
 
-    <!-- DERECHA: 1. Línea -> 2. OPC -> 3. Material -> Lote -> Tiempo + Teclado numérico al lado -->
+    <!-- DERECHA: Mitad y mitad -> Campos a la izquierda, teclado numérico cuadrado a la derecha -->
     <section class="panel">
       <div class="entrada-y-teclado">
         <div class="campos-verticales">
           <div class="field">
-            <label for="input-linea">1. Línea</label>
+            <label for="input-linea">Línea</label>
             <input type="text" id="input-linea" inputmode="none" pattern="[0-9]*">
           </div>
 
           <div class="field">
-            <label for="input-opc">2. OPC</label>
-            <input type="text" id="input-opc" inputmode="none" pattern="\d{4}" maxlength="4" placeholder="4 últimos dígitos">
+            <label for="input-opc">OPC</label>
+            <input type="text" id="input-opc" inputmode="none" pattern="\d{4}" maxlength="4" placeholder="4 dígitos">
           </div>
 
-          <div class="field">
-            <label>3. Material</label>
-            <div class="st-mp-pt-row">
-              <button type="button" class="mat-pill" data-mat="ST" onclick="seleccionarPrefijo('ST')">ST</button>
-              <button type="button" class="mat-pill" data-mat="MP" onclick="seleccionarPrefijo('MP')">MP</button>
-              <button type="button" class="mat-pill" data-mat="PT" onclick="seleccionarPrefijo('PT')">PT</button>
-            </div>
-            <div id="box-num-ref" class="num-locked-box">
-              <span id="prefijo-fijo-span" class="prefijo-fijo hidden"></span>
-              <input type="text" id="input-num-ref" inputmode="none" pattern="[0-9]*" placeholder="Nº referencia">
-            </div>
-          </div>
-
+          <!-- Tipo de material justo debajo de OPC y antes de Material -->
           <div id="bloque-tipo-material" class="field hidden">
-            <label for="select-clase-mat">Tipo de material (OPC)</label>
+            <label for="select-clase-mat">Tipo de material</label>
             <select id="select-clase-mat" onchange="alCambiarClaseMaterial()">
               <option value=""></option>
               <option value="lámina">lámina</option>
@@ -543,8 +535,21 @@
           </div>
 
           <div id="campo-otro-mat" class="field hidden">
-            <label for="input-otro-mat">Material (otro)</label>
+            <label for="input-otro-mat">Tipo de material (otro)</label>
             <input type="text" id="input-otro-mat" enterkeyhint="done">
+          </div>
+
+          <div class="field">
+            <label>Material</label>
+            <div class="st-mp-pt-row">
+              <button type="button" class="mat-pill" data-mat="ST" onclick="seleccionarPrefijo('ST')">ST</button>
+              <button type="button" class="mat-pill" data-mat="MP" onclick="seleccionarPrefijo('MP')">MP</button>
+              <button type="button" class="mat-pill" data-mat="PT" onclick="seleccionarPrefijo('PT')">PT</button>
+            </div>
+            <div id="box-num-ref" class="num-locked-box">
+              <span id="prefijo-fijo-span" class="prefijo-fijo hidden"></span>
+              <input type="text" id="input-num-ref" inputmode="none" pattern="\d{5}" maxlength="5" placeholder="5 dígitos">
+            </div>
           </div>
 
           <div class="field">
@@ -555,7 +560,7 @@
           <div class="field">
             <label for="select-tiempo">Lo necesito en...</label>
             <select id="select-tiempo" onchange="alCambiarTiempo()">
-              <option value=""></option>
+              <option value="">poner en cola</option>
               <option value="15 min">15 min</option>
               <option value="30 min">30 min</option>
               <option value="1 hora">1 hora</option>
@@ -884,11 +889,10 @@
 
   [inputOtroMat, inputLote].forEach(cerrarTecladoAlAceptar);
 
-  // Campos que reciben dígitos desde el teclado numérico incrustado (incluye Lote aunque conserve teclado alfanumérico)
   const CAMPOS_NUMERICOS = [
     { el: inputLinea, nombre: 'Línea', maxLen: 4, soloDigitos: true },
     { el: inputOpc, nombre: 'OPC', maxLen: 4, soloDigitos: true },
-    { el: inputNumRef, nombre: 'Referencia', maxLen: 12, soloDigitos: true },
+    { el: inputNumRef, nombre: 'Material (5 dígitos)', maxLen: 5, soloDigitos: true },
     { el: inputLote, nombre: 'Lote', maxLen: 24, soloDigitos: false },
     { el: inputCantidad, nombre: 'Cantidad', maxLen: 3, soloDigitos: true }
   ];
@@ -951,7 +955,7 @@
 
     seleccionarCampoNumerico(target, false);
     const meta = CAMPOS_NUMERICOS.find(item => item.el === target);
-    const maxLen = meta ? meta.maxLen : 12;
+    const maxLen = meta ? meta.maxLen : 5;
     const soloDigitos = meta ? meta.soloDigitos : true;
 
     let actual = soloDigitos ? target.value.replace(/\D/g, '') : target.value;
@@ -1010,7 +1014,7 @@
   }
 
   function tieneReferenciaCompleta() {
-    return Boolean(prefijoSeleccionado && inputNumRef.value.trim());
+    return Boolean(prefijoSeleccionado && inputNumRef.value.trim().length === 5);
   }
 
   function actualizarPrefijoVisual() {
@@ -1069,7 +1073,6 @@
     if (badge.className !== cls) badge.className = cls;
   }
 
-  // Mantiene Línea y OPC; limpia material, lote, tiempo y cantidad
   function limpiarTrasSolicitar() {
     idEditando = null;
     document.getElementById('btn-guardar').innerText = 'SOLICITAR';
@@ -1088,13 +1091,6 @@
     document.querySelectorAll('.mat-pill').forEach(b => b.classList.remove('active'));
     document.getElementById('form-error').innerText = '';
     seleccionarCampoNumerico(inputOpc);
-  }
-
-  function limpiarFormularioCompleto() {
-    inputLinea.value = '';
-    inputOpc.value = '';
-    limpiarTrasSolicitar();
-    seleccionarCampoNumerico(inputLinea);
   }
 
   function cancelarEdicion() {
@@ -1183,19 +1179,19 @@
     const tieneRefParcial = Boolean(numRef || prefijoSeleccionado);
 
     if (!tieneOpc && !tieneRefParcial) {
-      err.innerText = 'Indica OPC o Referencia.';
+      err.innerText = 'Indica OPC o Material.';
       seleccionarCampoNumerico(inputOpc);
       return;
     }
 
     if (tieneOpc && opc.length !== 4) {
-      err.innerText = 'La OPC debe tener 4 números.';
+      err.innerText = 'La OPC debe tener 4 dígitos.';
       seleccionarCampoNumerico(inputOpc);
       return;
     }
 
     if (tieneRefParcial && !refCompleta) {
-      err.innerText = 'Completa ST, MP o PT y el número.';
+      err.innerText = 'Selecciona ST, MP o PT y 5 dígitos.';
       seleccionarCampoNumerico(inputNumRef);
       return;
     }
@@ -1204,7 +1200,7 @@
     if (tieneOpc && !refCompleta) {
       claseMaterial = obtenerClaseMaterialFinal();
       if (!claseMaterial) {
-        err.innerText = 'Indica el material.';
+        err.innerText = 'Indica el tipo de material.';
         return;
       }
     }
@@ -1242,7 +1238,7 @@
         return;
       }
       if (!tiempoSel) {
-        err.innerText = 'Este material ya está registrado: debes asignar el tiempo en "Lo necesito en..." para volver a pedirlo.';
+        err.innerText = 'Este material ya está registrado: elige un tiempo en "Lo necesito en..." para volver a pedirlo.';
         return;
       }
     }
@@ -1444,11 +1440,11 @@
     ultimoRenderOp = firma;
 
     listaMios.innerHTML = misPedidos.length === 0
-      ? '<div style="color:var(--muted); font-weight:800; font-size:0.88rem;">Sin pedidos tuyos hoy.</div>'
+      ? '<div style="color:var(--muted); font-weight:800; font-size:0.86rem;">Sin pedidos tuyos hoy.</div>'
       : misPedidos.map((p, idx) => pintarTarjetaPedido(p, idx, true)).join('');
 
     listaCola.innerHTML = colaPedidos.length === 0
-      ? '<div style="color:var(--muted); font-weight:800; font-size:0.88rem;">Sin pedidos en cola.</div>'
+      ? '<div style="color:var(--muted); font-weight:800; font-size:0.86rem;">Sin pedidos en cola.</div>'
       : colaPedidos.map((p, idx) => {
           const esMio = nombreActual && (p.solicitado_por || '').toLowerCase() === nombreActual;
           return pintarTarjetaPedido(p, idx, esMio);
