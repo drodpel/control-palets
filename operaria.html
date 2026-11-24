@@ -117,7 +117,7 @@
       border: 1px solid var(--border);
     }
 
-    /* Izquierda: Pedidos (Mis pedidos + Cola) | Derecha: Datos + Teclado numérico al lado */
+    /* Izquierda: Pestañas Mis pedidos / Cola de pedidos | Derecha: Campos + Teclado numérico */
     .main-grid {
       flex: 1;
       width: 100%;
@@ -144,35 +144,37 @@
       min-width: 0;
     }
 
-    /* Dos bloques dentro de Pedidos: Mis pedidos y Cola de pedidos */
-    .pedidos-split {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
+    /* Pestañas Mis pedidos / Cola de pedidos */
+    .tabs-bar {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 6px;
+      flex-shrink: 0;
     }
-    .sub-bloque {
-      background: #141d2e;
-      border: 1px solid #334155;
-      border-radius: 9px;
-      padding: 7px 9px;
-      display: flex;
-      flex-direction: column;
-      gap: 5px;
-    }
-    .sub-titulo {
-      margin: 0;
+    .tab-btn {
+      padding: 7px 8px;
+      border-radius: 8px;
+      border: 1.5px solid var(--border);
+      background: var(--card-2);
+      color: var(--muted);
       font-size: 0.92rem;
       font-weight: 900;
-      color: #93c5fd;
+      cursor: pointer;
       display: flex;
-      justify-content: space-between;
       align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .tab-btn.active {
+      background: var(--primary);
+      border-color: #93c5fd;
+      color: #ffffff;
     }
 
     /* Dentro del panel derecho: un campo por fila a la izquierda y teclado numérico al lado */
     .entrada-y-teclado {
       display: grid;
-      grid-template-columns: minmax(0, 1.15fr) minmax(190px, 0.85fr);
+      grid-template-columns: minmax(0, 1.15fr) minmax(185px, 0.85fr);
       gap: 10px;
       align-items: start;
     }
@@ -185,7 +187,7 @@
     .campos-verticales {
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 5px;
       min-width: 0;
       overflow-anchor: none;
     }
@@ -196,10 +198,10 @@
       min-width: 0;
     }
     label {
-      font-size: clamp(0.88rem, 1.15vw, 1.05rem);
+      font-size: clamp(0.84rem, 1.1vw, 1rem);
       font-weight: 900;
       color: var(--label);
-      line-height: 1.1;
+      line-height: 1.08;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -207,16 +209,16 @@
     input, select {
       width: 100%;
       min-width: 0;
-      height: clamp(34px, 4.4vh, 42px);
-      padding: 3px 9px;
-      font-size: clamp(0.96rem, 1.3vw, 1.15rem);
+      height: clamp(32px, 4vh, 39px);
+      padding: 2px 9px;
+      font-size: clamp(0.94rem, 1.25vw, 1.12rem);
       font-weight: 800;
       border-radius: 8px;
       border: 1.5px solid var(--border);
       background: var(--card-2);
       color: #ffffff;
     }
-    input::placeholder { color: #94a3b8; font-weight: 700; font-size: 0.84em; }
+    input::placeholder { color: #94a3b8; font-weight: 700; font-size: 0.82em; }
     input:focus, select:focus {
       outline: 2px solid #60a5fa;
       border-color: #60a5fa;
@@ -232,11 +234,11 @@
       grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 5px;
       width: 100%;
-      margin-bottom: 3px;
+      margin-bottom: 2px;
     }
     .mat-pill {
-      padding: 4px 4px;
-      font-size: clamp(0.82rem, 1vw, 0.94rem);
+      padding: 3px 4px;
+      font-size: clamp(0.8rem, 0.98vw, 0.92rem);
       font-weight: 900;
       line-height: 1.1;
       border-radius: 7px;
@@ -256,7 +258,7 @@
     .num-locked-box {
       width: 100%;
       min-width: 0;
-      height: clamp(34px, 4.4vh, 42px);
+      height: clamp(32px, 4vh, 39px);
       display: flex;
       align-items: center;
       border-radius: 8px;
@@ -272,7 +274,7 @@
     }
     .prefijo-fijo {
       padding: 0 0 0 9px;
-      font-size: clamp(0.96rem, 1.3vw, 1.15rem);
+      font-size: clamp(0.94rem, 1.25vw, 1.12rem);
       font-weight: 900;
       color: #93c5fd;
       user-select: none;
@@ -283,7 +285,7 @@
       background: transparent !important;
       box-shadow: none !important;
       height: 100%;
-      padding: 3px 9px 3px 4px;
+      padding: 2px 9px 2px 4px;
       outline: none !important;
       flex: 1;
       min-width: 0;
@@ -305,7 +307,7 @@
       display: flex;
       flex-direction: column;
       gap: 2px;
-      font-size: 0.76rem;
+      font-size: 0.75rem;
       font-weight: 800;
       color: #93c5fd;
       padding: 0 2px;
@@ -316,12 +318,12 @@
       gap: 5px;
     }
     .num-key {
-      height: clamp(36px, 5vh, 46px);
+      height: clamp(34px, 4.6vh, 44px);
       border-radius: 7px;
       border: 1.5px solid var(--border);
       background: #1e293b;
       color: #ffffff;
-      font-size: clamp(1.05rem, 1.5vw, 1.28rem);
+      font-size: clamp(1.02rem, 1.45vw, 1.24rem);
       font-weight: 900;
       cursor: pointer;
       display: flex;
@@ -343,20 +345,20 @@
       background: #3f1d24;
       border-color: #7f1d1d;
       color: #fca5a5;
-      font-size: 0.98rem;
+      font-size: 0.96rem;
     }
 
     .error-msg {
       color: #fca5a5;
-      font-size: 0.88rem;
+      font-size: 0.86rem;
       font-weight: 900;
       min-height: 14px;
       flex-shrink: 0;
     }
     .btn-submit {
       width: 100%;
-      padding: clamp(9px, 1.3vh, 14px);
-      font-size: clamp(1rem, 1.45vw, 1.25rem);
+      padding: clamp(8px, 1.15vh, 13px);
+      font-size: clamp(0.98rem, 1.4vw, 1.2rem);
       font-weight: 900;
       border-radius: 9px;
       border: none;
@@ -368,7 +370,7 @@
     .btn-cancel-edit {
       width: 100%;
       padding: 6px;
-      font-size: 0.86rem;
+      font-size: 0.85rem;
       font-weight: 900;
       border-radius: 8px;
       border: 1px solid var(--border);
@@ -379,7 +381,7 @@
     }
 
     .cola-scroll {
-      max-height: 34dvh;
+      max-height: calc(100dvh - 125px);
       overflow-y: auto;
       overflow-anchor: none;
       display: flex;
@@ -481,42 +483,51 @@
   </div>
 
   <div id="vista-trabajo" class="main-grid hidden">
-    <!-- IZQUIERDA: Pedidos (Mis pedidos + Cola de pedidos) -->
+    <!-- IZQUIERDA: Pestañas Mis pedidos / Cola de pedidos -->
     <section class="panel">
-      <div class="pedidos-split">
-        <div class="sub-bloque">
-          <h2 class="sub-titulo">
-            <span>Mis pedidos</span>
-            <span id="contador-mios-hoy">Hoy: 0</span>
-          </h2>
-          <div id="lista-mis-pedidos" class="cola-scroll"></div>
-        </div>
-
-        <div class="sub-bloque">
-          <h2 class="sub-titulo">
-            <span>Cola de pedidos</span>
-          </h2>
-          <div id="lista-cola-pedidos" class="cola-scroll"></div>
-        </div>
+      <div class="tabs-bar" role="tablist">
+        <button type="button" id="tab-mis-pedidos" class="tab-btn active" onclick="cambiarPestanaPedidos('mios')">
+          <span>Mis pedidos</span>
+          <span id="contador-mios-hoy">(0)</span>
+        </button>
+        <button type="button" id="tab-cola-pedidos" class="tab-btn" onclick="cambiarPestanaPedidos('cola')">
+          <span>Cola de pedidos</span>
+        </button>
       </div>
+
+      <div id="lista-mis-pedidos" class="cola-scroll"></div>
+      <div id="lista-cola-pedidos" class="cola-scroll hidden"></div>
     </section>
 
-    <!-- DERECHA: Un campo por línea + Teclado numérico al lado -->
+    <!-- DERECHA: 1. Línea -> 2. OPC -> 3. Material -> Lote -> Tiempo + Teclado numérico al lado -->
     <section class="panel">
       <div class="entrada-y-teclado">
         <div class="campos-verticales">
           <div class="field">
-            <label for="input-opc">OPC</label>
+            <label for="input-linea">1. Línea</label>
+            <input type="text" id="input-linea" inputmode="none" pattern="[0-9]*">
+          </div>
+
+          <div class="field">
+            <label for="input-opc">2. OPC</label>
             <input type="text" id="input-opc" inputmode="none" pattern="\d{4}" maxlength="4" placeholder="4 últimos dígitos">
           </div>
 
           <div class="field">
-            <label for="input-linea">Línea</label>
-            <input type="text" id="input-linea" inputmode="none" pattern="[0-9]*">
+            <label>3. Material</label>
+            <div class="st-mp-pt-row">
+              <button type="button" class="mat-pill" data-mat="ST" onclick="seleccionarPrefijo('ST')">ST</button>
+              <button type="button" class="mat-pill" data-mat="MP" onclick="seleccionarPrefijo('MP')">MP</button>
+              <button type="button" class="mat-pill" data-mat="PT" onclick="seleccionarPrefijo('PT')">PT</button>
+            </div>
+            <div id="box-num-ref" class="num-locked-box">
+              <span id="prefijo-fijo-span" class="prefijo-fijo hidden"></span>
+              <input type="text" id="input-num-ref" inputmode="none" pattern="[0-9]*" placeholder="Nº referencia">
+            </div>
           </div>
 
           <div id="bloque-tipo-material" class="field hidden">
-            <label for="select-clase-mat">Material</label>
+            <label for="select-clase-mat">Tipo de material (OPC)</label>
             <select id="select-clase-mat" onchange="alCambiarClaseMaterial()">
               <option value=""></option>
               <option value="lámina">lámina</option>
@@ -534,19 +545,6 @@
           <div id="campo-otro-mat" class="field hidden">
             <label for="input-otro-mat">Material (otro)</label>
             <input type="text" id="input-otro-mat" enterkeyhint="done">
-          </div>
-
-          <div class="field">
-            <label>Referencia</label>
-            <div class="st-mp-pt-row">
-              <button type="button" class="mat-pill" data-mat="ST" onclick="seleccionarPrefijo('ST')">ST</button>
-              <button type="button" class="mat-pill" data-mat="MP" onclick="seleccionarPrefijo('MP')">MP</button>
-              <button type="button" class="mat-pill" data-mat="PT" onclick="seleccionarPrefijo('PT')">PT</button>
-            </div>
-            <div id="box-num-ref" class="num-locked-box">
-              <span id="prefijo-fijo-span" class="prefijo-fijo hidden"></span>
-              <input type="text" id="input-num-ref" inputmode="none" pattern="[0-9]*">
-            </div>
           </div>
 
           <div class="field">
@@ -575,7 +573,7 @@
         <div class="fixed-numpad" aria-label="Teclado numérico fijo">
           <div class="numpad-header">
             <span>Teclado numérico</span>
-            <span id="numpad-campo-label">Escribiendo en: OPC</span>
+            <span id="numpad-campo-label">Escribiendo en: Línea</span>
           </div>
           <div class="numpad-grid">
             <button type="button" class="num-key" onpointerdown="pulsarNumero(event, '1')">1</button>
@@ -619,6 +617,7 @@
     sesionOp = null;
   }
 
+  let pestanaActiva = 'mios';
   let prefijoSeleccionado = '';
   let idEditando = null;
   let pedidosHoyTodos = [];
@@ -635,6 +634,14 @@
     window.addEventListener('load', () => {
       navigator.serviceWorker.register('./sw.js').catch(() => {});
     });
+  }
+
+  function cambiarPestanaPedidos(tab) {
+    pestanaActiva = tab === 'cola' ? 'cola' : 'mios';
+    document.getElementById('tab-mis-pedidos').classList.toggle('active', pestanaActiva === 'mios');
+    document.getElementById('tab-cola-pedidos').classList.toggle('active', pestanaActiva === 'cola');
+    document.getElementById('lista-mis-pedidos').classList.toggle('hidden', pestanaActiva !== 'mios');
+    document.getElementById('lista-cola-pedidos').classList.toggle('hidden', pestanaActiva !== 'cola');
   }
 
   function inicioHoyISO() {
@@ -840,7 +847,8 @@
     badge.classList.remove('hidden');
     badge.innerText = sesionOp.nombre;
     document.getElementById('btn-cambiar').classList.remove('hidden');
-    seleccionarCampoNumerico(inputOpc);
+    cambiarPestanaPedidos(pestanaActiva);
+    seleccionarCampoNumerico(inputLinea);
     cargarPedidos();
   }
 
@@ -864,8 +872,8 @@
     });
   }
 
-  const inputOpc = document.getElementById('input-opc');
   const inputLinea = document.getElementById('input-linea');
+  const inputOpc = document.getElementById('input-opc');
   const inputNumRef = document.getElementById('input-num-ref');
   const inputOtroMat = document.getElementById('input-otro-mat');
   const inputLote = document.getElementById('input-lote');
@@ -876,13 +884,15 @@
 
   [inputOtroMat, inputLote].forEach(cerrarTecladoAlAceptar);
 
+  // Campos que reciben dígitos desde el teclado numérico incrustado (incluye Lote aunque conserve teclado alfanumérico)
   const CAMPOS_NUMERICOS = [
-    { el: inputOpc, nombre: 'OPC', maxLen: 4 },
-    { el: inputLinea, nombre: 'Línea', maxLen: 4 },
-    { el: inputNumRef, nombre: 'Referencia', maxLen: 12 },
-    { el: inputCantidad, nombre: 'Cantidad', maxLen: 3 }
+    { el: inputLinea, nombre: 'Línea', maxLen: 4, soloDigitos: true },
+    { el: inputOpc, nombre: 'OPC', maxLen: 4, soloDigitos: true },
+    { el: inputNumRef, nombre: 'Referencia', maxLen: 12, soloDigitos: true },
+    { el: inputLote, nombre: 'Lote', maxLen: 24, soloDigitos: false },
+    { el: inputCantidad, nombre: 'Cantidad', maxLen: 3, soloDigitos: true }
   ];
-  let campoNumericoActivo = inputOpc;
+  let campoNumericoActivo = inputLinea;
   let reemplazarEnSiguienteToque = false;
 
   function seleccionarCampoNumerico(el, reemplazarInicial = false) {
@@ -912,7 +922,11 @@
       seleccionarCampoNumerico(item.el, item.el === inputCantidad);
     });
     item.el.addEventListener('input', (e) => {
-      e.target.value = e.target.value.replace(/\D/g, '').slice(0, item.maxLen);
+      if (item.soloDigitos) {
+        e.target.value = e.target.value.replace(/\D/g, '').slice(0, item.maxLen);
+      } else {
+        e.target.value = e.target.value.slice(0, item.maxLen);
+      }
       if (item.el === inputOpc || item.el === inputNumRef) {
         actualizarVisibilidadClaseMaterial();
       }
@@ -924,8 +938,8 @@
       actualizarVisibilidadClaseMaterial();
     }
     if (el === inputOpc && inputOpc.value.length === 4) {
-      seleccionarCampoNumerico(inputLinea);
-      inputLinea.focus();
+      seleccionarCampoNumerico(inputNumRef);
+      inputNumRef.focus();
     }
   }
 
@@ -933,13 +947,14 @@
     if (ev) ev.preventDefault();
     const target = (campoNumericoActivo && !campoNumericoActivo.closest('.hidden'))
       ? campoNumericoActivo
-      : inputOpc;
+      : inputLinea;
 
     seleccionarCampoNumerico(target, false);
     const meta = CAMPOS_NUMERICOS.find(item => item.el === target);
-    const maxLen = meta ? meta.maxLen : 10;
+    const maxLen = meta ? meta.maxLen : 12;
+    const soloDigitos = meta ? meta.soloDigitos : true;
 
-    let actual = target.value.replace(/\D/g, '');
+    let actual = soloDigitos ? target.value.replace(/\D/g, '') : target.value;
     if (reemplazarEnSiguienteToque) {
       actual = '';
       reemplazarEnSiguienteToque = false;
@@ -955,10 +970,12 @@
     if (ev) ev.preventDefault();
     const target = (campoNumericoActivo && !campoNumericoActivo.closest('.hidden'))
       ? campoNumericoActivo
-      : inputOpc;
+      : inputLinea;
 
     seleccionarCampoNumerico(target, false);
-    const actual = target.value.replace(/\D/g, '');
+    const meta = CAMPOS_NUMERICOS.find(item => item.el === target);
+    const soloDigitos = meta ? meta.soloDigitos : true;
+    const actual = soloDigitos ? target.value.replace(/\D/g, '') : target.value;
     target.value = actual.slice(0, -1);
     target.focus();
     sincronizarCambioCampoNumerico(target);
@@ -968,7 +985,7 @@
     if (ev) ev.preventDefault();
     const target = (campoNumericoActivo && !campoNumericoActivo.closest('.hidden'))
       ? campoNumericoActivo
-      : inputOpc;
+      : inputLinea;
 
     seleccionarCampoNumerico(target, false);
     target.value = (target === inputCantidad) ? '1' : '';
@@ -1052,11 +1069,11 @@
     if (badge.className !== cls) badge.className = cls;
   }
 
-  function limpiarFormulario() {
+  // Mantiene Línea y OPC; limpia material, lote, tiempo y cantidad
+  function limpiarTrasSolicitar() {
     idEditando = null;
     document.getElementById('btn-guardar').innerText = 'SOLICITAR';
     document.getElementById('btn-cancelar-edicion').classList.add('hidden');
-    inputOpc.value = '';
     inputNumRef.value = '';
     inputLote.value = '';
     inputOtroMat.value = '';
@@ -1073,8 +1090,15 @@
     seleccionarCampoNumerico(inputOpc);
   }
 
+  function limpiarFormularioCompleto() {
+    inputLinea.value = '';
+    inputOpc.value = '';
+    limpiarTrasSolicitar();
+    seleccionarCampoNumerico(inputLinea);
+  }
+
   function cancelarEdicion() {
-    limpiarFormulario();
+    limpiarTrasSolicitar();
   }
 
   function editarPedidoPorId(id) {
@@ -1114,7 +1138,7 @@
         inputOtroMat.value = claseGuardada;
       }
     }
-    seleccionarCampoNumerico(inputOpc);
+    seleccionarCampoNumerico(inputLinea);
   }
 
   function claveMaterial(item) {
@@ -1236,7 +1260,7 @@
         err.innerText = `Error: ${error.message}`;
       } else {
         actualizarEstadoRed(true);
-        limpiarFormulario();
+        limpiarTrasSolicitar();
         await cargarPedidos();
       }
     } else {
@@ -1247,7 +1271,7 @@
         err.innerText = `Sin conexión (${error.message}).`;
       } else {
         actualizarEstadoRed(true);
-        limpiarFormulario();
+        limpiarTrasSolicitar();
         await cargarPedidos();
         if (eraNuevo) {
           hacerScrollArribaPedidosSiProcede();
@@ -1264,7 +1288,7 @@
     if (!confirm('¿Seguro que quieres cancelar este pedido?')) return;
     const { error } = await db.from('pedidos').update({ estado: 'cancelado' }).eq('id', id);
     if (!error) {
-      if (idEditando === id) limpiarFormulario();
+      if (idEditando === id) limpiarTrasSolicitar();
       await cargarPedidos();
     } else {
       actualizarEstadoRed(false);
@@ -1405,7 +1429,7 @@
       return true;
     });
 
-    const contadorTxt = `Hoy: ${peticionesHoyNombre.length}`;
+    const contadorTxt = `(${peticionesHoyNombre.length})`;
     if (contadorEl.innerText !== contadorTxt) {
       contadorEl.innerText = contadorTxt;
     }
