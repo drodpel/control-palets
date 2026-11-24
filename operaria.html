@@ -116,12 +116,13 @@
       border: 1px solid var(--border);
     }
 
+    /* Mitad y mitad (50% / 50%) para que los pedidos tengan más aire y la introducción de datos sea más compacta */
     .main-grid {
       flex: 1;
       min-height: 0;
       width: 100%;
       display: grid;
-      grid-template-columns: minmax(0, 0.88fr) minmax(0, 1.42fr);
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
       gap: 9px;
       align-items: stretch;
       overflow: hidden;
@@ -208,8 +209,8 @@
 
     .entrada-y-teclado {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-      gap: 10px;
+      grid-template-columns: minmax(0, 0.94fr) minmax(0, 1.06fr);
+      gap: 8px;
       align-items: start;
     }
 
@@ -227,7 +228,7 @@
       min-width: 0;
     }
     label {
-      font-size: 14px;
+      font-size: 13.5px;
       font-weight: 900;
       color: var(--label);
       line-height: 1.15;
@@ -239,7 +240,7 @@
       width: 100%;
       min-width: 0;
       height: 36px;
-      padding: 3px 9px;
+      padding: 3px 8px;
       font-size: 15px;
       font-weight: 800;
       border-radius: 7px;
@@ -266,8 +267,8 @@
       margin-bottom: 2px;
     }
     .mat-pill {
-      padding: 4px 4px;
-      font-size: 13.5px;
+      padding: 4px 2px;
+      font-size: 13px;
       font-weight: 900;
       line-height: 1.1;
       border-radius: 6px;
@@ -302,7 +303,7 @@
       background: #0f1c33;
     }
     .prefijo-fijo {
-      padding: 0 0 0 8px;
+      padding: 0 0 0 7px;
       font-size: 15px;
       font-weight: 900;
       color: #93c5fd;
@@ -314,7 +315,7 @@
       background: transparent !important;
       box-shadow: none !important;
       height: 100%;
-      padding: 3px 9px 3px 4px;
+      padding: 3px 8px 3px 4px;
       outline: none !important;
       flex: 1;
       min-width: 0;
@@ -330,7 +331,7 @@
       background: var(--card-2);
       border: 1px solid var(--border);
       border-radius: 9px;
-      padding: 7px;
+      padding: 6px;
       user-select: none;
       touch-action: manipulation;
       width: 100%;
@@ -338,11 +339,11 @@
     .numpad-grid {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 6px;
+      gap: 5px;
     }
     .num-key {
       aspect-ratio: 1 / 1;
-      max-height: 56px;
+      max-height: 54px;
       width: 100%;
       justify-self: center;
       border-radius: 8px;
@@ -387,8 +388,8 @@
     }
     .btn-submit {
       width: 100%;
-      padding: 10px 12px;
-      font-size: 16px;
+      padding: 10px 10px;
+      font-size: 15.5px;
       font-weight: 900;
       border-radius: 8px;
       border: none;
@@ -415,11 +416,11 @@
       border: 1.5px solid var(--border);
       border-left: 6px solid var(--warning);
       border-radius: 8px;
-      padding: 7px 10px;
+      padding: 7px 9px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 8px;
+      gap: 7px;
       flex-shrink: 0;
     }
     .pedido-card.es-mio {
@@ -444,26 +445,31 @@
       min-width: 0;
       flex: 1;
     }
-    /* Destacado: OPC + material/referencia + lote */
+    /* Destacado en una sola línea: OPC + material/referencia + lote */
     .pedido-main {
-      font-size: 1rem;
+      font-size: 0.9rem;
       font-weight: 900;
       color: #ffffff;
       line-height: 1.25;
-      letter-spacing: 0.01em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
     /* Menos destacado y al final: hora, nombre y línea */
     .pedido-sub {
-      font-size: 0.76rem;
+      font-size: 0.75rem;
       font-weight: 600;
       color: #94a3b8;
-      margin-top: 3px;
+      margin-top: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
     .pedido-progreso {
-      font-size: 0.8rem;
+      font-size: 0.78rem;
       font-weight: 800;
       color: #93c5fd;
-      margin-top: 3px;
+      margin-top: 2px;
     }
     .tags-row {
       display: flex;
@@ -476,10 +482,10 @@
     .tag {
       display: inline-flex;
       align-items: center;
-      font-size: 0.7rem;
+      font-size: 0.68rem;
       font-weight: 900;
       text-transform: uppercase;
-      padding: 2px 7px;
+      padding: 2px 6px;
       border-radius: 5px;
       white-space: nowrap;
       flex-shrink: 0;
@@ -491,14 +497,14 @@
 
     .acciones-card {
       display: flex;
-      gap: 5px;
+      gap: 4px;
       flex-shrink: 0;
     }
     .btn-mini {
       border: none;
-      border-radius: 7px;
-      padding: 5px 8px;
-      font-size: 0.82rem;
+      border-radius: 6px;
+      padding: 5px 7px;
+      font-size: 0.78rem;
       font-weight: 900;
       color: #ffffff;
       cursor: pointer;
@@ -530,7 +536,7 @@
   </div>
 
   <div id="vista-trabajo" class="main-grid hidden">
-    <!-- IZQUIERDA: Pestañas Mis pedidos / Cola de pedidos -->
+    <!-- IZQUIERDA (50%): Pestañas Mis pedidos / Cola de pedidos -->
     <section class="panel">
       <div class="tabs-bar" role="tablist">
         <button type="button" id="tab-mis-pedidos" class="tab-btn active" onclick="cambiarPestanaPedidos('mios')">
@@ -546,7 +552,7 @@
       <div id="lista-cola-pedidos" class="cola-scroll hidden"></div>
     </section>
 
-    <!-- DERECHA: Autoajustable al tamaño de pantalla y desplegables -->
+    <!-- DERECHA (50%): Autoajustable al tamaño de pantalla y desplegables -->
     <section class="panel" id="panel-derecho">
       <div class="right-fit-viewport" id="right-fit-viewport">
         <div class="right-fit-sizer" id="right-fit-sizer">
@@ -1475,7 +1481,6 @@
     }
   }
 
-  /* Destacado: OPC + material/referencia (y clase/cantidad si aplica) + lote */
   function formatearDetalleDestacado(p) {
     const tieneRef5 = Boolean(p.num_referencia && String(p.num_referencia).trim().length === 5);
     const refFmt = tieneRef5
@@ -1498,7 +1503,6 @@
     const esListo = p.estado === 'completado';
     const hora = new Date(p.creado_en).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     const destacado = formatearDetalleDestacado(p);
-    /* Secundario y al final: hora, nombre y línea */
     const secundario = [hora, p.solicitado_por || '', p.linea || ''].filter(Boolean).join(' · ');
     const estadoTxt = esListo ? '✓ Listo' : 'Pendiente';
     const horaVence = formatearHoraVencimiento(p);
@@ -1512,7 +1516,7 @@
     return `
       <div class="pedido-card ${p.estado} ${esMio ? 'es-mio' : ''}">
         <div class="pedido-info">
-          <div class="pedido-main">${prefijoTurno}${destacado}</div>
+          <div class="pedido-main" title="${prefijoTurno}${destacado}">${prefijoTurno}${destacado}</div>
           <div class="pedido-sub">${secundario}</div>
           ${progresoHtml}
           <div class="tags-row">
