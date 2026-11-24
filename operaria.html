@@ -32,17 +32,17 @@
       overflow-y: auto;
       background: var(--bg);
       color: var(--text);
-      font-size: 14px;
+      font-size: 16px;
     }
     .app-shell {
       min-height: 100dvh;
       width: 100%;
       max-width: 1680px;
       margin: 0 auto;
-      padding: 5px 9px 16px 9px;
+      padding: 6px 10px 20px 10px;
       display: flex;
       flex-direction: column;
-      gap: 5px;
+      gap: 6px;
     }
 
     header {
@@ -50,7 +50,7 @@
       justify-content: space-between;
       align-items: center;
       gap: 8px;
-      padding-bottom: 4px;
+      padding-bottom: 5px;
       border-bottom: 1px solid var(--border);
       flex-shrink: 0;
       flex-wrap: nowrap;
@@ -63,9 +63,9 @@
       overflow: hidden;
     }
     .pill-status {
-      font-size: 0.78rem;
+      font-size: 0.85rem;
       font-weight: 900;
-      padding: 2px 8px;
+      padding: 3px 9px;
       border-radius: 999px;
       background: #16a34a33;
       color: #4ade80;
@@ -77,11 +77,11 @@
       color: #fbbf24;
     }
     .user-badge {
-      font-size: 0.9rem;
+      font-size: 0.96rem;
       font-weight: 900;
       color: #ffffff;
       background: var(--card);
-      padding: 2px 9px;
+      padding: 3px 10px;
       border-radius: 7px;
       border: 1px solid var(--border);
       white-space: nowrap;
@@ -92,10 +92,10 @@
       background: #334155;
       color: #ffffff;
       border: 1px solid var(--border);
-      padding: 4px 10px;
+      padding: 5px 11px;
       border-radius: 8px;
       font-weight: 900;
-      font-size: 0.8rem;
+      font-size: 0.86rem;
       cursor: pointer;
       white-space: nowrap;
       flex-shrink: 0;
@@ -121,8 +121,8 @@
       flex: 1;
       width: 100%;
       display: grid;
-      grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.45fr);
-      gap: 8px;
+      grid-template-columns: minmax(0, 0.88fr) minmax(0, 1.42fr);
+      gap: 9px;
       align-items: start;
     }
     @media (max-width: 780px) and (orientation: portrait) {
@@ -135,11 +135,11 @@
       background: var(--card);
       border: 1px solid var(--border);
       border-radius: 10px;
-      padding: 6px 9px 9px 9px;
+      padding: 9px 11px 12px 11px;
       display: flex;
       flex-direction: column;
       justify-content: flex-start;
-      gap: 4px;
+      gap: 7px;
       min-width: 0;
     }
 
@@ -150,12 +150,12 @@
       flex-shrink: 0;
     }
     .tab-btn {
-      padding: 6px 8px;
+      padding: 7px 8px;
       border-radius: 8px;
       border: 1.5px solid var(--border);
       background: var(--card-2);
       color: var(--muted);
-      font-size: 0.88rem;
+      font-size: 0.94rem;
       font-weight: 900;
       cursor: pointer;
       display: flex;
@@ -169,11 +169,11 @@
       color: #ffffff;
     }
 
-    /* Mitad y mitad: campos a la izquierda, teclado numérico grande con teclas cuadradas a la derecha */
+    /* Mitad y mitad: campos legibles a la izquierda, teclado numérico cuadrado a la derecha */
     .entrada-y-teclado {
       display: grid;
       grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-      gap: 8px;
+      gap: 10px;
       align-items: start;
     }
     @media (max-width: 640px) {
@@ -185,21 +185,21 @@
     .campos-verticales {
       display: flex;
       flex-direction: column;
-      gap: 3px;
+      gap: 6px;
       min-width: 0;
       overflow-anchor: none;
     }
     .field {
       display: flex;
       flex-direction: column;
-      gap: 1px;
+      gap: 2px;
       min-width: 0;
     }
     label {
-      font-size: clamp(0.76rem, 0.95vw, 0.9rem);
+      font-size: 14px;
       font-weight: 900;
       color: var(--label);
-      line-height: 1.05;
+      line-height: 1.15;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -207,16 +207,16 @@
     input, select {
       width: 100%;
       min-width: 0;
-      height: clamp(27px, 3.2vh, 33px);
-      padding: 1px 7px;
-      font-size: clamp(0.86rem, 1.1vw, 1rem);
+      height: 38px;
+      padding: 4px 10px;
+      font-size: 15.5px;
       font-weight: 800;
       border-radius: 7px;
       border: 1.5px solid var(--border);
       background: var(--card-2);
       color: #ffffff;
     }
-    input::placeholder { color: #94a3b8; font-weight: 700; font-size: 0.78em; }
+    input::placeholder { color: #94a3b8; font-weight: 700; font-size: 14px; }
     input:focus, select:focus {
       outline: 2px solid #60a5fa;
       border-color: #60a5fa;
@@ -230,15 +230,15 @@
     .st-mp-pt-row {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 3px;
+      gap: 5px;
       width: 100%;
-      margin-bottom: 1px;
+      margin-bottom: 2px;
     }
     .mat-pill {
-      padding: 2px 3px;
-      font-size: clamp(0.74rem, 0.88vw, 0.84rem);
+      padding: 5px 4px;
+      font-size: 13.5px;
       font-weight: 900;
-      line-height: 1.05;
+      line-height: 1.1;
       border-radius: 6px;
       border: 1.5px solid var(--border);
       background: var(--card-2);
@@ -256,7 +256,7 @@
     .num-locked-box {
       width: 100%;
       min-width: 0;
-      height: clamp(27px, 3.2vh, 33px);
+      height: 38px;
       display: flex;
       align-items: center;
       border-radius: 7px;
@@ -271,8 +271,8 @@
       background: #0f1c33;
     }
     .prefijo-fijo {
-      padding: 0 0 0 7px;
-      font-size: clamp(0.86rem, 1.1vw, 1rem);
+      padding: 0 0 0 8px;
+      font-size: 15.5px;
       font-weight: 900;
       color: #93c5fd;
       user-select: none;
@@ -283,21 +283,21 @@
       background: transparent !important;
       box-shadow: none !important;
       height: 100%;
-      padding: 1px 7px 1px 3px;
+      padding: 4px 10px 4px 4px;
       outline: none !important;
       flex: 1;
       min-width: 0;
     }
 
-    /* Teclado numérico en la otra mitad, con botones cuadrados */
+    /* Teclado numérico en la otra mitad, con botones cuadrados y buena legibilidad */
     .fixed-numpad {
       background: var(--card-2);
       border: 1px solid var(--border);
       border-radius: 9px;
-      padding: 6px;
+      padding: 8px;
       display: flex;
       flex-direction: column;
-      gap: 5px;
+      gap: 6px;
       user-select: none;
       touch-action: manipulation;
       width: 100%;
@@ -305,8 +305,8 @@
     .numpad-header {
       display: flex;
       flex-direction: column;
-      gap: 1px;
-      font-size: 0.74rem;
+      gap: 2px;
+      font-size: 13.5px;
       font-weight: 800;
       color: #93c5fd;
       padding: 0 2px;
@@ -314,18 +314,18 @@
     .numpad-grid {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 5px;
+      gap: 6px;
     }
     .num-key {
       aspect-ratio: 1 / 1;
-      max-height: 54px;
+      max-height: 60px;
       width: 100%;
       justify-self: center;
       border-radius: 8px;
       border: 1.5px solid var(--border);
       background: #1e293b;
       color: #ffffff;
-      font-size: clamp(1.05rem, 1.5vw, 1.3rem);
+      font-size: 18px;
       font-weight: 900;
       cursor: pointer;
       display: flex;
@@ -347,21 +347,21 @@
       background: #3f1d24;
       border-color: #7f1d1d;
       color: #fca5a5;
-      font-size: 0.98rem;
+      font-size: 16px;
     }
 
     .error-msg {
       color: #fca5a5;
-      font-size: 0.82rem;
+      font-size: 14px;
       font-weight: 900;
-      min-height: 12px;
-      line-height: 1.1;
+      min-height: 16px;
+      line-height: 1.25;
       flex-shrink: 0;
     }
     .btn-submit {
       width: 100%;
-      padding: 8px 10px;
-      font-size: clamp(0.94rem, 1.25vw, 1.12rem);
+      padding: 11px 14px;
+      font-size: 16.5px;
       font-weight: 900;
       border-radius: 8px;
       border: none;
@@ -373,8 +373,8 @@
     }
     .btn-cancel-edit {
       width: 100%;
-      padding: 5px;
-      font-size: 0.82rem;
+      padding: 7px;
+      font-size: 14px;
       font-weight: 900;
       border-radius: 7px;
       border: 1px solid var(--border);
@@ -414,26 +414,26 @@
       border-left-color: var(--success);
     }
     .pedido-main {
-      font-size: 0.92rem;
+      font-size: 0.96rem;
       font-weight: 900;
       color: #ffffff;
       line-height: 1.2;
     }
     .pedido-sub {
-      font-size: 0.78rem;
+      font-size: 0.82rem;
       font-weight: 700;
       color: var(--muted);
       margin-top: 2px;
     }
     .pedido-progreso {
-      font-size: 0.78rem;
+      font-size: 0.82rem;
       font-weight: 900;
       color: #93c5fd;
       margin-top: 2px;
     }
     .tag {
       display: inline-block;
-      font-size: 0.68rem;
+      font-size: 0.7rem;
       font-weight: 900;
       text-transform: uppercase;
       padding: 2px 6px;
@@ -455,7 +455,7 @@
       border: none;
       border-radius: 7px;
       padding: 5px 8px;
-      font-size: 0.8rem;
+      font-size: 0.82rem;
       font-weight: 900;
       color: #ffffff;
       cursor: pointer;
@@ -1085,11 +1085,11 @@
     document.getElementById('campo-cantidad').classList.add('hidden');
     document.getElementById('select-clase-mat').value = '';
     document.getElementById('campo-otro-mat').classList.add('hidden');
-    document.getElementById('bloque-tipo-material').classList.add('hidden');
     prefijoSeleccionado = '';
     actualizarPrefijoVisual();
     document.querySelectorAll('.mat-pill').forEach(b => b.classList.remove('active'));
     document.getElementById('form-error').innerText = '';
+    actualizarVisibilidadClaseMaterial();
     seleccionarCampoNumerico(inputOpc);
   }
 
@@ -1175,39 +1175,53 @@
     }
 
     const tieneOpc = Boolean(opc);
-    const refCompleta = tieneReferenciaCompleta();
-    const tieneRefParcial = Boolean(numRef || prefijoSeleccionado);
-
-    if (!tieneOpc && !tieneRefParcial) {
-      err.innerText = 'Indica OPC o Material.';
-      seleccionarCampoNumerico(inputOpc);
-      return;
-    }
-
     if (tieneOpc && opc.length !== 4) {
       err.innerText = 'La OPC debe tener 4 dígitos.';
       seleccionarCampoNumerico(inputOpc);
       return;
     }
 
-    if (tieneRefParcial && !refCompleta) {
-      err.innerText = 'Selecciona ST, MP o PT y 5 dígitos.';
+    actualizarVisibilidadClaseMaterial();
+    const claseMaterial = tieneOpc ? obtenerClaseMaterialFinal() : '';
+
+    // Referencia completa si tiene prefijo ST/MP/PT y 5 dígitos exactos
+    const refCompleta = Boolean(prefijoSeleccionado && numRef.length === 5);
+
+    // Si hay OPC + Tipo de material rellenos, aunque haya marcado ST/MP/PT sin 5 dígitos, se permite y se omite el prefijo suelto
+    const permiteOmitirPrefijoIncompleto = Boolean(tieneOpc && claseMaterial && numRef.length === 0);
+
+    if (!tieneOpc && !refCompleta) {
+      if (prefijoSeleccionado || numRef) {
+        err.innerText = 'Selecciona ST, MP o PT y escribe los 5 dígitos de referencia.';
+        seleccionarCampoNumerico(inputNumRef);
+      } else {
+        err.innerText = 'Indica OPC o Material (5 dígitos).';
+        seleccionarCampoNumerico(inputOpc);
+      }
+      return;
+    }
+
+    if (numRef.length > 0 && numRef.length !== 5) {
+      err.innerText = 'El número de referencia debe tener 5 dígitos.';
       seleccionarCampoNumerico(inputNumRef);
       return;
     }
 
-    let claseMaterial = '';
-    if (tieneOpc && !refCompleta) {
-      claseMaterial = obtenerClaseMaterialFinal();
-      if (!claseMaterial) {
-        err.innerText = 'Indica el tipo de material.';
-        return;
-      }
+    if (prefijoSeleccionado && !refCompleta && !permiteOmitirPrefijoIncompleto) {
+      err.innerText = 'Escribe los 5 dígitos de referencia o desmarca ST/MP/PT si solo vas por OPC y tipo de material.';
+      seleccionarCampoNumerico(inputNumRef);
+      return;
     }
 
+    if (tieneOpc && !refCompleta && !claseMaterial) {
+      err.innerText = 'Indica el tipo de material o escribe los 5 dígitos de referencia.';
+      return;
+    }
+
+    const usarPrefijo = refCompleta;
     const nombreOp = sesionOp ? sesionOp.nombre : 'Operaria';
     const lineaTexto = `Línea ${numLinea}`;
-    const refTexto = refCompleta ? `${prefijoSeleccionado}-${numRef}` : '';
+    const refTexto = usarPrefijo ? `${prefijoSeleccionado}-${numRef}` : '';
     const resumenBase = [refTexto, opc ? `OPC ${opc}` : '', claseMaterial]
       .filter(Boolean)
       .join(' · ') || 'Pedido';
@@ -1223,8 +1237,8 @@
       material: codificarMetaEnMaterial(resumenBase, tiempoSel, cantidadNum, puestosFinales, venceMsPrevio),
       solicitado_por: nombreOp,
       opc: opc || null,
-      tipo_material: refCompleta ? prefijoSeleccionado : null,
-      num_referencia: refCompleta ? numRef : null,
+      tipo_material: usarPrefijo ? prefijoSeleccionado : null,
+      num_referencia: usarPrefijo ? numRef : null,
       clase_material: claseMaterial || null,
       lote: loteInput || 'FIFO',
       estado: yaCompletadoAlEditar ? 'completado' : 'pendiente',
@@ -1365,7 +1379,10 @@
   }
 
   function formatearDetallePedido(p) {
-    const refFmt = p.num_referencia ? (p.tipo_material ? `${p.tipo_material}-${p.num_referencia}` : p.num_referencia) : '';
+    const tieneRef5 = Boolean(p.num_referencia && String(p.num_referencia).trim().length === 5);
+    const refFmt = tieneRef5
+      ? (p.tipo_material ? `${p.tipo_material}-${p.num_referencia}` : p.num_referencia)
+      : '';
     const cant = Math.max(1, Number(p.cantidad) || 1);
     const cantTxt = cant > 1 ? `Cantidad: ${cant}` : '';
     const partes = [refFmt, p.opc ? `OPC ${p.opc}` : '', p.clase_material || '', cantTxt].filter(Boolean);
@@ -1440,11 +1457,11 @@
     ultimoRenderOp = firma;
 
     listaMios.innerHTML = misPedidos.length === 0
-      ? '<div style="color:var(--muted); font-weight:800; font-size:0.86rem;">Sin pedidos tuyos hoy.</div>'
+      ? '<div style="color:var(--muted); font-weight:800; font-size:0.88rem;">Sin pedidos tuyos hoy.</div>'
       : misPedidos.map((p, idx) => pintarTarjetaPedido(p, idx, true)).join('');
 
     listaCola.innerHTML = colaPedidos.length === 0
-      ? '<div style="color:var(--muted); font-weight:800; font-size:0.86rem;">Sin pedidos en cola.</div>'
+      ? '<div style="color:var(--muted); font-weight:800; font-size:0.88rem;">Sin pedidos en cola.</div>'
       : colaPedidos.map((p, idx) => {
           const esMio = nombreActual && (p.solicitado_por || '').toLowerCase() === nombreActual;
           return pintarTarjetaPedido(p, idx, esMio);
