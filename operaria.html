@@ -319,12 +319,12 @@
       min-width: 0;
     }
 
-    /* Teclado numérico fijo en pantalla */
+    /* Teclado numérico fijo en 3 columnas (memoria muscular) */
     .fixed-numpad {
       background: var(--card-2);
       border: 1px solid var(--border);
       border-radius: 10px;
-      padding: 7px;
+      padding: 8px;
       display: flex;
       flex-direction: column;
       gap: 6px;
@@ -342,16 +342,16 @@
     }
     .numpad-grid {
       display: grid;
-      grid-template-columns: repeat(6, minmax(0, 1fr));
+      grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 6px;
     }
     .num-key {
-      height: clamp(40px, 5.4vh, 50px);
+      height: clamp(42px, 5.6vh, 52px);
       border-radius: 8px;
       border: 1.5px solid var(--border);
       background: #1e293b;
       color: #ffffff;
-      font-size: clamp(1.1rem, 1.6vw, 1.35rem);
+      font-size: clamp(1.15rem, 1.7vw, 1.4rem);
       font-weight: 900;
       cursor: pointer;
       display: flex;
@@ -373,7 +373,7 @@
       background: #3f1d24;
       border-color: #7f1d1d;
       color: #fca5a5;
-      font-size: 0.96rem;
+      font-size: 1.05rem;
     }
 
     .error-msg {
@@ -587,7 +587,7 @@
           </div>
         </div>
 
-        <!-- Teclado numérico fijo -->
+        <!-- Teclado numérico fijo (disposición 3x4 clásica) -->
         <div class="fixed-numpad" aria-label="Teclado numérico fijo">
           <div class="numpad-header">
             <span>Teclado numérico</span>
@@ -599,13 +599,13 @@
             <button type="button" class="num-key" onpointerdown="pulsarNumero(event, '3')">3</button>
             <button type="button" class="num-key" onpointerdown="pulsarNumero(event, '4')">4</button>
             <button type="button" class="num-key" onpointerdown="pulsarNumero(event, '5')">5</button>
-            <button type="button" class="num-key key-del" onpointerdown="borrarNumero(event)">⌫</button>
             <button type="button" class="num-key" onpointerdown="pulsarNumero(event, '6')">6</button>
             <button type="button" class="num-key" onpointerdown="pulsarNumero(event, '7')">7</button>
             <button type="button" class="num-key" onpointerdown="pulsarNumero(event, '8')">8</button>
             <button type="button" class="num-key" onpointerdown="pulsarNumero(event, '9')">9</button>
-            <button type="button" class="num-key" onpointerdown="pulsarNumero(event, '0')">0</button>
             <button type="button" class="num-key key-clear" onpointerdown="limpiarCampoNumerico(event)">C</button>
+            <button type="button" class="num-key" onpointerdown="pulsarNumero(event, '0')">0</button>
+            <button type="button" class="num-key key-del" onpointerdown="borrarNumero(event)">⌫</button>
           </div>
         </div>
       </div>
@@ -935,7 +935,6 @@
 
   [inputOtroMat, inputLote].forEach(cerrarTecladoAlAceptar);
 
-  // Lógica del teclado numérico fijo
   const CAMPOS_NUMERICOS = [
     { el: inputOpc, nombre: 'OPC', maxLen: 4 },
     { el: inputLinea, nombre: 'Línea', maxLen: 4 },
