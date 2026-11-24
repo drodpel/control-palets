@@ -206,7 +206,6 @@
       gap: 5px;
     }
 
-    /* Campos a la izquierda | Teclado numérico + Botón Solicitar debajo a la derecha */
     .entrada-y-teclado {
       display: grid;
       grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
@@ -321,7 +320,6 @@
       min-width: 0;
     }
 
-    /* Columna derecha del formulario: teclado numérico sin etiquetas + botón SOLICITAR debajo */
     .keypad-and-action {
       display: flex;
       flex-direction: column;
@@ -414,7 +412,7 @@
 
     .pedido-card {
       background: var(--card-2);
-      border: 1px solid var(--border);
+      border: 1.5px solid var(--border);
       border-left: 6px solid var(--warning);
       border-radius: 8px;
       padding: 7px 10px;
@@ -429,8 +427,23 @@
       border-color: #60a5fa;
       border-left-color: #93c5fd;
     }
-    .pedido-card.completado {
-      border-left-color: var(--success);
+    /* Diferenciación visual clara cuando el pedido ya está listo */
+    .pedido-card.completado,
+    .pedido-card.es-mio.completado {
+      background: #052e16;
+      border-color: #22c55e;
+      border-left: 8px solid #4ade80;
+      box-shadow: inset 0 0 0 1px #16a34a66;
+    }
+    .pedido-card.completado .pedido-main {
+      color: #dcfce7;
+    }
+    .pedido-card.completado .pedido-sub {
+      color: #bbf7d0;
+    }
+    .pedido-info {
+      min-width: 0;
+      flex: 1;
     }
     .pedido-main {
       font-size: 0.96rem;
@@ -450,20 +463,30 @@
       color: #93c5fd;
       margin-top: 2px;
     }
+    /* Etiquetas siempre una al lado de la otra en horizontal */
+    .tags-row {
+      display: flex;
+      flex-wrap: nowrap;
+      align-items: center;
+      gap: 5px;
+      margin-top: 4px;
+      overflow-x: auto;
+    }
     .tag {
-      display: inline-block;
-      font-size: 0.7rem;
+      display: inline-flex;
+      align-items: center;
+      font-size: 0.72rem;
       font-weight: 900;
       text-transform: uppercase;
-      padding: 2px 6px;
+      padding: 2px 7px;
       border-radius: 5px;
-      margin-right: 4px;
-      margin-top: 3px;
+      white-space: nowrap;
+      flex-shrink: 0;
     }
-    .tag.pendiente { background: #d9770644; color: #fbbf24; }
-    .tag.completado { background: #16a34a55; color: #4ade80; }
-    .tag.mio { background: #2563eb88; color: #ffffff; }
-    .tag.tiempo { background: #7c3aed66; color: #ddd6fe; }
+    .tag.pendiente { background: #d9770644; color: #fbbf24; border: 1px solid #f59e0b55; }
+    .tag.completado { background: #16a34a; color: #ffffff; border: 1px solid #86efac; }
+    .tag.mio { background: #2563eb; color: #ffffff; }
+    .tag.tiempo { background: #7c3aed88; color: #ede9fe; }
 
     .acciones-card {
       display: flex;
@@ -536,7 +559,7 @@
 
                 <div class="field">
                   <label for="input-opc">OPC</label>
-                  <input type="text" id="input-opc" inputmode="none" pattern="\d{4}" maxlength="4" placeholder="4 dígitos">
+                  <input type="text" id="input-opc" inputmode="none" pattern="\d{4}" maxlength="4">
                 </div>
 
                 <div id="bloque-tipo-material" class="field hidden">
@@ -569,7 +592,7 @@
                   </div>
                   <div id="box-num-ref" class="num-locked-box">
                     <span id="prefijo-fijo-span" class="prefijo-fijo hidden"></span>
-                    <input type="text" id="input-num-ref" inputmode="none" pattern="\d{5}" maxlength="5" placeholder="5 dígitos">
+                    <input type="text" id="input-num-ref" inputmode="none" pattern="\d{5}" maxlength="5">
                   </div>
                 </div>
 
@@ -958,7 +981,7 @@
   const CAMPOS_NUMERICOS = [
     { el: inputLinea, nombre: 'Línea', maxLen: 4, soloDigitos: true },
     { el: inputOpc, nombre: 'OPC', maxLen: 4, soloDigitos: true },
-    { el: inputNumRef, nombre: 'Material (5 dígitos)', maxLen: 5, soloDigitos: true },
+    { el: inputNumRef, nombre: 'Material', maxLen: 5, soloDigitos: true },
     { el: inputLote, nombre: 'Lote', maxLen: 24, soloDigitos: false },
     { el: inputCantidad, nombre: 'Cantidad', maxLen: 3, soloDigitos: true }
   ];
@@ -1462,27 +1485,28 @@
     return partes.length > 0 ? partes.join(' · ') : (p.material_limpio || p.material || 'Material');
   }
 
-  function pintarTarjetaPedido(p, idx, esMio) {
+  function pintarTarjetaPedido(p, numeroCola, esMio) {
     const esListo = p.estado === 'completado';
     const hora = new Date(p.creado_en).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     const detalle = formatearDetallePedido(p);
     const loteTxt = (p.lote && p.lote !== 'FIFO') ? `Lote ${p.lote}` : 'FIFO';
     const sub = [loteTxt, hora, p.solicitado_por || ''].filter(Boolean).join(' · ');
-    const estadoTxt = esListo ? 'Listo' : 'Pendiente';
+    const estadoTxt = esListo ? '✓ Listo' : 'Pendiente';
     const horaVence = formatearHoraVencimiento(p);
     const cant = Math.max(1, Number(p.cantidad) || 1);
     const puestos = esListo ? cant : Math.max(0, Math.min(cant, Number(p.puestos) || 0));
     const progresoHtml = cant > 1
       ? `<div class="pedido-progreso">Cantidad pedida: ${cant} · Puestos ya: ${puestos} / ${cant}</div>`
       : '';
+    const prefijoTurno = (!esListo && numeroCola != null) ? `#${numeroCola} · ` : '';
 
     return `
       <div class="pedido-card ${p.estado} ${esMio ? 'es-mio' : ''}">
-        <div>
-          <div class="pedido-main">#${idx + 1} · ${p.linea} — ${detalle}</div>
+        <div class="pedido-info">
+          <div class="pedido-main">${prefijoTurno}${p.linea} — ${detalle}</div>
           <div class="pedido-sub">${sub}</div>
           ${progresoHtml}
-          <div>
+          <div class="tags-row">
             ${esMio ? '<span class="tag mio">Mío</span>' : ''}
             <span class="tag ${p.estado}">${estadoTxt}</span>
             ${p.tiempo_aviso ? `<span class="tag tiempo">${p.tiempo_aviso}${horaVence ? ` (${horaVence})` : ''}</span>` : ''}
@@ -1508,11 +1532,19 @@
       p => nombreActual && (p.solicitado_por || '').toLowerCase() === nombreActual
     );
 
+    // Cola visible (más reciente arriba, más antiguo abajo)
     const colaPedidos = pedidosHoyTodos.filter(p => {
       const esMio = nombreActual && (p.solicitado_por || '').toLowerCase() === nombreActual;
       if (p.estado === 'completado') return false;
       if (esPedidoConTiempo(p) && !esMio && !haVencidoTiempoPedido(p)) return false;
       return true;
+    });
+
+    // Posición real en la cola: #1 el más antiguo pendiente (primero en salir), número más alto el último en llegar
+    const posicionPorId = new Map();
+    const totalEnCola = colaPedidos.length;
+    colaPedidos.forEach((p, idx) => {
+      posicionPorId.set(String(p.id), totalEnCola - idx);
     });
 
     const contadorTxt = `(${peticionesHoyNombre.length})`;
@@ -1523,21 +1555,21 @@
     const minutoClave = Math.floor(Date.now() / 60000);
     const firma = JSON.stringify({
       m: minutoClave,
-      mios: misPedidos.map(p => [p.id, p.estado, p.material, p.lote, p.linea, p.puestos, p.cantidad]),
-      cola: colaPedidos.map(p => [p.id, p.estado, p.material, p.lote, p.linea, p.solicitado_por, p.puestos, p.cantidad])
+      mios: misPedidos.map(p => [p.id, p.estado, p.material, p.lote, p.linea, p.puestos, p.cantidad, posicionPorId.get(String(p.id)) || 0]),
+      cola: colaPedidos.map(p => [p.id, p.estado, p.material, p.lote, p.linea, p.solicitado_por, p.puestos, p.cantidad, posicionPorId.get(String(p.id)) || 0])
     });
     if (firma === ultimoRenderOp) return;
     ultimoRenderOp = firma;
 
     listaMios.innerHTML = misPedidos.length === 0
       ? '<div style="color:var(--muted); font-weight:800; font-size:0.88rem;">Sin pedidos tuyos hoy.</div>'
-      : misPedidos.map((p, idx) => pintarTarjetaPedido(p, idx, true)).join('');
+      : misPedidos.map(p => pintarTarjetaPedido(p, posicionPorId.get(String(p.id)) ?? null, true)).join('');
 
     listaCola.innerHTML = colaPedidos.length === 0
       ? '<div style="color:var(--muted); font-weight:800; font-size:0.88rem;">Sin pedidos en cola.</div>'
-      : colaPedidos.map((p, idx) => {
+      : colaPedidos.map(p => {
           const esMio = nombreActual && (p.solicitado_por || '').toLowerCase() === nombreActual;
-          return pintarTarjetaPedido(p, idx, esMio);
+          return pintarTarjetaPedido(p, posicionPorId.get(String(p.id)) ?? null, esMio);
         }).join('');
   }
 
