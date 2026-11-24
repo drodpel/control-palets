@@ -127,7 +127,7 @@
       flex: 1;
       width: 100%;
       display: grid;
-      grid-template-columns: minmax(0, 1.05fr) minmax(0, 1.15fr);
+      grid-template-columns: minmax(0, 1.08fr) minmax(0, 1.12fr);
       gap: 12px;
       align-items: stretch;
     }
@@ -145,11 +145,11 @@
       background: var(--card);
       border: 1px solid var(--border);
       border-radius: 12px;
-      padding: 12px 16px;
+      padding: 10px 14px;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      gap: 10px;
+      gap: 8px;
       min-width: 0;
       min-height: calc(100dvh - 68px);
     }
@@ -159,7 +159,7 @@
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      gap: 10px;
+      gap: 8px;
       overflow-anchor: none;
     }
 
@@ -207,7 +207,7 @@
     .row-2 {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 12px;
+      gap: 10px;
       align-items: end;
     }
     .row-2 > .field:only-child,
@@ -217,11 +217,11 @@
     .field {
       display: flex;
       flex-direction: column;
-      gap: 4px;
+      gap: 3px;
       min-width: 0;
     }
     label {
-      font-size: clamp(1rem, 1.45vw, 1.32rem);
+      font-size: clamp(0.95rem, 1.35vw, 1.2rem);
       font-weight: 900;
       color: var(--label);
       line-height: 1.15;
@@ -232,19 +232,24 @@
     input, select {
       width: 100%;
       min-width: 0;
-      height: clamp(44px, 6.4vh, 62px);
-      padding: 8px 12px;
-      font-size: clamp(1.08rem, 1.6vw, 1.42rem);
+      height: clamp(40px, 5.5vh, 52px);
+      padding: 6px 11px;
+      font-size: clamp(1.04rem, 1.5vw, 1.32rem);
       font-weight: 800;
-      border-radius: 10px;
+      border-radius: 9px;
       border: 1.5px solid var(--border);
       background: var(--card-2);
       color: #ffffff;
     }
-    input::placeholder { color: #94a3b8; font-weight: 700; font-size: 0.88em; }
+    input::placeholder { color: #94a3b8; font-weight: 700; font-size: 0.85em; }
     input:focus, select:focus {
       outline: 2px solid #60a5fa;
       border-color: #60a5fa;
+    }
+    input.keypad-target-active {
+      border-color: #60a5fa;
+      box-shadow: 0 0 0 2px #60a5fa55;
+      background: #0f1c33;
     }
 
     .ref-col {
@@ -260,8 +265,8 @@
       width: 100%;
     }
     .mat-pill {
-      padding: clamp(6px, 0.9vh, 10px) 4px;
-      font-size: clamp(0.9rem, 1.25vw, 1.12rem);
+      padding: clamp(5px, 0.8vh, 8px) 4px;
+      font-size: clamp(0.88rem, 1.2vw, 1.06rem);
       font-weight: 900;
       line-height: 1.1;
       border-radius: 8px;
@@ -281,21 +286,23 @@
     .num-locked-box {
       width: 100%;
       min-width: 0;
-      height: clamp(44px, 6.4vh, 62px);
+      height: clamp(40px, 5.5vh, 52px);
       display: flex;
       align-items: center;
-      border-radius: 10px;
+      border-radius: 9px;
       border: 1.5px solid var(--border);
       background: var(--card-2);
       overflow: hidden;
     }
+    .num-locked-box.keypad-box-active,
     .num-locked-box:focus-within {
-      outline: 2px solid #60a5fa;
       border-color: #60a5fa;
+      box-shadow: 0 0 0 2px #60a5fa55;
+      background: #0f1c33;
     }
     .prefijo-fijo {
       padding: 0 0 0 10px;
-      font-size: clamp(1.08rem, 1.6vw, 1.42rem);
+      font-size: clamp(1.04rem, 1.5vw, 1.32rem);
       font-weight: 900;
       color: #93c5fd;
       user-select: none;
@@ -303,27 +310,85 @@
     }
     .num-locked-box input {
       border: none;
-      background: transparent;
+      background: transparent !important;
+      box-shadow: none !important;
       height: 100%;
-      padding: 8px 12px 8px 4px;
+      padding: 6px 11px 6px 4px;
       outline: none !important;
       flex: 1;
       min-width: 0;
     }
 
-    .error-msg {
+    /* Teclado numérico fijo en pantalla */
+    .fixed-numpad {
+      background: var(--card-2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 7px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      user-select: none;
+      touch-action: manipulation;
+    }
+    .numpad-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.78rem;
+      font-weight: 800;
+      color: #93c5fd;
+      padding: 0 2px;
+    }
+    .numpad-grid {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 6px;
+    }
+    .num-key {
+      height: clamp(40px, 5.4vh, 50px);
+      border-radius: 8px;
+      border: 1.5px solid var(--border);
+      background: #1e293b;
+      color: #ffffff;
+      font-size: clamp(1.1rem, 1.6vw, 1.35rem);
+      font-weight: 900;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      touch-action: manipulation;
+    }
+    .num-key:active {
+      background: var(--primary);
+      border-color: #93c5fd;
+      transform: scale(0.97);
+    }
+    .num-key.key-del {
+      background: #334155;
+      color: #fbbf24;
+    }
+    .num-key.key-clear {
+      background: #3f1d24;
+      border-color: #7f1d1d;
       color: #fca5a5;
       font-size: 0.96rem;
+    }
+
+    .error-msg {
+      color: #fca5a5;
+      font-size: 0.92rem;
       font-weight: 900;
-      min-height: 18px;
+      min-height: 16px;
       flex-shrink: 0;
     }
     .btn-submit {
       width: 100%;
-      padding: clamp(12px, 2vh, 20px);
-      font-size: clamp(1.12rem, 1.75vw, 1.48rem);
+      padding: clamp(11px, 1.7vh, 17px);
+      font-size: clamp(1.08rem, 1.65vw, 1.4rem);
       font-weight: 900;
-      border-radius: 11px;
+      border-radius: 10px;
       border: none;
       background: var(--primary);
       color: #ffffff;
@@ -332,8 +397,8 @@
     }
     .btn-cancel-edit {
       width: 100%;
-      padding: 8px;
-      font-size: 0.94rem;
+      padding: 7px;
+      font-size: 0.9rem;
       font-weight: 900;
       border-radius: 8px;
       border: 1px solid var(--border);
@@ -452,12 +517,12 @@
         <div class="row-2">
           <div class="field">
             <label for="input-opc">OPC</label>
-            <input type="text" id="input-opc" inputmode="numeric" pattern="\d{4}" maxlength="4" enterkeyhint="done" placeholder="4 últimos dígitos">
+            <input type="text" id="input-opc" inputmode="none" pattern="\d{4}" maxlength="4" placeholder="4 últimos dígitos">
           </div>
 
           <div class="field">
             <label for="input-linea">Línea</label>
-            <input type="text" id="input-linea" inputmode="numeric" pattern="[0-9]*" enterkeyhint="done">
+            <input type="text" id="input-linea" inputmode="none" pattern="[0-9]*">
           </div>
         </div>
 
@@ -491,9 +556,9 @@
               <button type="button" class="mat-pill" data-mat="MP" onclick="seleccionarPrefijo('MP')">MP</button>
               <button type="button" class="mat-pill" data-mat="PT" onclick="seleccionarPrefijo('PT')">PT</button>
             </div>
-            <div class="num-locked-box">
+            <div id="box-num-ref" class="num-locked-box">
               <span id="prefijo-fijo-span" class="prefijo-fijo hidden"></span>
-              <input type="text" id="input-num-ref" inputmode="numeric" pattern="[0-9]*" enterkeyhint="done">
+              <input type="text" id="input-num-ref" inputmode="none" pattern="[0-9]*">
             </div>
           </div>
 
@@ -518,7 +583,29 @@
 
           <div id="campo-cantidad" class="field hidden">
             <label for="input-cantidad">Cantidad</label>
-            <input type="number" id="input-cantidad" min="1" step="1" value="1" inputmode="numeric" enterkeyhint="done">
+            <input type="text" id="input-cantidad" inputmode="none" pattern="[0-9]*" value="1">
+          </div>
+        </div>
+
+        <!-- Teclado numérico fijo -->
+        <div class="fixed-numpad" aria-label="Teclado numérico fijo">
+          <div class="numpad-header">
+            <span>Teclado numérico</span>
+            <span id="numpad-campo-label">Escribiendo en: OPC</span>
+          </div>
+          <div class="numpad-grid">
+            <button type="button" class="num-key" onpointerdown="pulsarNumero(event, '1')">1</button>
+            <button type="button" class="num-key" onpointerdown="pulsarNumero(event, '2')">2</button>
+            <button type="button" class="num-key" onpointerdown="pulsarNumero(event, '3')">3</button>
+            <button type="button" class="num-key" onpointerdown="pulsarNumero(event, '4')">4</button>
+            <button type="button" class="num-key" onpointerdown="pulsarNumero(event, '5')">5</button>
+            <button type="button" class="num-key key-del" onpointerdown="borrarNumero(event)">⌫</button>
+            <button type="button" class="num-key" onpointerdown="pulsarNumero(event, '6')">6</button>
+            <button type="button" class="num-key" onpointerdown="pulsarNumero(event, '7')">7</button>
+            <button type="button" class="num-key" onpointerdown="pulsarNumero(event, '8')">8</button>
+            <button type="button" class="num-key" onpointerdown="pulsarNumero(event, '9')">9</button>
+            <button type="button" class="num-key" onpointerdown="pulsarNumero(event, '0')">0</button>
+            <button type="button" class="num-key key-clear" onpointerdown="limpiarCampoNumerico(event)">C</button>
           </div>
         </div>
       </div>
@@ -812,6 +899,7 @@
     badge.classList.remove('hidden');
     badge.innerText = sesionOp.nombre;
     document.getElementById('btn-cambiar').classList.remove('hidden');
+    seleccionarCampoNumerico(inputOpc);
     cargarPedidos();
   }
 
@@ -843,28 +931,124 @@
   const selectTiempo = document.getElementById('select-tiempo');
   const inputCantidad = document.getElementById('input-cantidad');
   const prefijoSpan = document.getElementById('prefijo-fijo-span');
+  const boxNumRef = document.getElementById('box-num-ref');
 
-  [inputOpc, inputLinea, inputNumRef, inputOtroMat, inputLote, inputCantidad].forEach(cerrarTecladoAlAceptar);
+  [inputOtroMat, inputLote].forEach(cerrarTecladoAlAceptar);
 
-  inputLinea.addEventListener('input', (e) => {
-    e.target.value = e.target.value.replace(/\D/g, '');
+  // Lógica del teclado numérico fijo
+  const CAMPOS_NUMERICOS = [
+    { el: inputOpc, nombre: 'OPC', maxLen: 4 },
+    { el: inputLinea, nombre: 'Línea', maxLen: 4 },
+    { el: inputNumRef, nombre: 'Referencia', maxLen: 12 },
+    { el: inputCantidad, nombre: 'Cantidad', maxLen: 3 }
+  ];
+  let campoNumericoActivo = inputOpc;
+  let reemplazarEnSiguienteToque = false;
+
+  function seleccionarCampoNumerico(el, reemplazarInicial = false) {
+    if (!el) return;
+    campoNumericoActivo = el;
+    reemplazarEnSiguienteToque = Boolean(reemplazarInicial);
+
+    CAMPOS_NUMERICOS.forEach(item => {
+      item.el.classList.toggle('keypad-target-active', item.el === el);
+    });
+    if (boxNumRef) {
+      boxNumRef.classList.toggle('keypad-box-active', el === inputNumRef);
+    }
+
+    const meta = CAMPOS_NUMERICOS.find(item => item.el === el);
+    const lbl = document.getElementById('numpad-campo-label');
+    if (lbl && meta) {
+      lbl.textContent = `Escribiendo en: ${meta.nombre}`;
+    }
+  }
+
+  CAMPOS_NUMERICOS.forEach(item => {
+    item.el.addEventListener('focus', () => {
+      seleccionarCampoNumerico(item.el, item.el === inputCantidad);
+    });
+    item.el.addEventListener('pointerdown', () => {
+      seleccionarCampoNumerico(item.el, item.el === inputCantidad);
+    });
+    item.el.addEventListener('input', (e) => {
+      e.target.value = e.target.value.replace(/\D/g, '').slice(0, item.maxLen);
+      if (item.el === inputOpc || item.el === inputNumRef) {
+        actualizarVisibilidadClaseMaterial();
+      }
+    });
   });
-  inputOpc.addEventListener('input', (e) => {
-    e.target.value = e.target.value.replace(/\D/g, '').slice(0, 4);
-    actualizarVisibilidadClaseMaterial();
-  });
-  inputNumRef.addEventListener('input', (e) => {
-    e.target.value = e.target.value.replace(/\D/g, '');
-    actualizarVisibilidadClaseMaterial();
-  });
+
+  function sincronizarCambioCampoNumerico(el) {
+    if (el === inputOpc || el === inputNumRef) {
+      actualizarVisibilidadClaseMaterial();
+    }
+    if (el === inputOpc && inputOpc.value.length === 4) {
+      seleccionarCampoNumerico(inputLinea);
+      inputLinea.focus();
+    }
+  }
+
+  function pulsarNumero(ev, digito) {
+    if (ev) ev.preventDefault();
+    const target = (campoNumericoActivo && !campoNumericoActivo.closest('.hidden'))
+      ? campoNumericoActivo
+      : inputOpc;
+
+    seleccionarCampoNumerico(target, false);
+    const meta = CAMPOS_NUMERICOS.find(item => item.el === target);
+    const maxLen = meta ? meta.maxLen : 10;
+
+    let actual = target.value.replace(/\D/g, '');
+    if (reemplazarEnSiguienteToque) {
+      actual = '';
+      reemplazarEnSiguienteToque = false;
+    }
+    if (actual.length >= maxLen) return;
+
+    target.value = actual + digito;
+    target.focus();
+    sincronizarCambioCampoNumerico(target);
+  }
+
+  function borrarNumero(ev) {
+    if (ev) ev.preventDefault();
+    const target = (campoNumericoActivo && !campoNumericoActivo.closest('.hidden'))
+      ? campoNumericoActivo
+      : inputOpc;
+
+    seleccionarCampoNumerico(target, false);
+    const actual = target.value.replace(/\D/g, '');
+    target.value = actual.slice(0, -1);
+    target.focus();
+    sincronizarCambioCampoNumerico(target);
+  }
+
+  function limpiarCampoNumerico(ev) {
+    if (ev) ev.preventDefault();
+    const target = (campoNumericoActivo && !campoNumericoActivo.closest('.hidden'))
+      ? campoNumericoActivo
+      : inputOpc;
+
+    seleccionarCampoNumerico(target, false);
+    target.value = (target === inputCantidad) ? '1' : '';
+    if (target === inputCantidad) reemplazarEnSiguienteToque = true;
+    target.focus();
+    sincronizarCambioCampoNumerico(target);
+  }
 
   function alCambiarTiempo() {
     const valTiempo = selectTiempo.value;
     const campoCant = document.getElementById('campo-cantidad');
     const tieneTiempo = Boolean(valTiempo);
     campoCant.classList.toggle('hidden', !tieneTiempo);
-    if (tieneTiempo && (!inputCantidad.value || Number(inputCantidad.value) < 1)) {
-      inputCantidad.value = '1';
+    if (tieneTiempo) {
+      if (!inputCantidad.value || Number(inputCantidad.value) < 1) {
+        inputCantidad.value = '1';
+      }
+      seleccionarCampoNumerico(inputCantidad, true);
+    } else if (campoNumericoActivo === inputCantidad) {
+      seleccionarCampoNumerico(inputOpc);
     }
   }
 
@@ -889,6 +1073,7 @@
     });
     actualizarPrefijoVisual();
     actualizarVisibilidadClaseMaterial();
+    seleccionarCampoNumerico(inputNumRef);
     inputNumRef.focus();
   }
 
@@ -945,6 +1130,7 @@
     actualizarPrefijoVisual();
     document.querySelectorAll('.mat-pill').forEach(b => b.classList.remove('active'));
     document.getElementById('form-error').innerText = '';
+    seleccionarCampoNumerico(inputOpc);
   }
 
   function cancelarEdicion() {
@@ -988,6 +1174,7 @@
         inputOtroMat.value = claseGuardada;
       }
     }
+    seleccionarCampoNumerico(inputOpc);
   }
 
   function claveMaterial(item) {
@@ -1023,6 +1210,7 @@
 
     if (!numLinea) {
       err.innerText = 'Indica la línea.';
+      seleccionarCampoNumerico(inputLinea);
       return;
     }
 
@@ -1032,16 +1220,19 @@
 
     if (!tieneOpc && !tieneRefParcial) {
       err.innerText = 'Indica OPC o Referencia.';
+      seleccionarCampoNumerico(inputOpc);
       return;
     }
 
     if (tieneOpc && opc.length !== 4) {
       err.innerText = 'La OPC debe tener 4 números.';
+      seleccionarCampoNumerico(inputOpc);
       return;
     }
 
     if (tieneRefParcial && !refCompleta) {
       err.innerText = 'Completa ST, MP o PT y el número.';
+      seleccionarCampoNumerico(inputNumRef);
       return;
     }
 
